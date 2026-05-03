@@ -10,6 +10,7 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
 add_executable(qt_petri
     src/main.cpp
+    src/main.h
 )
 
 target_link_libraries(qt_petri

@@ -1,6 +1,16 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <QApplication>
+#include <QMainWindow>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsEllipseItem>
+#include <QGraphicsRectItem>
+#include <QToolBar>
+#include <QAction>
+#include <QGraphicsSceneMouseEvent>
+
 
 class PetriScene : public QGraphicsScene {
     Q_OBJECT
