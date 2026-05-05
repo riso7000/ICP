@@ -7,7 +7,7 @@
 
 class Arc : public QGraphicsLineItem {
 public:
-    Arc(QGraphicsItem* source, QGraphicsItem* dest, QGraphicsItem* parent = 0);
+    Arc(QGraphicsItem* source, QGraphicsItem* dest, int weight, QGraphicsItem* parent = 0);
 
     QGraphicsItem* getSource() const { return source; }
     QGraphicsItem* getDest()   const { return dest; }
@@ -17,9 +17,12 @@ protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget = nullptr) override;
 
+    QRectF boundingRect() const override;
+
 private:
     QGraphicsItem *source;
     QGraphicsItem *dest;
+    int weight;
 };
 
 #endif // ARC_H

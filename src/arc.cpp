@@ -5,10 +5,11 @@
 
 static const double ARROW_SIZE = 12.0; // size of the arrowhead
 
-Arc::Arc(QGraphicsItem* source, QGraphicsItem* dest, QGraphicsItem* parent)
+Arc::Arc(QGraphicsItem* source, QGraphicsItem* dest, int weight, QGraphicsItem* parent)
     : QGraphicsLineItem(parent),
       source(source),
-      dest(dest)
+      dest(dest),
+      weight(weight)
 {
     setPen(QPen(Qt::black, 2));
     setZValue(-1);
@@ -21,6 +22,15 @@ void Arc::updatePosition() {
     setLine(QLineF(p1, p2));
 }
 
+QRectF Arc::boundingRect() const {
+    // get the base bounding rect of the line
+    QRectF base = QGraphicsLineItem::boundingRect();
+
+    // expand it by enough to cover the arrowhead and text label
+    return base.adjusted(-ARROW_SIZE - 20, -ARROW_SIZE - 20,
+                          ARROW_SIZE + 20,  ARROW_SIZE + 20);
+}
+
 void Arc::paint(QPainter* painter,
                 const QStyleOptionGraphicsItem* option,
                 QWidget* widget)
@@ -28,13 +38,12 @@ void Arc::paint(QPainter* painter,
     QLineF l = line();
     if (l.length() < 1.0) return;
 
-    // find the point where the line hits the edge of the destination item
-    QPointF tip = l.p2(); // fallback to centre
+    // find the edge of the destination item
+    QPointF tip = l.p2();
     QPainterPath destShape = dest->shape();
 
     for (int i = 0; i < (int)l.length(); ++i) {
         QPointF p = l.pointAt(i / l.length());
-        // map from scene coordinates to dest item's local coordinates
         QPointF localP = dest->mapFromScene(p);
         if (destShape.contains(localP)) {
             tip = p;
@@ -42,11 +51,11 @@ void Arc::paint(QPainter* painter,
         }
     }
 
-    // shorten the line so it ends at the edge, not the centre
-    setLine(QLineF(l.p1(), tip));
-    QGraphicsLineItem::paint(painter, option, widget);
-    setLine(l); // restore full line for correct hit detection
+    // draw the line manually from source to tip (no setLine!)
+    painter->setPen(QPen(Qt::black, 2));
+    painter->drawLine(l.p1(), tip);
 
+    // arrowhead
     double angle = std::atan2(l.dy(), l.dx());
 
     QPointF base1(
@@ -64,4 +73,12 @@ void Arc::paint(QPainter* painter,
     painter->setPen(Qt::NoPen);
     painter->setBrush(Qt::black);
     painter->drawPolygon(arrowHead);
+
+    // weight label
+    QPointF mid(
+        (l.p1().x() + l.p2().x()) / 2.0,
+        (l.p1().y() + l.p2().y()) / 2.0
+    );
+    painter->setPen(Qt::black);
+    painter->drawText(mid + QPointF(-10, -5), QString::number(weight));
 }

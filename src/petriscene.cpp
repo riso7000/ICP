@@ -57,7 +57,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                         }
 
                         if (!alreadyConnected) {
-                            Arc* arc = new Arc(arcSource, clicked);
+                            Arc* arc = new Arc(arcSource, clicked, obj_id++);
                             addItem(arc);
                         }
                 }
