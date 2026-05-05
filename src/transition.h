@@ -19,6 +19,8 @@ protected:
                const QStyleOptionGraphicsItem* option,
                QWidget* widget) override;
 
+    QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+
 private:
     int id;
 

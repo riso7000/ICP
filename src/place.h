@@ -13,13 +13,18 @@ public:
     int getTokens() const { return tokens; }
     void setTokens(int t) { tokens = t; update(); } // update() triggers repaint
 
+
+protected:
+    void paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget) override;
+
+    QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+
 private:
     int id;
     int tokens;
 
-    void paint(QPainter* painter,
-               const QStyleOptionGraphicsItem* option,
-               QWidget* widget) override;
 };
 
 #endif // PLACE_H

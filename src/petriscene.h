@@ -17,6 +17,8 @@ protected:
 
 private:
     int obj_id;
+
+    QGraphicsItem* arcSource; // null when no source selected yet
 };
 
 #endif // PETRISCENE_H

@@ -18,14 +18,17 @@ int main(int argc, char* argv[]) {
     window.setCentralWidget(view);
 
     QToolBar* toolbar = window.addToolBar("Tools");
-    QAction* placeAction  = toolbar->addAction("Place (O)");
-    QAction* transAction  = toolbar->addAction("Transition (|)");
+    QAction* placeAction  = toolbar->addAction("Place");
+    QAction* transAction  = toolbar->addAction("Transition");
+    QAction* arcAction  = toolbar->addAction("Arc");
     QAction* selectAction = toolbar->addAction("Select");
 
     QObject::connect(placeAction, &QAction::triggered,
         [scene]{ scene->currentTool = PetriScene::PlaceTool; });
     QObject::connect(transAction, &QAction::triggered,
         [scene]{ scene->currentTool = PetriScene::TransitionTool; });
+    QObject::connect(arcAction, &QAction::triggered,
+        [scene]{ scene->currentTool = PetriScene::ArcTool; });
     QObject::connect(selectAction, &QAction::triggered,
         [scene]{ scene->currentTool = PetriScene::SelectTool; });
 
