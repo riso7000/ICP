@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(qt_petri)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -10,7 +10,10 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
 add_executable(qt_petri
     src/main.cpp
-    src/main.h
+    src/petriscene.cpp
+    src/petriscene.h
+    src/place.cpp
+    src/place.h
 )
 
 target_link_libraries(qt_petri

@@ -1,22 +1,26 @@
-// main.cpp
-#include "main.h"
+#include <QApplication>
+#include <QMainWindow>
+#include <QGraphicsView>
+#include <QPainter>
+#include <QToolBar>
+#include <QAction>
+#include "petriscene.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
     QMainWindow window;
-    auto* scene = new PetriScene();
+    PetriScene* scene = new PetriScene();
     scene->setSceneRect(0, 0, 1200, 800);
 
-    auto* view = new QGraphicsView(scene);
+    QGraphicsView* view = new QGraphicsView(scene);
     view->setRenderHint(QPainter::Antialiasing);
     window.setCentralWidget(view);
 
-    // Toolbar
-    auto* toolbar = window.addToolBar("Tools");
-    auto* placeAction = toolbar->addAction("Place (O)");
-    auto* transAction = toolbar->addAction("Transition (|)");
-    auto* selectAction = toolbar->addAction("Select");
+    QToolBar* toolbar = window.addToolBar("Tools");
+    QAction* placeAction  = toolbar->addAction("Place (O)");
+    QAction* transAction  = toolbar->addAction("Transition (|)");
+    QAction* selectAction = toolbar->addAction("Select");
 
     QObject::connect(placeAction, &QAction::triggered,
         [scene]{ scene->currentTool = PetriScene::PlaceTool; });
