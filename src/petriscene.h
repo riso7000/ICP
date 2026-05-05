@@ -3,7 +3,6 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
-#include "place.h"
 
 class PetriScene : public QGraphicsScene {
     Q_OBJECT

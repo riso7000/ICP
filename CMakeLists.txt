@@ -14,6 +14,8 @@ add_executable(qt_petri
     src/petriscene.h
     src/place.cpp
     src/place.h
+    src/transition.cpp
+    src/transition.h
 )
 
 target_link_libraries(qt_petri

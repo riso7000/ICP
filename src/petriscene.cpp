@@ -3,6 +3,9 @@
 #include <QPen>
 #include <QBrush>
 
+#include "place.h"
+#include "transition.h"
+
 PetriScene::PetriScene(QObject* parent)
     : QGraphicsScene(parent),
       currentTool(SelectTool),
@@ -16,11 +19,9 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
         addItem(place);
     }
     else if (currentTool == TransitionTool) {
-        auto* item = addRect(-15, -40, 30, 80,
-                             QPen(Qt::black), QBrush(Qt::darkGray));
-        item->setPos(event->scenePos());
-        item->setFlag(QGraphicsItem::ItemIsMovable);
-        item->setFlag(QGraphicsItem::ItemIsSelectable);
+        Transition* transition = new Transition(obj_id++);
+        transition->setPos(event->scenePos());
+        addItem(transition);
     }
     else {
         QGraphicsScene::mousePressEvent(event);
