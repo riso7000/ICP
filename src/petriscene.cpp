@@ -3,6 +3,7 @@
 #include <QPen>
 #include <QBrush>
 #include <QDebug>
+#include <QTimer>
 
 
 #include <algorithm>
@@ -211,29 +212,29 @@ void PetriScene::fireTransition(Transition* t) {
 }
 
 void PetriScene::stabilize() {
+    // Step 1: fire all immediate transitions until stable
     bool fired = true;
-
     while (fired) {
         fired = false;
 
-        // collect all currently fireable transitions
         std::vector<Transition*> fireable;
         for (Transition* t : transitions) {
-            if (isFireable(t))
+            if (t->isImmediate() && isFireable(t))
                 fireable.push_back(t);
         }
 
         if (fireable.empty()) break;
 
-        // fire all fireable transitions
         for (Transition* t : fireable) {
             fireTransition(t);
             fired = true;
         }
-
-        // update visual availability state
-        updateAvailability();
     }
+
+    updateAvailability();
+
+    // Step 2: schedule timers for timed transitions that are fireable
+    scheduleTimers();
 }
 
 void PetriScene::updateAvailability() {
@@ -242,5 +243,61 @@ void PetriScene::updateAvailability() {
             t->setAvailability(Transition::Available);
         else
             t->setAvailability(Transition::Disabled);
+    }
+}
+
+
+
+void PetriScene::scheduleTimers() {
+    for (Transition* t : transitions) {
+        if (t->isImmediate()) continue;     // skip immediate transitions
+        if (!isFireable(t)) continue;        // skip non-fireable transitions
+        if (t->timer) continue;              // timer already running
+
+        qDebug() << "Scheduling timer for transition" << t->getId()
+                 << "delay:" << t->delay_ms << "ms";
+
+        t->timer = new QTimer();
+        t->timer->setSingleShot(true);
+        t->setAvailability(Transition::Waiting);
+
+        // capture t by value so the lambda knows which transition fired
+        connect(t->timer, &QTimer::timeout, [this, t]() {
+            onTimerExpired(t);
+        });
+
+        t->timer->start(t->delay_ms);
+    }
+}
+
+
+
+void PetriScene::onTimerExpired(Transition* t) {
+    qDebug() << "Timer expired for transition" << t->getId();
+
+    // clean up the timer
+    delete t->timer;
+    t->timer = 0;
+
+    // check if still fireable at the moment of expiry
+    if (!isFireable(t)) {
+        qDebug() << "Timeout ignored - transition" << t->getId() << "no longer fireable";
+        return;
+    }
+
+    fireTransition(t);
+    updateAvailability();
+
+    // after firing, run immediate stabilization and reschedule timers
+    stabilize();
+}
+
+
+void PetriScene::cancelTimer(Transition* t) {
+    if (t->timer) {
+        t->timer->stop();
+        delete t->timer;
+        t->timer = 0;
+        qDebug() << "Cancelled timer for transition" << t->getId();
     }
 }

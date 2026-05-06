@@ -14,6 +14,7 @@ class Transition : public QGraphicsRectItem
 {
 public:
     enum Availability_enum { Available, Waiting, Disabled };
+    Availability_enum availability;
 
     Transition(int id, QGraphicsItem* parent = 0);
 
@@ -24,7 +25,11 @@ public:
     std::vector<Arc*> output_arcs;
 
 
-    Availability_enum availability;
+    int delay_ms; // 0 means immediate (no timer)
+    QTimer* timer; // null if not scheduled
+
+    bool isImmediate() const { return delay_ms == 0; }
+    void setDelay(int ms) { delay_ms = ms; }
 
 
 protected:
@@ -33,6 +38,7 @@ protected:
                QWidget* widget) override;
 
     QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
     int id;

@@ -18,13 +18,18 @@ public:
     PetriScene(QObject* parent = 0);
     void setTool(Tool tool);
 
-    bool isFireable(Transition* t);
-    void fireTransition(Transition* t);
+
     void stabilize();
-    void updateAvailability();
+    void scheduleTimers();
+    void onTimerExpired(Transition* t);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+
+    bool isFireable(Transition* t);
+    void fireTransition(Transition* t);
+    void updateAvailability();
+    void cancelTimer(Transition* t);
 
 private:
     int obj_id;
