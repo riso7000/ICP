@@ -82,3 +82,42 @@ void Arc::paint(QPainter* painter,
     painter->setPen(Qt::black);
     painter->drawText(mid + QPointF(-10, -5), QString::number(weight));
 }
+
+
+
+void Arc::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
+
+    if (!(flags() & QGraphicsItem::ItemIsSelectable)) return; // only in select mode
+
+    bool ok;
+    int value = QInputDialog::getInt(
+        NULL,            // parent widget
+        "Edit Weight",   // dialog title
+        "Weight:",       // label
+        weight,          // current value
+        1,               // minimum
+        999,             // maximum
+        1,               // step
+        &ok
+    );
+
+    if (ok) {
+        setWeight(value);
+    }
+
+    QGraphicsLineItem::mouseDoubleClickEvent(event);
+}
+
+
+QPainterPath Arc::shape() const {
+    QPainterPath path;
+
+    // create a stroked version of the line with a wider width
+    QPainterPathStroker stroker;
+    stroker.setWidth(20); // hitbox width in pixels, adjust to taste
+
+    path.moveTo(line().p1());
+    path.lineTo(line().p2());
+
+    return stroker.createStroke(path);
+}

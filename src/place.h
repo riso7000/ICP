@@ -4,6 +4,7 @@
 #include <QGraphicsEllipseItem>
 #include <QPainter>
 #include <QString>
+#include <QInputDialog>
 
 class Place : public QGraphicsEllipseItem {
 public:
@@ -20,6 +21,8 @@ protected:
                QWidget* widget) override;
 
     QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
     int id;

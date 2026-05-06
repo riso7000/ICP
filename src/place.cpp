@@ -39,3 +39,27 @@ QVariant Place::itemChange(GraphicsItemChange change, const QVariant& value) {
     }
     return QGraphicsItem::itemChange(change, value);
 }
+
+
+void Place::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
+
+    if (!(flags() & QGraphicsItem::ItemIsSelectable)) return; // only in select mode
+
+    bool ok;
+    int value = QInputDialog::getInt(
+        NULL,            // parent widget
+        "Edit Tokens",   // dialog title
+        "Tokens:",       // label
+        tokens,          // current value
+        0,               // minimum
+        999,             // maximum
+        1,               // step
+        &ok
+    );
+
+    if (ok) {
+        setTokens(value);
+    }
+
+    QGraphicsEllipseItem::mouseDoubleClickEvent(event);
+}

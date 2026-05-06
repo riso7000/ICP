@@ -4,6 +4,8 @@
 #include <QGraphicsLineItem>
 #include <QGraphicsItem>
 #include <QPainter>
+#include <QInputDialog>
+#include <QPainterPath>
 
 class Arc : public QGraphicsLineItem {
 public:
@@ -13,11 +15,17 @@ public:
     QGraphicsItem* getDest()   const { return dest; }
     void updatePosition(); // recalculates the line endpoints
 
+    void setWeight(int w) { weight = w; update(); } // update() triggers repaint
+
+    QPainterPath shape() const override;
+
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget = nullptr) override;
 
     QRectF boundingRect() const override;
+
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
     QGraphicsItem *source;
