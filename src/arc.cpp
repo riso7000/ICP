@@ -1,7 +1,8 @@
 // arc.cpp
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "arc.h"
 #include <QPointF>
-#include <cmath>
 
 static const double ARROW_SIZE = 12.0; // size of the arrowhead
 

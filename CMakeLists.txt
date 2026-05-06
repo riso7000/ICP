@@ -18,6 +18,8 @@ add_executable(qt_petri
     src/transition.h
     src/arc.cpp
     src/arc.h
+    src/net_def_io.cpp
+    third_party/nlohmann/json.hpp
 )
 
 target_link_libraries(qt_petri
