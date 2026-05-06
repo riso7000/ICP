@@ -61,31 +61,29 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                         }
 
                         if (!alreadyConnected) {
-                            Arc* arc = new Arc(arcSource, clicked, obj_id++);
+                            Arc* arc = new Arc(obj_id, arcSource, clicked, obj_id++);
 
-                            // cast to access the place/transition specific members
                             Transition* srcTrans  = dynamic_cast<Transition*>(arcSource);
                             Transition* destTrans = dynamic_cast<Transition*>(clicked);
-                            Place*      srcPlace  = dynamic_cast<Place*>(arcSource);
-                            Place*      destPlace = dynamic_cast<Place*>(clicked);
 
-                            if (srcTrans && destPlace) { // transition → place
-                                srcTrans->output_places.push_back(destPlace);
+                            if (srcTrans) {
+                                srcTrans->output_arcs.push_back(arc);
 
-                                /* qDebug() << "Transition" << srcTrans->getId()
-                                                 << "output places:";
-                                        for (Place* p : srcTrans->output_places)
-                                            qDebug() << "  Place" << p->getId(); */
+                                qDebug() << "Transition" << srcTrans->getId()
+                                          << "output arcs:";
+                                 for (Arc* a : srcTrans->output_arcs)
+                                     qDebug() << "  Arc" << a->getId();
                             }
-                            if (destTrans && srcPlace) { // place → transition
-                                destTrans->input_places.push_back(srcPlace);
 
-                                /* qDebug() << "Transition" << destTrans->getId()
-                                                 << "input places:";
-                                        for (Place* p : destTrans->input_places)
-                                            qDebug() << "  Place" << p->getId();
-                                            */
+                            if (destTrans) {
+                                destTrans->input_arcs.push_back(arc);
+
+                                qDebug() << "Transition" << destTrans->getId()
+                                          << "input arcs:";
+                                 for (Arc* a : destTrans->input_arcs)
+                                     qDebug() << "  Arc" << a->getId();
                             }
+
 
                             addItem(arc);
                         }
@@ -109,17 +107,17 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
             Place* srcPlace      = dynamic_cast<Place*>(clickedArc->getSource());
             Place* destPlace     = dynamic_cast<Place*>(clickedArc->getDest());
 
-            if (srcTrans && destPlace)
-                srcTrans->output_places.erase(
-                    std::remove(srcTrans->output_places.begin(),
-                                srcTrans->output_places.end(), destPlace),
-                    srcTrans->output_places.end());
+            if (srcTrans)
+                srcTrans->output_arcs.erase(
+                    std::remove(srcTrans->output_arcs.begin(),
+                                srcTrans->output_arcs.end(), clickedArc),
+                    srcTrans->output_arcs.end());
 
-            if (destTrans && srcPlace)
-                destTrans->input_places.erase(
-                    std::remove(destTrans->input_places.begin(),
-                                destTrans->input_places.end(), srcPlace),
-                    destTrans->input_places.end());
+            if (destTrans)
+                destTrans->input_arcs.erase(
+                    std::remove(destTrans->input_arcs.begin(),
+                                destTrans->input_arcs.end(), clickedArc),
+                    destTrans->input_arcs.end());
 
             removeItem(clickedArc);
             delete clickedArc;
@@ -139,17 +137,17 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                 Place*      srcPlace  = dynamic_cast<Place*>(arc->getSource());
                 Place*      destPlace = dynamic_cast<Place*>(arc->getDest());
 
-                if (srcTrans && destPlace)
-                    srcTrans->output_places.erase(
-                        std::remove(srcTrans->output_places.begin(),
-                                    srcTrans->output_places.end(), destPlace),
-                        srcTrans->output_places.end());
+                if (srcTrans)
+                    srcTrans->output_arcs.erase(
+                        std::remove(srcTrans->output_arcs.begin(),
+                                    srcTrans->output_arcs.end(), arc),
+                        srcTrans->output_arcs.end());
 
-                if (destTrans && srcPlace)
-                    destTrans->input_places.erase(
-                        std::remove(destTrans->input_places.begin(),
-                                    destTrans->input_places.end(), srcPlace),
-                        destTrans->input_places.end());
+                if (destTrans)
+                    destTrans->input_arcs.erase(
+                        std::remove(destTrans->input_arcs.begin(),
+                                    destTrans->input_arcs.end(), arc),
+                        destTrans->input_arcs.end());
 
                 removeItem(arc);
                 delete arc;

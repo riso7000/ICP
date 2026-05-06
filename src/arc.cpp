@@ -5,8 +5,9 @@
 
 static const double ARROW_SIZE = 12.0; // size of the arrowhead
 
-Arc::Arc(QGraphicsItem* source, QGraphicsItem* dest, int weight, QGraphicsItem* parent)
+Arc::Arc(int id, QGraphicsItem* source, QGraphicsItem* dest, int weight, QGraphicsItem* parent)
     : QGraphicsLineItem(parent),
+      id(id),
       source(source),
       dest(dest),
       weight(weight)

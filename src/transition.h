@@ -8,6 +8,8 @@
 
 #include "place.h"
 
+class Arc;
+
 class Transition : public QGraphicsRectItem
 {
 public:
@@ -15,8 +17,8 @@ public:
 
     int getId() const { return id; }
 
-    std::vector<Place*> input_places {};
-    std::vector<Place*> output_places {};
+    std::vector<Arc*> input_arcs;
+    std::vector<Arc*> output_arcs;
 
 
 protected:

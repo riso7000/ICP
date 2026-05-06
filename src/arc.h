@@ -9,10 +9,13 @@
 
 class Arc : public QGraphicsLineItem {
 public:
-    Arc(QGraphicsItem* source, QGraphicsItem* dest, int weight, QGraphicsItem* parent = 0);
+    Arc(int id, QGraphicsItem* source, QGraphicsItem* dest, int weight, QGraphicsItem* parent = 0);
 
     QGraphicsItem* getSource() const { return source; }
     QGraphicsItem* getDest()   const { return dest; }
+    int getWeight() const { return weight; }
+    int getId() const { return id; }
+
     void updatePosition(); // recalculates the line endpoints
 
     void setWeight(int w) { weight = w; update(); } // update() triggers repaint
@@ -31,6 +34,7 @@ private:
     QGraphicsItem *source;
     QGraphicsItem *dest;
     int weight;
+    int id;
 };
 
 #endif // ARC_H
