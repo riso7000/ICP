@@ -11,8 +11,6 @@ Place::Place(int id, int initial_tokens, QGraphicsItem* parent)
       id(id),
       tokens(initial_tokens)
 {
-    setFlag(QGraphicsItem::ItemIsMovable);
-    setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
     setPen(QPen(Qt::black));
     setBrush(QBrush(Qt::white));

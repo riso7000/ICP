@@ -69,3 +69,20 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
         QGraphicsScene::mousePressEvent(event);
     }
 }
+
+
+void PetriScene::setTool(Tool tool) {
+    currentTool = tool;
+
+    bool selectable = (tool == SelectTool);
+
+    foreach (QGraphicsItem* item, items()) {
+
+        bool isArc = dynamic_cast<Arc*>(item);
+
+        if (!isArc) {
+            item->setFlag(QGraphicsItem::ItemIsMovable,   selectable);
+        }
+        item->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    }
+}

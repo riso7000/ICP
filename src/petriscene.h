@@ -11,6 +11,7 @@ public:
     Tool currentTool;
 
     PetriScene(QObject* parent = 0);
+    void setTool(Tool tool);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;

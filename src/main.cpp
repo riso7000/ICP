@@ -24,13 +24,13 @@ int main(int argc, char* argv[]) {
     QAction* selectAction = toolbar->addAction("Select");
 
     QObject::connect(placeAction, &QAction::triggered,
-        [scene]{ scene->currentTool = PetriScene::PlaceTool; });
+        [scene]{ scene->setTool(PetriScene::PlaceTool); });
     QObject::connect(transAction, &QAction::triggered,
-        [scene]{ scene->currentTool = PetriScene::TransitionTool; });
+        [scene]{ scene->setTool(PetriScene::TransitionTool); });
     QObject::connect(arcAction, &QAction::triggered,
-        [scene]{ scene->currentTool = PetriScene::ArcTool; });
+        [scene]{scene->setTool(PetriScene::ArcTool); });
     QObject::connect(selectAction, &QAction::triggered,
-        [scene]{ scene->currentTool = PetriScene::SelectTool; });
+        [scene]{ scene->setTool(PetriScene::SelectTool); });
 
     window.resize(1280, 720);
     window.show();

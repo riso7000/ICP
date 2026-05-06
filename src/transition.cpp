@@ -7,8 +7,6 @@ Transition::Transition(int id, QGraphicsItem* parent)
     : QGraphicsRectItem(-15, -40, 30, 80, parent),
       id(id)
 {
-    setFlag(QGraphicsItem::ItemIsMovable);
-    setFlag(QGraphicsItem::ItemIsSelectable);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
     setPen(QPen(Qt::black));
     setBrush(QBrush(Qt::darkGray));
