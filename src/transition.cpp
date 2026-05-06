@@ -16,10 +16,7 @@ void Transition::paint(QPainter* painter,
                   const QStyleOptionGraphicsItem* option,
                   QWidget* widget)
 {
-    // First let the base class draw the circle
     QGraphicsRectItem::paint(painter, option, widget);
-
-    // Implement the rest later
 
 }
 

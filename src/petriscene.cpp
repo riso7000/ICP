@@ -65,6 +65,22 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
             arcSource = 0;
         }
     }
+    else if (currentTool == DeleteTool) {
+        QGraphicsItem* clicked = itemAt(event->scenePos(), QTransform());
+        if (!clicked) return;
+
+        // if it's a place or transition, also delete connected arcs
+        foreach (QGraphicsItem* item, items()) {
+            Arc* arc = dynamic_cast<Arc*>(item);
+            if (arc && (arc->getSource() == clicked || arc->getDest() == clicked)) {
+                removeItem(arc);
+                delete arc;
+            }
+        }
+
+        removeItem(clicked);
+        delete clicked;
+    }
     else {
         QGraphicsScene::mousePressEvent(event);
     }

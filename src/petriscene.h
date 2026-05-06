@@ -7,7 +7,7 @@
 class PetriScene : public QGraphicsScene {
     Q_OBJECT
 public:
-    enum Tool { SelectTool, PlaceTool, TransitionTool, ArcTool };
+    enum Tool { SelectTool, PlaceTool, TransitionTool, ArcTool, DeleteTool };
     Tool currentTool;
 
     PetriScene(QObject* parent = 0);

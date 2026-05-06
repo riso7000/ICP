@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
     QAction* transAction  = toolbar->addAction("Transition");
     QAction* arcAction  = toolbar->addAction("Arc");
     QAction* selectAction = toolbar->addAction("Select");
+    QAction* deleteAction = toolbar->addAction("Delete");
 
     QObject::connect(placeAction, &QAction::triggered,
         [scene]{ scene->setTool(PetriScene::PlaceTool); });
@@ -31,6 +32,8 @@ int main(int argc, char* argv[]) {
         [scene]{scene->setTool(PetriScene::ArcTool); });
     QObject::connect(selectAction, &QAction::triggered,
         [scene]{ scene->setTool(PetriScene::SelectTool); });
+    QObject::connect(deleteAction, &QAction::triggered,
+        [scene]{ scene->setTool(PetriScene::DeleteTool); });
 
     window.resize(1280, 720);
     window.show();
