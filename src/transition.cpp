@@ -5,17 +5,20 @@
 
 Transition::Transition(int id, QGraphicsItem* parent)
     : QGraphicsRectItem(-15, -40, 30, 80, parent),
-      id(id)
+      id(id),
+      availability(Disabled)
 {
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
     setPen(QPen(Qt::black));
-    setBrush(QBrush(Qt::darkGray));
 }
 
 void Transition::paint(QPainter* painter,
                   const QStyleOptionGraphicsItem* option,
                   QWidget* widget)
 {
+    if (availability == Available) setBrush(QBrush(Qt::green));
+    else if (availability == Waiting) setBrush(QBrush(Qt::blue));
+    else setBrush(QBrush(Qt::darkGray));
     QGraphicsRectItem::paint(painter, option, widget);
 
 }

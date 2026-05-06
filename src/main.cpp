@@ -35,6 +35,12 @@ int main(int argc, char* argv[]) {
     QObject::connect(deleteAction, &QAction::triggered,
         [scene]{ scene->setTool(PetriScene::DeleteTool); });
 
+
+    QAction* runAction = toolbar->addAction("Run");
+
+    QObject::connect(runAction, &QAction::triggered,
+        [scene]{ scene->stabilize(); });
+
     window.resize(1280, 720);
     window.show();
     return app.exec();

@@ -22,11 +22,13 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (currentTool == PlaceTool) {
         Place* place = new Place(obj_id++, obj_id);
         place->setPos(event->scenePos());
+        places.push_back(place);
         addItem(place);
     }
     else if (currentTool == TransitionTool) {
         Transition* transition = new Transition(obj_id++);
         transition->setPos(event->scenePos());
+        transitions.push_back(transition);
         addItem(transition);
     }
     else if (currentTool == ArcTool) {
@@ -134,8 +136,6 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
             foreach (Arc* arc, arcsToDelete) {
                 Transition* srcTrans  = dynamic_cast<Transition*>(arc->getSource());
                 Transition* destTrans = dynamic_cast<Transition*>(arc->getDest());
-                Place*      srcPlace  = dynamic_cast<Place*>(arc->getSource());
-                Place*      destPlace = dynamic_cast<Place*>(arc->getDest());
 
                 if (srcTrans)
                     srcTrans->output_arcs.erase(
@@ -152,7 +152,8 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                 removeItem(arc);
                 delete arc;
             }
-
+            if (clickedPlace) places.erase(std::remove(places.begin(), places.end(), clickedPlace), places.end());
+            if (clickedTrans) transitions.erase(std::remove(transitions.begin(), transitions.end(), clickedTrans), transitions.end());
             removeItem(clicked);
             delete clicked;
         }
@@ -176,5 +177,70 @@ void PetriScene::setTool(Tool tool) {
             item->setFlag(QGraphicsItem::ItemIsMovable,   selectable);
         }
         item->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    }
+}
+
+
+bool PetriScene::isFireable(Transition* t) {
+    for (Arc* arc : t->input_arcs) {
+        Place* place = dynamic_cast<Place*>(arc->getSource());
+        if (!place) continue;
+        if (place->getTokens() < arc->getWeight())
+            return false;
+    }
+    return true;
+}
+
+
+void PetriScene::fireTransition(Transition* t) {
+    // consume tokens from input places
+    for (Arc* arc : t->input_arcs) {
+        Place* place = dynamic_cast<Place*>(arc->getSource());
+        if (place)
+            place->setTokens(place->getTokens() - arc->getWeight());
+    }
+
+    // produce tokens in output places
+    for (Arc* arc : t->output_arcs) {
+        Place* place = dynamic_cast<Place*>(arc->getDest());
+        if (place)
+            place->setTokens(place->getTokens() + arc->getWeight());
+    }
+
+    qDebug() << "Fired transition" << t->getId();
+}
+
+void PetriScene::stabilize() {
+    bool fired = true;
+
+    while (fired) {
+        fired = false;
+
+        // collect all currently fireable transitions
+        std::vector<Transition*> fireable;
+        for (Transition* t : transitions) {
+            if (isFireable(t))
+                fireable.push_back(t);
+        }
+
+        if (fireable.empty()) break;
+
+        // fire all fireable transitions
+        for (Transition* t : fireable) {
+            fireTransition(t);
+            fired = true;
+        }
+
+        // update visual availability state
+        updateAvailability();
+    }
+}
+
+void PetriScene::updateAvailability() {
+    for (Transition* t : transitions) {
+        if (isFireable(t))
+            t->setAvailability(Transition::Available);
+        else
+            t->setAvailability(Transition::Disabled);
     }
 }
