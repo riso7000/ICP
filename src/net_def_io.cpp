@@ -4,7 +4,7 @@
 
 using json = nlohmann::json;
 
-int read_ned_def(std::string path) {
+int read_netdef(std::string path) {
     std::ifstream file(path);
     json data = json::parse(file);
 

@@ -1,0 +1,42 @@
+{
+    "transitions": [
+        {
+            "tname": "T1",
+            "tposx": 150,
+            "tposy": 20,
+            "trin": [
+                {
+                    "plname": "P1",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "P2",
+                    "tok": 3
+                }
+            ],
+            "when": "in [ atoi(valueof(\"in\")) == 1 ]",
+            "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
+        },
+        {
+            "tname": "T2",
+            "tposx": 200,
+            "tposy": 300,
+            "trin": [
+                {
+                    "plname": "P1",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "P3",
+                    "tok": 1
+                }
+            ],
+            "when": "in [ atoi(valueof(\"in\")) == 0 ]",
+            "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
+        }
+    ]
+}
