@@ -8,6 +8,10 @@
                 {
                     "plname": "P1",
                     "tok": 1
+                },
+                {
+                    "plname": "P2",
+                    "tok": 3
                 }
             ],
             "trout": [
@@ -16,7 +20,7 @@
                     "tok": 3
                 }
             ],
-            "when": "in [ atoi(valueof(\"in\")) == 1 ]",
+            "when": "input_event_name [ bool_expr_in_C_C++ ] @ delay_in_ms",
             "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
         },
         {
@@ -33,6 +37,10 @@
                 {
                     "plname": "P3",
                     "tok": 1
+                },
+                {
+                    "plname": "P4",
+                    "tok": 2
                 }
             ],
             "when": "in [ atoi(valueof(\"in\")) == 0 ]",
