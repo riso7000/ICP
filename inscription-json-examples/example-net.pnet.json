@@ -1,0 +1,228 @@
+{
+    "net_name": "TOF_PN",
+    "comment": "Timer to off, umí nastavit timeout a na požádání sdělit zbývající čas timeru.",
+    "inputs": [
+        "in",
+        "set_to",
+        "req_rt"
+    ],
+    "outputs": [
+        "out",
+        "rt"
+    ],
+    "variables": [
+        "int timeout = 5000"
+    ],
+    "places": [
+        {
+            "pname": "IDLE",
+            "pposx": 100,
+            "pposy": 200,
+            "init_tok": 1
+        },
+        {
+            "pname": "ACTIVE",
+            "pposx": 200,
+            "pposy": 100,
+            "init_tok": 0
+        },
+        {
+            "pname": "TIMING",
+            "pposx": 250,
+            "pposy": 150,
+            "init_tok": 0
+        }
+    ],
+    "transitions": [
+        {
+            "tname": "T_on",
+            "tposx": 150,
+            "tposy": 20,
+            "trin": [
+                {
+                    "plname": "IDLE",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "ACTIVE",
+                    "tok": 1
+                }
+            ],
+            "when": "in [ atoi(valueof(\"in\")) == 1 ]",
+            "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
+        },
+        {
+            "tname": "T_off_start",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "ACTIVE",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "TIMING",
+                    "tok": 1
+                }
+            ],
+            "when": "in [ atoi(valueof(\"in\")) == 0 ]",
+            "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
+        },
+        {
+            "tname": "T_cancel_off",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "TIMING",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "ACTIVE",
+                    "tok": 1
+                }
+            ],
+            "when": "in [ atoi(valueof(\"in\")) == 1 ]",
+            "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
+        },
+        {
+            "tname": "T_timeout_off",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "TIMING",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "IDLE",
+                    "tok": 1
+                }
+            ],
+            "when": "$timeout",
+            "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
+        },
+        {
+            "tname": "T_set_idle",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "IDLE",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "IDLE",
+                    "tok": 1
+                }
+            ],
+            "when": "set_to",
+            "do": "timeout = atoi(valueof(\"set_to\")); output(\"rt\", 0);"
+        },
+        {
+            "tname": "T_set_active",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "ACTIVE",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "ACTIVE",
+                    "tok": 1
+                }
+            ],
+            "when": "set_to",
+            "do": "timeout = atoi(valueof(\"set_to\")); output(\"rt\", timeout);"
+        },
+        {
+            "tname": "T_set_timing",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "TIMING",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "TIMING",
+                    "tok": 1
+                }
+            ],
+            "when": "set_to",
+            "do": "timeout = atoi(valueof(\"set_to\")); output(\"rt\", timeout - elapsed(\"TIMING\"));"
+        },
+        {
+            "tname": "T_req_idle",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "IDLE",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "IDLE",
+                    "tok": 1
+                }
+            ],
+            "when": "req_rt",
+            "do": "output(\"rt\", 0);"
+        },
+        {
+            "tname": "T_req_active",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "ACTIVE",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "ACTIVE",
+                    "tok": 1
+                }
+            ],
+            "when": "req_rt",
+            "do": "output(\"rt\", timeout);"
+        },
+        {
+            "tname": "T_req_active",
+            "tposx": 0,
+            "tposy": 0,
+            "trin": [
+                {
+                    "plname": "TIMING",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "TIMING",
+                    "tok": 1
+                }
+            ],
+            "when": "req_rt",
+            "do": "output(\"rt\", timeout - elapsed(\"TIMING\"));"
+        }
+    ]
+}

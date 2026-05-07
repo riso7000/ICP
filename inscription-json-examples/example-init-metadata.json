@@ -1,0 +1,19 @@
+{
+    "net_name": "network name",
+
+    "comment": "network description",
+
+    "inputs": [
+        "example input",
+        "another input"
+    ],
+
+    "outputs": [
+        "example output",
+        "another output"
+    ],
+
+    "variables": [
+        "int variable = 1000"
+    ]
+}

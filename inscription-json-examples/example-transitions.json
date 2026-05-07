@@ -1,0 +1,50 @@
+{
+    "transitions": [
+        {
+            "tname": "T1",
+            "tposx": 150,
+            "tposy": 20,
+            "trin": [
+                {
+                    "plname": "P1",
+                    "tok": 1
+                },
+                {
+                    "plname": "P2",
+                    "tok": 3
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "P2",
+                    "tok": 3
+                }
+            ],
+            "when": "input_event_name [ bool_expr_in_C_C++ ] @ delay_in_ms",
+            "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
+        },
+        {
+            "tname": "T2",
+            "tposx": 200,
+            "tposy": 300,
+            "trin": [
+                {
+                    "plname": "P1",
+                    "tok": 1
+                }
+            ],
+            "trout": [
+                {
+                    "plname": "P3",
+                    "tok": 1
+                },
+                {
+                    "plname": "P4",
+                    "tok": 2
+                }
+            ],
+            "when": "in [ atoi(valueof(\"in\")) == 0 ]",
+            "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
+        }
+    ]
+}
