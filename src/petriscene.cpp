@@ -187,12 +187,21 @@ void PetriScene::setTool(Tool tool) {
 
 
 bool PetriScene::isFireable(Transition* t) {
+
+    if (t->input_arcs.empty()) return false;
+
+    // check token counts
     for (Arc* arc : t->input_arcs) {
         Place* place = dynamic_cast<Place*>(arc->getSource());
         if (!place) continue;
         if (place->getTokens() < arc->getWeight())
             return false;
     }
+
+    // check guard
+    if (!evaluateGuard(t->guard))
+        return false;
+
     return true;
 }
 
@@ -305,13 +314,26 @@ void PetriScene::cancelTimer(Transition* t) {
 bool PetriScene::evaluateGuard(const QString& guard) {
     if (guard.isEmpty()) return true;
 
+    static int guardCounter = 0;
+    std::string scriptName = "guard_" + std::to_string(guardCounter++);
+
     std::string code = "bool __result = (" + guard.toStdString() + ");";
-    env.load("guard", code.c_str());
+
+    bool loaded = env.load(scriptName.c_str(), code.c_str());
+    if (!loaded) {
+        qDebug() << "CFlat failed to load guard:" << guard;
+        qDebug() << "Error:" << env.getErrorMessage();
+        return false;
+    }
 
     Cflat::Value* result = env.getVariable("__result");
-    if (result)
-        return CflatValueAs(result, bool);
-    return false;
+    if (!result) {
+        qDebug() << "__result variable not found after loading guard";
+        return false;
+    }
+    bool val = CflatValueAs(result, bool);
+    qDebug() << "Checked guard:" << guard << "got result:" << (val ? "true" : "false");
+    return CflatValueAs(result, bool);
 }
 
 
