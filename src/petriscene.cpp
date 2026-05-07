@@ -217,17 +217,13 @@ void PetriScene::stabilize() {
     while (fired) {
         fired = false;
 
-        std::vector<Transition*> fireable;
         for (Transition* t : transitions) {
-            if (t->isImmediate() && isFireable(t))
-                fireable.push_back(t);
-        }
-
-        if (fireable.empty()) break;
-
-        for (Transition* t : fireable) {
-            fireTransition(t);
-            fired = true;
+            if (t->isImmediate() && isFireable(t)) {
+                fireTransition(t);
+                fired = true;
+                break; // restart the loop after each firing
+                       // so we recheck all transitions with updated tokens
+            }
         }
     }
 
