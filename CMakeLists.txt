@@ -20,10 +20,16 @@ add_executable(qt_petri
     src/arc.h
     src/net_def_io.cpp
     third_party/nlohmann/json.hpp
+    third_party/Cflat/Cflat.cpp
 )
 
 target_link_libraries(qt_petri
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
+)
+
+target_include_directories(qt_petri PRIVATE
+    third_party/Cflat
+
 )

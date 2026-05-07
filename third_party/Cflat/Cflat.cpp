@@ -181,9 +181,7 @@ bool Type::isDecimal() const
 
 bool Type::isInteger() const
 {
-   return (mCategory == TypeCategory::BuiltIn && !isDecimal()) ||
-      mCategory == TypeCategory::Enum ||
-      mCategory == TypeCategory::EnumClass;
+   return (mCategory == TypeCategory::BuiltIn && !isDecimal()) || mCategory == TypeCategory::Enum;
 }
 
 bool Type::compatibleWith(const Type& pOther) const
@@ -873,7 +871,7 @@ Value* InstancesHolder::getVariable(const Identifier& pIdentifier) const
 
 Instance* InstancesHolder::registerInstance(const TypeUsage& pTypeUsage, const Identifier& pIdentifier)
 {
-   mInstances.emplace_back(pTypeUsage, pIdentifier);
+   mInstances.push_back(Instance(pTypeUsage, pIdentifier));
    return &mInstances.back();
 }
 
@@ -1405,6 +1403,12 @@ TypeHelper::Compatibility TypeHelper::getCompatibility(
 {
    if(pParameter == pArgument)
    {
+      if(pArgument.isReference() && pParameter.isReference() &&
+         pArgument.isConst() && !pParameter.isConst())
+      {
+         return Compatibility::Incompatible;
+      }
+
       return Compatibility::PerfectMatch;
    }
 
@@ -4333,6 +4337,11 @@ Expression* Environment::parseExpressionMultipleTokens(ParsingContext& pContext,
          tokenIndex++;
          expression = parseExpressionCast(pContext, CastType::Reinterpret, pTokenLastIndex);
       }
+      else if(strncmp(token.mStart, "const_cast", 10u) == 0)
+      {
+         tokenIndex++;
+         expression = parseExpressionCast(pContext, CastType::Const, pTokenLastIndex);
+      }
    }
    else if(token.mType == TokenType::String || token.mType == TokenType::WideString)
    {
@@ -5061,9 +5070,10 @@ bool Environment::isTemplate(ParsingContext& pContext, size_t pOpeningTokenIndex
             }
          }
 
-         bool isPointerOperator = false;
+         bool isPointerOrRefOperator = false;
 
-         if(tokens[operatorTokenIndex].mLength == 1u && tokens[operatorTokenIndex].mStart[0] == '*')
+         if(tokens[operatorTokenIndex].mLength == 1u &&
+            (tokens[operatorTokenIndex].mStart[0] == '*' || tokens[operatorTokenIndex].mStart[0] == '&'))
          {
             for(size_t i = operatorTokenIndex - 1u; i > pOpeningTokenIndex; i--)
             {
@@ -5072,16 +5082,17 @@ bool Environment::isTemplate(ParsingContext& pContext, size_t pOpeningTokenIndex
                const TypeUsage typeUsage = parseTypeUsage(pContext, operatorTokenIndex);
                pContext.mTokenIndex = cachedTokenIndex;
 
-               isPointerOperator = typeUsage.mType && typeUsage.isPointer();
+               isPointerOrRefOperator =
+                  typeUsage.mType && (typeUsage.isPointer() || typeUsage.isReference());
 
-               if(isPointerOperator)
+               if(isPointerOrRefOperator)
                {
                   break;
                }
             }
          }
 
-         if(!isPointerOperator)
+         if(!isPointerOrRefOperator)
          {
             return false;
          }
@@ -5150,6 +5161,16 @@ bool Environment::isCastAllowed(CastType pCastType, const TypeUsage& pFrom, cons
       {
          castAllowed = true;
       }
+      else if(pFrom.mType->mCategory == TypeCategory::EnumClass &&
+         pTo.mType->mCategory == TypeCategory::BuiltIn)
+      {
+         castAllowed = true;
+      }
+      else if(pFrom.mType->mCategory == TypeCategory::BuiltIn &&
+         pTo.mType->mCategory == TypeCategory::EnumClass)
+      {
+         castAllowed = true;
+      }
       else if(pFrom.mType->mCategory == TypeCategory::StructOrClass &&
          pFrom.isPointer() &&
          pTo.mType->mCategory == TypeCategory::StructOrClass &&
@@ -5172,6 +5193,9 @@ bool Environment::isCastAllowed(CastType pCastType, const TypeUsage& pFrom, cons
       castAllowed =
          pFrom.isPointer() &&
          pTo.isPointer();
+      break;
+   case CastType::Const:
+      castAllowed = pFrom.mType == pTo.mType;
       break;
    default:
       break;
@@ -7481,6 +7505,11 @@ void Environment::evaluateExpression(ExecutionContext& pContext, Expression* pEx
          {
             performInheritanceCast(pContext, valueToCast, targetTypeUsage, pOutValue);
          }
+         else if(expression->mCastType == CastType::Const)
+         {
+            *pOutValue = valueToCast;
+            pOutValue->mTypeUsage.mFlags = expression->getTypeUsage().mFlags;
+         }
       }
       break;
    case ExpressionType::Conditional:
@@ -8036,8 +8065,14 @@ void Environment::applyBinaryOperator(ExecutionContext& pContext, const Value& p
 
    if(leftIsNumericValue && rightIsNumericValue)
    {
-      const bool integerLeftValue = leftType->isInteger() || pLeft.mTypeUsage.isPointer();
-      const bool integerRightValue = rightType->isInteger() || pRight.mTypeUsage.isPointer();
+      const bool integerLeftValue =
+         leftType->isInteger() ||
+         leftType->mCategory == TypeCategory::EnumClass ||
+         pLeft.mTypeUsage.isPointer();
+      const bool integerRightValue =
+         rightType->isInteger() ||
+         rightType->mCategory == TypeCategory::EnumClass ||
+         pRight.mTypeUsage.isPointer();
       const bool integerValues = integerLeftValue && integerRightValue;
 
       int64_t leftValueAsInteger = getValueAsInteger(pLeft);
@@ -8303,11 +8338,13 @@ void Environment::performStaticCast(ExecutionContext& pContext, const Value& pVa
    }
    else
    {
-      if(sourceTypeUsage.mType->isInteger())
+      if(sourceTypeUsage.mType->isInteger() ||
+         sourceTypeUsage.mType->mCategory == TypeCategory::EnumClass)
       {
          const int64_t sourceValueAsInteger = getValueAsInteger(pValueToCast);
 
-         if(pTargetTypeUsage.mType->isInteger())
+         if(pTargetTypeUsage.mType->isInteger() ||
+            pTargetTypeUsage.mType->mCategory == TypeCategory::EnumClass)
          {
             setValueAsInteger(sourceValueAsInteger, pOutValue);
          }
@@ -8320,7 +8357,8 @@ void Environment::performStaticCast(ExecutionContext& pContext, const Value& pVa
       {
          const double sourceValueAsDecimal = getValueAsDecimal(pValueToCast);
 
-         if(pTargetTypeUsage.mType->isInteger())
+         if(pTargetTypeUsage.mType->isInteger() ||
+            pTargetTypeUsage.mType->mCategory == TypeCategory::EnumClass)
          {
             setValueAsInteger((int64_t)sourceValueAsDecimal, pOutValue);
          }

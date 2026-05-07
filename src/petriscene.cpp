@@ -16,8 +16,12 @@ PetriScene::PetriScene(QObject* parent)
     : QGraphicsScene(parent),
       currentTool(SelectTool),
       obj_id(0),
-      arcSource(0)
-{}
+      arcSource(0),
+      active(true),
+      sensorValue(42)
+{
+    env.load("vars", "bool active = true; int sensorValue = 42;");
+}
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (currentTool == PlaceTool) {
@@ -295,4 +299,28 @@ void PetriScene::cancelTimer(Transition* t) {
         t->timer = 0;
         qDebug() << "Cancelled timer for transition" << t->getId();
     }
+}
+
+
+bool PetriScene::evaluateGuard(const QString& guard) {
+    if (guard.isEmpty()) return true;
+
+    std::string code = "bool __result = (" + guard.toStdString() + ");";
+    env.load("guard", code.c_str());
+
+    Cflat::Value* result = env.getVariable("__result");
+    if (result)
+        return CflatValueAs(result, bool);
+    return false;
+}
+
+
+void PetriScene::setActive(bool value) {
+    Cflat::Value* v = env.getVariable("active");
+    if (v) CflatValueAs(v, bool) = value;
+}
+
+void PetriScene::setSensorValue(int value) {
+    Cflat::Value* v = env.getVariable("sensorValue");
+    if (v) CflatValueAs(v, int) = value;
 }

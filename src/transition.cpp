@@ -61,5 +61,15 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
     if (ok) setDelay(value);
 
+    QString g = QInputDialog::getText(
+        NULL,
+        "Edit Guard",
+        "Guard expression (leave empty for none):",
+        QLineEdit::Normal,
+        guard,
+        &ok
+    );
+    if (ok) guard = g;
+
     QGraphicsRectItem::mouseDoubleClickEvent(event);
 }

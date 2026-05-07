@@ -31,6 +31,8 @@ public:
     bool isImmediate() const { return delay_ms == 0; }
     void setDelay(int ms) { delay_ms = ms; }
 
+    QString guard;
+
 
 protected:
     void paint(QPainter* painter,
