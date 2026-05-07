@@ -4,11 +4,11 @@
 #include "transition.h"
 #include "arc.h"
 
-Transition::Transition(int id, QGraphicsItem* parent)
+Transition::Transition(int id, int delay, QGraphicsItem* parent)
     : QGraphicsRectItem(-15, -40, 30, 80, parent),
       id(id),
       availability(Disabled),
-      delay_ms(0),
+      delay_ms(delay),
       timer(0)
 {
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
@@ -19,8 +19,7 @@ void Transition::paint(QPainter* painter,
                   const QStyleOptionGraphicsItem* option,
                   QWidget* widget)
 {
-    if (availability == Available) setBrush(QBrush(Qt::green));
-    else if (availability == Waiting) setBrush(QBrush(Qt::blue));
+    if (availability == Waiting) setBrush(QBrush(Qt::blue));
     else setBrush(QBrush(Qt::darkGray));
     QGraphicsRectItem::paint(painter, option, widget);
 

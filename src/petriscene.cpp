@@ -21,13 +21,13 @@ PetriScene::PetriScene(QObject* parent)
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (currentTool == PlaceTool) {
-        Place* place = new Place(obj_id++, obj_id);
+        Place* place = new Place(obj_id++, 0);
         place->setPos(event->scenePos());
         places.push_back(place);
         addItem(place);
     }
     else if (currentTool == TransitionTool) {
-        Transition* transition = new Transition(obj_id++);
+        Transition* transition = new Transition(obj_id++, 0);
         transition->setPos(event->scenePos());
         transitions.push_back(transition);
         addItem(transition);
@@ -64,7 +64,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                         }
 
                         if (!alreadyConnected) {
-                            Arc* arc = new Arc(obj_id, arcSource, clicked, obj_id++);
+                            Arc* arc = new Arc(obj_id++, arcSource, clicked, 1);
 
                             Transition* srcTrans  = dynamic_cast<Transition*>(arcSource);
                             Transition* destTrans = dynamic_cast<Transition*>(clicked);
@@ -239,10 +239,9 @@ void PetriScene::stabilize() {
 
 void PetriScene::updateAvailability() {
     for (Transition* t : transitions) {
-        if (isFireable(t))
-            t->setAvailability(Transition::Available);
-        else
-            t->setAvailability(Transition::Disabled);
+        if (!isFireable(t))
+            cancelTimer(t);
+        t->setAvailability(t->timer ? Transition::Waiting : Transition::Disabled);
     }
 }
 
