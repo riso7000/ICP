@@ -1,5 +1,5 @@
 {
-    "net_name": "TOF_PN",
+    "petri_net_name": "TOF_PN",
     "comment": "Timer to off, umí nastavit timeout a na požádání sdělit zbývající čas timeru.",
     "inputs": [
         "in",
@@ -15,210 +15,210 @@
     ],
     "places": [
         {
-            "pname": "IDLE",
-            "pposx": 100,
-            "pposy": 200,
-            "init_tok": 1
+            "place_name": "IDLE",
+            "initial_tokens": 1,
+            "pos_x": 100,
+            "pos_y": 200
         },
         {
-            "pname": "ACTIVE",
-            "pposx": 200,
-            "pposy": 100,
-            "init_tok": 0
+            "place_name": "ACTIVE",
+            "initial_tokens": 0,
+            "pos_x": 200,
+            "pos_y": 100
         },
         {
-            "pname": "TIMING",
-            "pposx": 250,
-            "pposy": 150,
-            "init_tok": 0
+            "place_name": "TIMING",
+            "initial_tokens": 0,
+            "pos_x": 250,
+            "pos_y": 150
         }
     ],
     "transitions": [
         {
-            "tname": "T_on",
-            "tposx": 150,
-            "tposy": 20,
-            "trin": [
+            "transition_name": "T_on",
+            "pos_x": 150,
+            "pos_y": 20,
+            "in_transition": [
                 {
-                    "plname": "IDLE",
-                    "tok": 1
+                    "place_name": "IDLE",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "ACTIVE",
-                    "tok": 1
+                    "place_name": "ACTIVE",
+                    "tokens": 1
                 }
             ],
             "when": "in [ atoi(valueof(\"in\")) == 1 ]",
             "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
         },
         {
-            "tname": "T_off_start",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_off_start",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "ACTIVE",
-                    "tok": 1
+                    "place_name": "ACTIVE",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "TIMING",
-                    "tok": 1
+                    "place_name": "TIMING",
+                    "tokens": 1
                 }
             ],
             "when": "in [ atoi(valueof(\"in\")) == 0 ]",
             "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
         },
         {
-            "tname": "T_cancel_off",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_cancel_off",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "TIMING",
-                    "tok": 1
+                    "place_name": "TIMING",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "ACTIVE",
-                    "tok": 1
+                    "place_name": "ACTIVE",
+                    "tokens": 1
                 }
             ],
             "when": "in [ atoi(valueof(\"in\")) == 1 ]",
             "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
         },
         {
-            "tname": "T_timeout_off",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_timeout_off",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "TIMING",
-                    "tok": 1
+                    "place_name": "TIMING",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "IDLE",
-                    "tok": 1
+                    "place_name": "IDLE",
+                    "tokens": 1
                 }
             ],
-            "when": "$timeout",
+            "when": "@ timeout",
             "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
         },
         {
-            "tname": "T_set_idle",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_set_idle",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "IDLE",
-                    "tok": 1
+                    "place_name": "IDLE",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "IDLE",
-                    "tok": 1
+                    "place_name": "IDLE",
+                    "tokens": 1
                 }
             ],
             "when": "set_to",
             "do": "timeout = atoi(valueof(\"set_to\")); output(\"rt\", 0);"
         },
         {
-            "tname": "T_set_active",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_set_active",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "ACTIVE",
-                    "tok": 1
+                    "place_name": "ACTIVE",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "ACTIVE",
-                    "tok": 1
+                    "place_name": "ACTIVE",
+                    "tokens": 1
                 }
             ],
             "when": "set_to",
             "do": "timeout = atoi(valueof(\"set_to\")); output(\"rt\", timeout);"
         },
         {
-            "tname": "T_set_timing",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_set_timing",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "TIMING",
-                    "tok": 1
+                    "place_name": "TIMING",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "TIMING",
-                    "tok": 1
+                    "place_name": "TIMING",
+                    "tokens": 1
                 }
             ],
             "when": "set_to",
             "do": "timeout = atoi(valueof(\"set_to\")); output(\"rt\", timeout - elapsed(\"TIMING\"));"
         },
         {
-            "tname": "T_req_idle",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_req_idle",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "IDLE",
-                    "tok": 1
+                    "place_name": "IDLE",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "IDLE",
-                    "tok": 1
+                    "place_name": "IDLE",
+                    "tokens": 1
                 }
             ],
             "when": "req_rt",
             "do": "output(\"rt\", 0);"
         },
         {
-            "tname": "T_req_active",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_req_active",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "ACTIVE",
-                    "tok": 1
+                    "place_name": "ACTIVE",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "ACTIVE",
-                    "tok": 1
+                    "place_name": "ACTIVE",
+                    "tokens": 1
                 }
             ],
             "when": "req_rt",
             "do": "output(\"rt\", timeout);"
         },
         {
-            "tname": "T_req_active",
-            "tposx": 0,
-            "tposy": 0,
-            "trin": [
+            "transition_name": "T_req_active",
+            "pos_x": 0,
+            "pos_y": 0,
+            "in_transition": [
                 {
-                    "plname": "TIMING",
-                    "tok": 1
+                    "place_name": "TIMING",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "TIMING",
-                    "tok": 1
+                    "place_name": "TIMING",
+                    "tokens": 1
                 }
             ],
             "when": "req_rt",

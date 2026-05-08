@@ -1,46 +1,46 @@
 {
     "transitions": [
         {
-            "tname": "T1",
-            "tposx": 150,
-            "tposy": 20,
-            "trin": [
+            "transition_name": "T1",
+            "pos_x": 150,
+            "pos_y": 20,
+            "in_transition": [
                 {
-                    "plname": "P1",
-                    "tok": 1
+                    "place_name": "P1",
+                    "tokens": 1
                 },
                 {
-                    "plname": "P2",
-                    "tok": 3
+                    "place_name": "P2",
+                    "tokens": 3
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "P2",
-                    "tok": 3
+                    "place_name": "P2",
+                    "tokens": 3
                 }
             ],
             "when": "input_event_name [ bool_expr_in_C_C++ ] @ delay_in_ms",
             "do": "if (defined(\"set_to\")) { timeout = atoi(valueof(\"set_to\")); }"
         },
         {
-            "tname": "T2",
-            "tposx": 200,
-            "tposy": 300,
-            "trin": [
+            "transition_name": "T2",
+            "pos_x": 200,
+            "pos_y": 300,
+            "in_transition": [
                 {
-                    "plname": "P1",
-                    "tok": 1
+                    "place_name": "P1",
+                    "tokens": 1
                 }
             ],
-            "trout": [
+            "out_transition": [
                 {
-                    "plname": "P3",
-                    "tok": 1
+                    "place_name": "P3",
+                    "tokens": 1
                 },
                 {
-                    "plname": "P4",
-                    "tok": 2
+                    "place_name": "P4",
+                    "tokens": 2
                 }
             ],
             "when": "in [ atoi(valueof(\"in\")) == 0 ]",

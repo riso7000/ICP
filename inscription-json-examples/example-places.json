@@ -1,22 +1,22 @@
 {
     "places": [
         {
-            "pname": "P1",
-            "pposx": 100,
-            "pposy": 200,
-            "init_tok": 1
+            "place_name": "P1",
+            "initial_tokens": 1,
+            "pos_x": 100,
+            "pos_y": 200            
         },
         {
-            "pname": "P2",
-            "pposx": 200,
-            "pposy": 100,
-            "init_tok": 0
+            "place_name": "P2",
+            "initial_tokens": 0,
+            "pos_x": 200,
+            "pos_y": 100
         },
         {
-            "pname": "P3",
-            "pposx": 250,
-            "pposy": 150,
-            "init_tok": 3
+            "place_name": "P3",
+            "initial_tokens": 3,
+            "pos_x": 250,
+            "pos_y": 150
         }
     ]
 }
