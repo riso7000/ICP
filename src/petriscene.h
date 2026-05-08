@@ -29,6 +29,11 @@ public:
     Cflat::Environment env;
     bool active;
     int sensorValue;
+    QString name;
+    QString comment;
+    // Public for opening from and saving to file
+    std::vector<Transition*> transitions;
+    std::vector<Place*> places;
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -42,8 +47,6 @@ protected:
 
 private:
     int obj_id;
-    std::vector<Transition*> transitions;
-    std::vector<Place*> places;
 
     QGraphicsItem* arcSource; // null when no source selected yet
 };

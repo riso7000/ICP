@@ -19,8 +19,13 @@ int read_netdef(QString path, PetriScene& net) {
     using namespace std;
 
     QString contents;
-
     QFile input_file;
+    QJsonArray ins_arr;
+    QJsonArray outs_arr;
+    QJsonArray vars_arr;
+    QJsonArray places_arr;
+    QJsonArray transits_arr;
+
     input_file.setFileName(path);
     input_file.open(QIODevice::ReadOnly | QIODevice::Text);
     contents = input_file.readAll();
@@ -29,7 +34,62 @@ int read_netdef(QString path, PetriScene& net) {
     QJsonDocument doc = QJsonDocument::fromJson(contents.toUtf8());
     QJsonObject obj = doc.object();
 
+    // Retrieve root values
+    QJsonValue net_name = obj.value(JSONFLD_NET_NAME);
+    QJsonValue net_comment = obj.value(JSONFLD_COMMENT);
+    QJsonValue net_ins = obj.value(JSONFLD_INPUTS);
+    QJsonValue net_outs = obj.value(JSONFLD_OUTPUTS);
+    QJsonValue net_vars = obj.value(JSONFLD_VARS);
+    QJsonValue net_places = obj.value(JSONFLD_PLACES);
+    QJsonValue net_transits = obj.value(JSONFLD_TRANSITIONS);
 
+    if (net_name.isUndefined() || net_comment.isUndefined() || net_ins.isUndefined() || net_outs.isUndefined() ||
+        net_vars.isUndefined() || net_places.isUndefined() || net_transits.isUndefined()) {
+
+        cerr << "Error: A required key is missing in JSON." << endl;
+        return -1;
+    }
+
+    // Set metadata
+    net.name = net_name.toString();
+    net.comment = net_comment.toString();
+
+    // Set arrays for iteration
+    ins_arr = net_ins.toArray();
+    outs_arr = net_outs.toArray();
+    vars_arr = net_vars.toArray();
+    places_arr = net_places.toArray();
+    transits_arr = net_transits.toArray();
+
+    for (const QJsonValue& in_val : ins_arr) {
+        QString input = in_val.toString();
+        
+    }
+
+    for (const QJsonValue& out_val : outs_arr) {
+        QString output = out_val.toString();
+        
+    }
+
+    for (const QJsonValue& variable : vars_arr) {
+        QString variable_def = variable.toString();
+        
+    }
+
+    for (const QJsonValue& place_obj : places_arr) {
+        QJsonObject place = place_obj.toObject();
+
+        QString name = place.value(JSON_PL_NAME).toString();
+        int init_tok = place.value(JSON_PL_INIT_TOK).toInt();
+        int pos_x = place.value(JSON_POS_X).toInt();
+        int pos_y = place.value(JSON_POS_Y).toInt();
+    }
+
+    for (const QJsonValue& transit_obj : transits_arr) {
+        QJsonObject transit = transit_obj.toObject();
+
+
+    }
 
     return 0;
 }
