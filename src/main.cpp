@@ -62,11 +62,15 @@ int main(int argc, char* argv[]) {
 
 
     QToolBar* toolbar = window.addToolBar("Tools");
+    QAction* openAction  = toolbar->addAction("Open");
+    QAction* saveAction  = toolbar->addAction("Save");
     QAction* placeAction  = toolbar->addAction("Place");
     QAction* transAction  = toolbar->addAction("Transition");
     QAction* arcAction  = toolbar->addAction("Arc");
     QAction* selectAction = toolbar->addAction("Select");
     QAction* deleteAction = toolbar->addAction("Delete");
+
+    toolbar->setMovable(false);
 
     QObject::connect(placeAction, &QAction::triggered,
         [scene]{ scene->setTool(PetriScene::PlaceTool); });
@@ -79,6 +83,7 @@ int main(int argc, char* argv[]) {
     QObject::connect(deleteAction, &QAction::triggered,
         [scene]{ scene->setTool(PetriScene::DeleteTool); });
 
+    
 
     QAction* runAction = toolbar->addAction("Run");
 
