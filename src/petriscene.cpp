@@ -221,6 +221,11 @@ void PetriScene::fireTransition(Transition* t) {
             place->setTokens(place->getTokens() + arc->getWeight());
     }
 
+    if (!t->outputName.isEmpty()) {
+            qDebug() << "Output event emitted:" << t->outputName;
+            emit outputEmitted(t->outputName); // if you want the GUI to react
+        }
+
     qDebug() << "Fired transition" << t->getId();
 }
 
@@ -384,4 +389,45 @@ void PetriScene::postEvent(const QString& name) {
     // Step 3: after event-gated firings, re-stabilize the free transitions
     // because tokens may have moved into places that enable free transitions
     stabilize();
+}
+
+
+
+void PetriScene::startRun() {
+    currentMode = RunMode;
+    setTool(SelectTool); // lock editing tools
+
+    // disable movability of all items
+    for (QGraphicsItem* item : items())
+        item->setFlag(QGraphicsItem::ItemIsMovable, false);
+
+    // build and load the Cflat vars string from all three lists
+    rebuildCflatEnvironment();
+
+    // initial stabilization (fire any immediately enabled free transitions)
+    stabilize();
+}
+
+void PetriScene::stopRun() {
+    currentMode = EditMode;
+    // cancel all running timers
+    for (Transition* t : transitions)
+        cancelTimer(t);
+    // re-enable editing
+    setTool(SelectTool);
+}
+
+
+void PetriScene::rebuildCflatEnvironment() {
+    std::string code;
+    for (auto& v : variables)
+        code += v.type.toStdString() + " " + v.name.toStdString()
+              + " = " + v.initialValue.toString().toStdString() + ";\n";
+    env.load("vars", code.c_str());
+}
+
+
+void PetriScene::setInput(const QString& name) {
+    if (currentMode != RunMode) return;
+    postEvent(name);
 }

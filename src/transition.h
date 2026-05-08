@@ -33,6 +33,7 @@ public:
 
     QString guard;
     QString eventName; // empty = fires freely; non-empty = only on this event
+    QString outputName;
 
 
 protected:

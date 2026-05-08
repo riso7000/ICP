@@ -10,6 +10,9 @@
 #include <QTime>
 #include <QDockWidget>
 #include <QDebug>
+#include <QPushButton>
+#include <QFormLayout>
+#include <QLabel>
 
 // Global pointer to your log widget
 static QPlainTextEdit* globalLogWidget = nullptr;
@@ -45,53 +48,85 @@ int main(int argc, char* argv[]) {
     view->setRenderHint(QPainter::Antialiasing);
     window.setCentralWidget(view);
 
-
+    // --- Log dock ---
     globalLogWidget = new QPlainTextEdit();
     globalLogWidget->setReadOnly(true);
-    globalLogWidget->setBackgroundRole(QPalette::Base);
-
-    // 3. Put the widget into a Dock so it's at the bottom
     QDockWidget* logDock = new QDockWidget("Execution Log", &window);
     logDock->setWidget(globalLogWidget);
     window.addDockWidget(Qt::BottomDockWidgetArea, logDock);
-
-    // 4. Install the handler
     qInstallMessageHandler(myMessageOutput);
 
+    // --- Input panel dock ---
+    QWidget* inputPanel = new QWidget();
+    QDockWidget* inputDock = new QDockWidget("Inputs", &window);
+    inputDock->setWidget(inputPanel);
+    window.addDockWidget(Qt::RightDockWidgetArea, inputDock);
 
+    // Rebuilds the input panel buttons from current scene->inputs
+    auto rebuildInputPanel = [=]() {
+        // delete old layout and children
+        delete inputPanel->layout();
+        QList<QWidget*> children = inputPanel->findChildren<QWidget*>(
+            QString(), Qt::FindDirectChildrenOnly);
+        for (QWidget* w : children) delete w;
 
+        QFormLayout* form = new QFormLayout(inputPanel);
 
+        if (scene->currentMode == PetriScene::RunMode) {
+            for (auto& inp : scene->inputs) {
+                QPushButton* btn = new QPushButton(inp.name);
+                QObject::connect(btn, &QPushButton::clicked, [scene, name=inp.name]{
+                    scene->setInput(name);
+                });
+                form->addRow(btn);
+            }
+        } else {
+            // Edit mode: show a placeholder or an "add input" UI
+            form->addRow(new QLabel("Switch to Run mode to fire inputs."));
+        }
+    };
+
+    // --- Toolbar ---
     QToolBar* toolbar = window.addToolBar("Tools");
     QAction* placeAction  = toolbar->addAction("Place");
     QAction* transAction  = toolbar->addAction("Transition");
-    QAction* arcAction  = toolbar->addAction("Arc");
+    QAction* arcAction    = toolbar->addAction("Arc");
     QAction* selectAction = toolbar->addAction("Select");
     QAction* deleteAction = toolbar->addAction("Delete");
 
-    QObject::connect(placeAction, &QAction::triggered,
-        [scene]{ scene->setTool(PetriScene::PlaceTool); });
-    QObject::connect(transAction, &QAction::triggered,
-        [scene]{ scene->setTool(PetriScene::TransitionTool); });
-    QObject::connect(arcAction, &QAction::triggered,
-        [scene]{scene->setTool(PetriScene::ArcTool); });
-    QObject::connect(selectAction, &QAction::triggered,
-        [scene]{ scene->setTool(PetriScene::SelectTool); });
-    QObject::connect(deleteAction, &QAction::triggered,
-        [scene]{ scene->setTool(PetriScene::DeleteTool); });
+    QObject::connect(placeAction,  &QAction::triggered, [scene]{ scene->setTool(PetriScene::PlaceTool); });
+    QObject::connect(transAction,  &QAction::triggered, [scene]{ scene->setTool(PetriScene::TransitionTool); });
+    QObject::connect(arcAction,    &QAction::triggered, [scene]{ scene->setTool(PetriScene::ArcTool); });
+    QObject::connect(selectAction, &QAction::triggered, [scene]{ scene->setTool(PetriScene::SelectTool); });
+    QObject::connect(deleteAction, &QAction::triggered, [scene]{ scene->setTool(PetriScene::DeleteTool); });
 
+    QAction* runAction  = toolbar->addAction("Run");
+    QAction* stopAction = toolbar->addAction("Stop");
+    stopAction->setEnabled(false);
 
-    QAction* runAction = toolbar->addAction("Run");
+    QObject::connect(runAction, &QAction::triggered, [=]{
+        scene->startRun();
+        runAction->setEnabled(false);
+        stopAction->setEnabled(true);
+        // disable edit tools
+        for (QAction* a : {placeAction, transAction, arcAction, deleteAction})
+            a->setEnabled(false);
+        rebuildInputPanel();
+    });
 
-    QObject::connect(runAction, &QAction::triggered,
-        [scene]{ scene->stabilize(); });
+    QObject::connect(stopAction, &QAction::triggered, [=]{
+        scene->stopRun();
+        stopAction->setEnabled(false);
+        runAction->setEnabled(true);
+        for (QAction* a : {placeAction, transAction, arcAction, deleteAction})
+            a->setEnabled(true);
+        rebuildInputPanel();
+    });
 
+    rebuildInputPanel(); // initial build (edit mode placeholder)
 
     qDebug() << "Petri Net Editor Started.";
-
     window.resize(1280, 720);
     window.show();
     return app.exec();
 }
-
-
-
