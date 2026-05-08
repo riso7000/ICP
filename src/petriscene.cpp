@@ -16,18 +16,22 @@ PetriScene::PetriScene(QObject* parent)
     : QGraphicsScene(parent),
       currentTool(SelectTool),
       obj_id(0),
-      arcSource(0)
-{}
+      arcSource(0),
+      active(true),
+      sensorValue(42)
+{
+    env.load("vars", "bool active = true; int sensorValue = 42;");
+}
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (currentTool == PlaceTool) {
-        Place* place = new Place(obj_id++, obj_id);
+        Place* place = new Place(obj_id++, 0);
         place->setPos(event->scenePos());
         places.push_back(place);
         addItem(place);
     }
     else if (currentTool == TransitionTool) {
-        Transition* transition = new Transition(obj_id++);
+        Transition* transition = new Transition(obj_id++, 0);
         transition->setPos(event->scenePos());
         transitions.push_back(transition);
         addItem(transition);
@@ -64,7 +68,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                         }
 
                         if (!alreadyConnected) {
-                            Arc* arc = new Arc(obj_id, arcSource, clicked, obj_id++);
+                            Arc* arc = new Arc(obj_id++, arcSource, clicked, 1);
 
                             Transition* srcTrans  = dynamic_cast<Transition*>(arcSource);
                             Transition* destTrans = dynamic_cast<Transition*>(clicked);
@@ -183,12 +187,21 @@ void PetriScene::setTool(Tool tool) {
 
 
 bool PetriScene::isFireable(Transition* t) {
+
+    if (t->input_arcs.empty()) return false;
+
+    // check token counts
     for (Arc* arc : t->input_arcs) {
         Place* place = dynamic_cast<Place*>(arc->getSource());
         if (!place) continue;
         if (place->getTokens() < arc->getWeight())
             return false;
     }
+
+    // check guard
+    if (!evaluateGuard(t->guard))
+        return false;
+
     return true;
 }
 
@@ -217,17 +230,13 @@ void PetriScene::stabilize() {
     while (fired) {
         fired = false;
 
-        std::vector<Transition*> fireable;
         for (Transition* t : transitions) {
-            if (t->isImmediate() && isFireable(t))
-                fireable.push_back(t);
-        }
-
-        if (fireable.empty()) break;
-
-        for (Transition* t : fireable) {
-            fireTransition(t);
-            fired = true;
+            if (t->isImmediate() && isFireable(t)) {
+                fireTransition(t);
+                fired = true;
+                break; // restart the loop after each firing
+                       // so we recheck all transitions with updated tokens
+            }
         }
     }
 
@@ -239,10 +248,9 @@ void PetriScene::stabilize() {
 
 void PetriScene::updateAvailability() {
     for (Transition* t : transitions) {
-        if (isFireable(t))
-            t->setAvailability(Transition::Available);
-        else
-            t->setAvailability(Transition::Disabled);
+        if (!isFireable(t))
+            cancelTimer(t);
+        t->setAvailability(t->timer ? Transition::Waiting : Transition::Disabled);
     }
 }
 
@@ -300,4 +308,41 @@ void PetriScene::cancelTimer(Transition* t) {
         t->timer = 0;
         qDebug() << "Cancelled timer for transition" << t->getId();
     }
+}
+
+
+bool PetriScene::evaluateGuard(const QString& guard) {
+    if (guard.isEmpty()) return true;
+
+    static int guardCounter = 0;
+    std::string scriptName = "guard_" + std::to_string(guardCounter++);
+
+    std::string code = "bool __result = (" + guard.toStdString() + ");";
+
+    bool loaded = env.load(scriptName.c_str(), code.c_str());
+    if (!loaded) {
+        qDebug() << "CFlat failed to load guard:" << guard;
+        qDebug() << "Error:" << env.getErrorMessage();
+        return false;
+    }
+
+    Cflat::Value* result = env.getVariable("__result");
+    if (!result) {
+        qDebug() << "__result variable not found after loading guard";
+        return false;
+    }
+    bool val = CflatValueAs(result, bool);
+    qDebug() << "Checked guard:" << guard << "got result:" << (val ? "true" : "false");
+    return CflatValueAs(result, bool);
+}
+
+
+void PetriScene::setActive(bool value) {
+    Cflat::Value* v = env.getVariable("active");
+    if (v) CflatValueAs(v, bool) = value;
+}
+
+void PetriScene::setSensorValue(int value) {
+    Cflat::Value* v = env.getVariable("sensorValue");
+    if (v) CflatValueAs(v, int) = value;
 }

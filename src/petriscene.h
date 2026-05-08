@@ -8,6 +8,8 @@
 #include "transition.h"
 #include "place.h"
 
+#include "Cflat.h"
+
 
 class PetriScene : public QGraphicsScene {
     Q_OBJECT
@@ -17,11 +19,16 @@ public:
 
     PetriScene(QObject* parent = 0);
     void setTool(Tool tool);
-
+    void setActive(bool value);
+    void setSensorValue(int value);
 
     void stabilize();
     void scheduleTimers();
     void onTimerExpired(Transition* t);
+
+    Cflat::Environment env;
+    bool active;
+    int sensorValue;
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -30,6 +37,7 @@ protected:
     void fireTransition(Transition* t);
     void updateAvailability();
     void cancelTimer(Transition* t);
+    bool evaluateGuard(const QString& guard);
 
 private:
     int obj_id;

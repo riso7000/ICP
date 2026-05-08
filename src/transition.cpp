@@ -1,14 +1,21 @@
 #include <QGraphicsScene>
 #include <QTimer>
+#include <QDialog>
+#include <QFormLayout>
+#include <QSpinBox>
+#include <QLineEdit>
+#include <QTextEdit>
+#include <QDialogButtonBox>
 
 #include "transition.h"
 #include "arc.h"
+#include "properties_dialog.h"
 
-Transition::Transition(int id, QGraphicsItem* parent)
+Transition::Transition(int id, int delay, QGraphicsItem* parent)
     : QGraphicsRectItem(-15, -40, 30, 80, parent),
       id(id),
       availability(Disabled),
-      delay_ms(0),
+      delay_ms(delay),
       timer(0)
 {
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
@@ -19,8 +26,7 @@ void Transition::paint(QPainter* painter,
                   const QStyleOptionGraphicsItem* option,
                   QWidget* widget)
 {
-    if (availability == Available) setBrush(QBrush(Qt::green));
-    else if (availability == Waiting) setBrush(QBrush(Qt::blue));
+    if (availability == Waiting) setBrush(QBrush(Qt::blue));
     else setBrush(QBrush(Qt::darkGray));
     QGraphicsRectItem::paint(painter, option, widget);
 
@@ -44,23 +50,18 @@ QVariant Transition::itemChange(GraphicsItemChange change, const QVariant& value
 }
 
 
+
 void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     if (!(flags() & QGraphicsItem::ItemIsSelectable)) return;
 
-    bool ok;
-    // -1 means no timer, so show 0 as "enter 0 or more for timed, -1 for immediate"
-    int value = QInputDialog::getInt(
-        NULL,
-        "Edit Delay",
-        "Delay (ms), 0 for immediate:",
-        delay_ms,
-        0,     // minimum
-        999999, // maximum
-        1,
-        &ok
-    );
+    // 'widget' can usually be found via the view, or just pass NULL
+    TransitionPropertiesDialog dialog(delay_ms, guard);
 
-    if (ok) setDelay(value);
+    if (dialog.exec() == QDialog::Accepted) {
+        // Only update if the user clicked OK
+        setDelay(dialog.delaySpinBox->value());
+        guard = dialog.guardTextEdit->toPlainText();
+    }
 
     QGraphicsRectItem::mouseDoubleClickEvent(event);
 }
