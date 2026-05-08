@@ -88,12 +88,15 @@ int main(int argc, char* argv[]) {
 
     // --- Toolbar ---
     QToolBar* toolbar = window.addToolBar("Tools");
+    QAction* openAction  = toolbar->addAction("Open");
+    QAction* saveAction  = toolbar->addAction("Save");
     QAction* placeAction  = toolbar->addAction("Place");
     QAction* transAction  = toolbar->addAction("Transition");
     QAction* arcAction    = toolbar->addAction("Arc");
     QAction* selectAction = toolbar->addAction("Select");
     QAction* deleteAction = toolbar->addAction("Delete");
 
+<<<<<<< HEAD
     QObject::connect(placeAction,  &QAction::triggered, [scene]{ scene->setTool(PetriScene::PlaceTool); });
     QObject::connect(transAction,  &QAction::triggered, [scene]{ scene->setTool(PetriScene::TransitionTool); });
     QObject::connect(arcAction,    &QAction::triggered, [scene]{ scene->setTool(PetriScene::ArcTool); });
@@ -103,6 +106,22 @@ int main(int argc, char* argv[]) {
     QAction* runAction  = toolbar->addAction("Run");
     QAction* stopAction = toolbar->addAction("Stop");
     stopAction->setEnabled(false);
+=======
+    toolbar->setMovable(false);
+
+    QObject::connect(placeAction, &QAction::triggered,
+        [scene]{ scene->setTool(PetriScene::PlaceTool); });
+    QObject::connect(transAction, &QAction::triggered,
+        [scene]{ scene->setTool(PetriScene::TransitionTool); });
+    QObject::connect(arcAction, &QAction::triggered,
+        [scene]{scene->setTool(PetriScene::ArcTool); });
+    QObject::connect(selectAction, &QAction::triggered,
+        [scene]{ scene->setTool(PetriScene::SelectTool); });
+    QObject::connect(deleteAction, &QAction::triggered,
+        [scene]{ scene->setTool(PetriScene::DeleteTool); });
+
+    
+>>>>>>> refs/remotes/origin/main
 
     QObject::connect(runAction, &QAction::triggered, [=]{
         scene->startRun();

@@ -64,16 +64,20 @@ int read_netdef(QString path, PetriScene& net) {
     for (const QJsonValue& in_val : ins_arr) {
         QString input = in_val.toString();
         
+        // ADD TO INPUTS
     }
 
     for (const QJsonValue& out_val : outs_arr) {
         QString output = out_val.toString();
         
+        // ADD TO OUTPUTS
     }
 
     for (const QJsonValue& variable : vars_arr) {
         QString variable_def = variable.toString();
         
+        // PROCESS VARIABLE DEFINITION
+        // ADD IT TO VARIABLES
     }
 
     for (const QJsonValue& place_obj : places_arr) {
@@ -83,12 +87,14 @@ int read_netdef(QString path, PetriScene& net) {
         int init_tok = place.value(JSON_PL_INIT_TOK).toInt();
         int pos_x = place.value(JSON_POS_X).toInt();
         int pos_y = place.value(JSON_POS_Y).toInt();
+
+        // ADD OBJECT TO SCENE
     }
 
     for (const QJsonValue& transit_obj : transits_arr) {
         QJsonObject transit = transit_obj.toObject();
 
-
+        
     }
 
     return 0;
