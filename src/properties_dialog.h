@@ -7,12 +7,13 @@
 // Forward declarations to keep the header lean
 class QSpinBox;
 class QTextEdit;
+class QLineEdit;
 
 class TransitionPropertiesDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit TransitionPropertiesDialog(int currentDelay, const QString &currentGuard, QWidget *parent = nullptr);
+    explicit TransitionPropertiesDialog(int currentDelay, const QString &currentEventName, const QString &currentGuard, QWidget *parent = nullptr);
 
     // Getters to retrieve the data after the dialog closes
     int getDelay() const;
@@ -20,6 +21,7 @@ public:
 
 
     QSpinBox *delaySpinBox;
+    QLineEdit *eventLineEdit;
     QTextEdit *guardTextEdit;
 };
 

@@ -2,9 +2,10 @@
 #include <QFormLayout>
 #include <QSpinBox>
 #include <QTextEdit>
+#include <QLineEdit>
 #include <QDialogButtonBox>
 
-TransitionPropertiesDialog::TransitionPropertiesDialog(int currentDelay, const QString &currentGuard, QWidget *parent)
+TransitionPropertiesDialog::TransitionPropertiesDialog(int currentDelay, const QString &currentEventName, const QString &currentGuard, QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Edit Transition");
@@ -17,11 +18,16 @@ TransitionPropertiesDialog::TransitionPropertiesDialog(int currentDelay, const Q
     delaySpinBox->setValue(currentDelay);
     layout->addRow("Delay (ms):", delaySpinBox);
 
+    // Setup Event Input
+    eventLineEdit = new QLineEdit(this);
+    eventLineEdit->setText(currentEventName);
+    layout->addRow("Event input variable:", eventLineEdit);
+
     // Setup Guard Input
     guardTextEdit = new QTextEdit(this);
     guardTextEdit->setPlainText(currentGuard);
     guardTextEdit->setAcceptRichText(false);
-    guardTextEdit->setMaximumHeight(100);
+    guardTextEdit->setMaximumHeight(70);
     layout->addRow("Guard expression:", guardTextEdit);
 
     // Standard OK/Cancel buttons

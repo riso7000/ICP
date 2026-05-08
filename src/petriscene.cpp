@@ -231,6 +231,7 @@ void PetriScene::stabilize() {
         fired = false;
 
         for (Transition* t : transitions) {
+            if (!t->eventName.isEmpty()) continue;
             if (t->isImmediate() && isFireable(t)) {
                 fireTransition(t);
                 fired = true;
@@ -258,6 +259,7 @@ void PetriScene::updateAvailability() {
 
 void PetriScene::scheduleTimers() {
     for (Transition* t : transitions) {
+        if (!t->eventName.isEmpty()) continue;
         if (t->isImmediate()) continue;     // skip immediate transitions
         if (!isFireable(t)) continue;        // skip non-fireable transitions
         if (t->timer) continue;              // timer already running
@@ -340,9 +342,46 @@ bool PetriScene::evaluateGuard(const QString& guard) {
 void PetriScene::setActive(bool value) {
     Cflat::Value* v = env.getVariable("active");
     if (v) CflatValueAs(v, bool) = value;
+    postEvent("active"); // notify any transitions waiting on this
 }
 
 void PetriScene::setSensorValue(int value) {
     Cflat::Value* v = env.getVariable("sensorValue");
     if (v) CflatValueAs(v, int) = value;
+    postEvent("sensorValue");
+}
+
+
+void PetriScene::postEvent(const QString& name) {
+    // Step 1: fire immediate event-gated transitions for this event
+    bool fired = true;
+    while (fired) {
+        fired = false;
+        for (Transition* t : transitions) {
+            if (t->eventName != name) continue;
+            if (t->isImmediate() && isFireable(t)) {
+                fireTransition(t);
+                fired = true;
+                break;
+            }
+        }
+    }
+
+    // Step 2: schedule timed event-gated transitions for this event
+    for (Transition* t : transitions) {
+        if (t->eventName != name) continue;
+        if (t->isImmediate()) continue;
+        if (!isFireable(t)) continue;
+        if (t->timer) continue; // already scheduled
+
+        t->timer = new QTimer();
+        t->timer->setSingleShot(true);
+        t->setAvailability(Transition::Waiting);
+        connect(t->timer, &QTimer::timeout, [this, t]() { onTimerExpired(t); });
+        t->timer->start(t->delay_ms);
+    }
+
+    // Step 3: after event-gated firings, re-stabilize the free transitions
+    // because tokens may have moved into places that enable free transitions
+    stabilize();
 }

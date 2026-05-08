@@ -38,6 +38,7 @@ protected:
     void updateAvailability();
     void cancelTimer(Transition* t);
     bool evaluateGuard(const QString& guard);
+    void postEvent(const QString& name);
 
 private:
     int obj_id;

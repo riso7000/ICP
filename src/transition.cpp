@@ -55,12 +55,13 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     if (!(flags() & QGraphicsItem::ItemIsSelectable)) return;
 
     // 'widget' can usually be found via the view, or just pass NULL
-    TransitionPropertiesDialog dialog(delay_ms, guard);
+    TransitionPropertiesDialog dialog(delay_ms, eventName, guard);
 
     if (dialog.exec() == QDialog::Accepted) {
         // Only update if the user clicked OK
         setDelay(dialog.delaySpinBox->value());
         guard = dialog.guardTextEdit->toPlainText();
+        eventName = dialog.eventLineEdit->text();
     }
 
     QGraphicsRectItem::mouseDoubleClickEvent(event);
