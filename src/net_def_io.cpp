@@ -5,6 +5,8 @@
  */
 
 #include "net_def_io.hpp"
+#include "place.h"
+#include "transition.h"
 #include "petriscene.h"
 #include <iostream>
 #include <fstream>
@@ -85,15 +87,20 @@ int read_netdef(QString path, PetriScene& net) {
         net.variables.push_back({var_name, var_type, var_val});
     }
 
+    // Add places and draw them
     for (const QJsonValue& place_obj : places_arr) {
         QJsonObject place = place_obj.toObject();
 
         QString name = place.value(JSON_PL_NAME).toString();
         int init_tok = place.value(JSON_PL_INIT_TOK).toInt();
-        int pos_x = place.value(JSON_POS_X).toInt();
-        int pos_y = place.value(JSON_POS_Y).toInt();
+        double pos_x = place.value(JSON_POS_X).toDouble();
+        double pos_y = place.value(JSON_POS_Y).toDouble();
 
-        // ADD OBJECT TO SCENE
+        // Add object to scene
+        Place* pl = new Place(1, init_tok);
+        pl->setPos(pos_x, pos_y);
+        net.places.push_back(pl);
+        net.addItem(pl);
     }
 
     for (const QJsonValue& transit_obj : transits_arr) {
@@ -113,6 +120,7 @@ int write_netdef(PetriScene& net) {
 
     if (!OutputFile) {
         cerr << "Error: Failed to open output file." << endl;
+        return -1;
     }
 
     // Create JSON representation
@@ -149,10 +157,33 @@ int write_netdef(PetriScene& net) {
         net_variables.push_back(var_obj);
     }
 
-    // PLACES
+    // Add places to place array
+    for (const Place* pl : net.places) {
+        QJsonObject place;
+        QJsonValue name(pl->getId());
+        QJsonValue init_tok(pl->getInitTokens());
+        QJsonValue posx(pl->x());
+        QJsonValue posy(pl->y());
 
+        place.insert(JSON_PL_NAME, name);
+        place.insert(JSON_PL_INIT_TOK, init_tok);
+        place.insert(JSON_POS_X, posx);
+        place.insert(JSON_POS_Y, posy);
+
+        net_places.push_back(place);
+    }
 
     // TRANSITIONS
+    for (const Transition* tr : net.transitions) {
+        QJsonObject transit;
+        QJsonValue name(tr->getId());
+        QJsonValue posx(tr->x());
+        QJsonValue posy(tr->y());
+
+        transit.insert(JSON_TR_NAME, name);
+        transit.insert(JSON_POS_X, posx);
+        transit.insert(JSON_POS_Y, posy);
+    }
 
     // Add all parts to JSON root
     json_root.insert(JSONFLD_NET_NAME, net.name);

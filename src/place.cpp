@@ -15,6 +15,7 @@ Place::Place(int id, int initial_tokens, QGraphicsItem* parent)
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
     setPen(QPen(Qt::black));
     setBrush(QBrush(Qt::white));
+    init_tokens = initial_tokens;
 }
 
 void Place::paint(QPainter* painter,

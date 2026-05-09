@@ -12,6 +12,7 @@ public:
 
     int getId() const { return id; }
     int getTokens() const { return tokens; }
+    int getInitTokens() const { return init_tokens; }
     void setTokens(int t) { tokens = t; update(); } // update() triggers repaint
 
 
@@ -27,6 +28,7 @@ protected:
 private:
     int id;
     int tokens;
+    int init_tokens;
 
 };
 
