@@ -10,6 +10,7 @@
 #include "transition.h"
 #include "arc.h"
 #include "properties_dialog.h"
+#include "petriscene.h"
 
 Transition::Transition(int id, int delay, QGraphicsItem* parent)
     : QGraphicsRectItem(-15, -40, 30, 80, parent),
@@ -52,7 +53,9 @@ QVariant Transition::itemChange(GraphicsItemChange change, const QVariant& value
 
 
 void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
-    if (!(flags() & QGraphicsItem::ItemIsSelectable)) return;
+
+    PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
+    if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
 
     // 'widget' can usually be found via the view, or just pass NULL
     TransitionPropertiesDialog dialog(delay_ms, eventName, guard);

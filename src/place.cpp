@@ -3,6 +3,7 @@
 
 #include "place.h"
 #include "arc.h"
+#include "petriscene.h"
 
 
 
@@ -43,7 +44,8 @@ QVariant Place::itemChange(GraphicsItemChange change, const QVariant& value) {
 
 void Place::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
-    if (!(flags() & QGraphicsItem::ItemIsSelectable)) return; // only in select mode
+    PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
+    if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
 
     bool ok;
     int value = QInputDialog::getInt(

@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include "arc.h"
+#include "petriscene.h"
 #include <QPointF>
 
 static const double ARROW_SIZE = 12.0; // size of the arrowhead
@@ -89,7 +90,8 @@ void Arc::paint(QPainter* painter,
 
 void Arc::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
-    if (!(flags() & QGraphicsItem::ItemIsSelectable)) return; // only in select mode
+    PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
+    if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
 
     bool ok;
     int value = QInputDialog::getInt(

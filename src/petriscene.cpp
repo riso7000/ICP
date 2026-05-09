@@ -4,6 +4,7 @@
 #include <QBrush>
 #include <QDebug>
 #include <QTimer>
+#include <QRegularExpression>
 
 
 #include <algorithm>
@@ -320,11 +321,13 @@ void PetriScene::cancelTimer(Transition* t) {
 
 bool PetriScene::evaluateGuard(const QString& guard) {
     if (guard.isEmpty()) return true;
+    QString processed = preprocessGuard(guard);
+    qDebug() << "Guard after preprocessing:" << processed;
 
     static int guardCounter = 0;
     std::string scriptName = "guard_" + std::to_string(guardCounter++);
 
-    std::string code = "bool __result = (" + guard.toStdString() + ");";
+    std::string code = "bool __result = (" + processed.toStdString() + ");";
 
     bool loaded = env.load(scriptName.c_str(), code.c_str());
     if (!loaded) {
@@ -359,16 +362,10 @@ void PetriScene::setSensorValue(int value) {
 
 void PetriScene::postEvent(const QString& name) {
     // Step 1: fire immediate event-gated transitions for this event
-    bool fired = true;
-    while (fired) {
-        fired = false;
-        for (Transition* t : transitions) {
-            if (t->eventName != name) continue;
-            if (t->isImmediate() && isFireable(t)) {
-                fireTransition(t);
-                fired = true;
-                break;
-            }
+    for (Transition* t : transitions) {
+        if (t->eventName != name) continue;
+        if (t->isImmediate() && isFireable(t)) {
+            fireTransition(t);
         }
     }
 
@@ -377,7 +374,7 @@ void PetriScene::postEvent(const QString& name) {
         if (t->eventName != name) continue;
         if (t->isImmediate()) continue;
         if (!isFireable(t)) continue;
-        if (t->timer) continue; // already scheduled
+        if (t->timer) continue;
 
         t->timer = new QTimer();
         t->timer->setSingleShot(true);
@@ -427,7 +424,58 @@ void PetriScene::rebuildCflatEnvironment() {
 }
 
 
-void PetriScene::setInput(const QString& name) {
+void PetriScene::setInput(const QString& name, const QString& value) {
     if (currentMode != RunMode) return;
+    for (auto& i : inputs) {
+        if (i.name == name) {
+            i.value   = value;
+            i.defined = true;
+            break;
+        }
+    }
     postEvent(name);
+}
+
+
+QString PetriScene::preprocessGuard(const QString& guard) {
+    QString result = guard;
+
+    // replace atoi(valueof("name")) with the integer value directly
+    QRegularExpression ratoiv("atoi\\(valueof\\(\"([^\"]+)\"\\)\\)");
+    QRegularExpressionMatchIterator it = ratoiv.globalMatch(guard);
+    while (it.hasNext()) {
+        auto m = it.next();
+        QString inputName = m.captured(1);
+        int val = 0;
+        for (auto& i : inputs)
+            if (i.name == inputName) { val = i.value.toInt(); break; }
+        result.replace(m.captured(0), QString::number(val));
+    }
+
+    // replace valueof("name") with the integer value (for guards that use it directly)
+    QRegularExpression rvo("valueof\\(\"([^\"]+)\"\\)");
+    it = rvo.globalMatch(result);  // note: iterate over result, not guard
+    QRegularExpressionMatch m;
+    // rebuild since iterating over a string we're modifying is unsafe
+    while ((m = rvo.match(result)).hasMatch()) {
+        QString inputName = m.captured(1);
+        QString val = "";
+        for (auto& i : inputs)
+            if (i.name == inputName) { val = i.value; break; }
+        result.replace(m.captured(0), val);
+    }
+
+    // replace defined("name") with true/false
+    QRegularExpression rdef("defined\\(\"([^\"]+)\"\\)");
+    it = rdef.globalMatch(guard);
+    while (it.hasNext()) {
+        auto m = it.next();
+        QString inputName = m.captured(1);
+        bool def = false;
+        for (auto& i : inputs)
+            if (i.name == inputName) { def = i.defined; break; }
+        result.replace(m.captured(0), def ? "true" : "false");
+    }
+
+    return result;
 }

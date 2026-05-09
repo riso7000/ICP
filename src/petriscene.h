@@ -11,26 +11,24 @@
 #include "Cflat.h"
 
 
-struct NetInput {
-    QString name;
-
-};
-
-struct NetOutput {
-    QString name;
-
-};
-
-struct NetVariable {
-    QString name;
-    QString type;
-    QVariant initialValue;
-};
-
 
 class PetriScene : public QGraphicsScene {
     Q_OBJECT
 public:
+    struct NetInput {
+        QString name;
+        QString value;   // current string value
+        bool defined;    // whether a value has ever been sent
+    };
+    struct NetOutput {
+        QString name;
+    };
+
+    struct NetVariable {
+        QString name;
+        QString type;
+        QVariant initialValue;
+    };
     enum Tool { SelectTool, PlaceTool, TransitionTool, ArcTool, DeleteTool };
     Tool currentTool;
 
@@ -62,9 +60,12 @@ public:
     enum Mode { EditMode, RunMode };
     Mode currentMode = EditMode;
 
-    void setInput(const QString& name);
+    void setInput(const QString& name, const QString& value);
     void startRun();
     void stopRun();
+
+    void rebuildCflatEnvironment();
+    QString preprocessGuard(const QString& guard);
 
 
 signals:
@@ -79,7 +80,7 @@ protected:
     void cancelTimer(Transition* t);
     bool evaluateGuard(const QString& guard);
     void postEvent(const QString& name);
-    void rebuildCflatEnvironment();
+
 
 
 

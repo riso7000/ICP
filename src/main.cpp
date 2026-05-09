@@ -13,9 +13,12 @@
 #include <QPushButton>
 #include <QFormLayout>
 #include <QLabel>
+#include <QComboBox>
+#include <QDialogButtonBox>
 
 // Global pointer to your log widget
 static QPlainTextEdit* globalLogWidget = nullptr;
+std::function<void()> rebuildInputPanel;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     if (!globalLogWidget) return;
@@ -63,7 +66,7 @@ int main(int argc, char* argv[]) {
     window.addDockWidget(Qt::RightDockWidgetArea, inputDock);
 
     // Rebuilds the input panel buttons from current scene->inputs
-    auto rebuildInputPanel = [=]() {
+    rebuildInputPanel = [=]() {
         // delete old layout and children
         delete inputPanel->layout();
         QList<QWidget*> children = inputPanel->findChildren<QWidget*>(
@@ -74,15 +77,101 @@ int main(int argc, char* argv[]) {
 
         if (scene->currentMode == PetriScene::RunMode) {
             for (auto& inp : scene->inputs) {
-                QPushButton* btn = new QPushButton(inp.name);
-                QObject::connect(btn, &QPushButton::clicked, [scene, name=inp.name]{
-                    scene->setInput(name);
+                QHBoxLayout* row = new QHBoxLayout();
+                QLineEdit* edit = new QLineEdit(inp.value);
+                QPushButton* btn = new QPushButton("Send");
+                QObject::connect(btn, &QPushButton::clicked, [scene, edit, name=inp.name]{
+                    scene->setInput(name, edit->text());
                 });
-                form->addRow(btn);
+                row->addWidget(edit);
+                row->addWidget(btn);
+                QWidget* rowWidget = new QWidget();
+                rowWidget->setLayout(row);
+                form->addRow(inp.name, rowWidget);
             }
-        } else {
-            // Edit mode: show a placeholder or an "add input" UI
-            form->addRow(new QLabel("Switch to Run mode to fire inputs."));
+        }
+        else {
+            // --- Inputs section ---
+            form->addRow(new QLabel("<b>Inputs</b>"));
+            for (int i = 0; i < (int)scene->inputs.size(); i++) {
+                QHBoxLayout* row = new QHBoxLayout();
+                row->addWidget(new QLabel(scene->inputs[i].name));
+                QPushButton* del = new QPushButton("x");
+                del->setFixedWidth(24);
+                auto rebuild = rebuildInputPanel;
+                QObject::connect(del, &QPushButton::clicked, [scene, i, rebuild](){
+                    scene->inputs.erase(scene->inputs.begin() + i);
+                    scene->rebuildCflatEnvironment();
+                    rebuild();
+                });
+                row->addWidget(del);
+                QWidget* rowWidget = new QWidget();
+                rowWidget->setLayout(row);
+                form->addRow(rowWidget);
+            }
+            QPushButton* addInput = new QPushButton("+ Add Input");
+            QObject::connect(addInput, &QPushButton::clicked, [=](){
+                bool ok;
+                QString name = QInputDialog::getText(nullptr, "Add Input", "Name:", QLineEdit::Normal, "", &ok);
+                if (ok && !name.isEmpty()) {
+                    scene->inputs.push_back({name});
+                    auto rebuild = rebuildInputPanel;
+                    rebuild();
+                }
+            });
+            form->addRow(addInput);
+
+            // --- Variables section ---
+            form->addRow(new QLabel("<b>Variables</b>"));
+            for (int i = 0; i < (int)scene->variables.size(); i++) {
+                auto& v = scene->variables[i];
+                QHBoxLayout* row = new QHBoxLayout();
+                row->addWidget(new QLabel(v.type + " " + v.name + " = " + v.initialValue.toString()));
+                QPushButton* del = new QPushButton("x");
+                del->setFixedWidth(24);
+                auto rebuild = rebuildInputPanel;
+                QObject::connect(del, &QPushButton::clicked, [scene, i, rebuild](){
+                    scene->variables.erase(scene->variables.begin() + i);
+                    scene->rebuildCflatEnvironment();
+                    rebuild();
+                });
+                row->addWidget(del);
+                QWidget* rowWidget = new QWidget();
+                rowWidget->setLayout(row);
+                form->addRow(rowWidget);
+            }
+            QPushButton* addVar = new QPushButton("+ Add Variable");
+            QObject::connect(addVar, &QPushButton::clicked, [=](){
+                // small dialog to pick type, name, initial value
+                QDialog dlg;
+                dlg.setWindowTitle("Add Variable");
+                QFormLayout* f = new QFormLayout(&dlg);
+
+                QComboBox* typeBox = new QComboBox();
+                typeBox->addItems({"bool", "int"});
+                QLineEdit* nameEdit = new QLineEdit();
+                QLineEdit* valueEdit = new QLineEdit("0");
+                QDialogButtonBox* btns = new QDialogButtonBox(
+                    QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+                QObject::connect(btns, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+                QObject::connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+
+                f->addRow("Type:",          typeBox);
+                f->addRow("Name:",          nameEdit);
+                f->addRow("Initial value:", valueEdit);
+                f->addRow(btns);
+
+                if (dlg.exec() == QDialog::Accepted && !nameEdit->text().isEmpty()) {
+                    PetriScene::NetVariable var;
+                    var.type         = typeBox->currentText();
+                    var.name         = nameEdit->text();
+                    var.initialValue = valueEdit->text();
+                    scene->variables.push_back(var);
+                    auto rebuild = rebuildInputPanel;
+                    rebuild();
+                }
+            });
+            form->addRow(addVar);
         }
     };
 
@@ -118,7 +207,8 @@ int main(int argc, char* argv[]) {
         // disable edit tools
         for (QAction* a : {placeAction, transAction, arcAction, deleteAction})
             a->setEnabled(false);
-        rebuildInputPanel();
+        auto rebuild = rebuildInputPanel;
+        rebuild();
     });
 
     QObject::connect(stopAction, &QAction::triggered, [=]{
@@ -127,7 +217,8 @@ int main(int argc, char* argv[]) {
         runAction->setEnabled(true);
         for (QAction* a : {placeAction, transAction, arcAction, deleteAction})
             a->setEnabled(true);
-        rebuildInputPanel();
+        auto rebuild = rebuildInputPanel;
+        rebuild();
     });
 
     rebuildInputPanel(); // initial build (edit mode placeholder)
