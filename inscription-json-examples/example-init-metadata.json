@@ -14,6 +14,10 @@
     ],
 
     "variables": [
-        "int variable = 1000"
+        {
+            "var_name": "timeout",
+            "var_type": "int",
+            "init_val": "1000"
+        }
     ]
 }

@@ -11,7 +11,11 @@
         "rt"
     ],
     "variables": [
-        "int timeout = 5000"
+        {
+            "var_name": "timeout",
+            "var_type": "int",
+            "initial_val": "5000"
+        }
     ],
     "places": [
         {

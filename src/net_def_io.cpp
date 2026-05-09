@@ -8,6 +8,7 @@
 #include "petriscene.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -61,23 +62,27 @@ int read_netdef(QString path, PetriScene& net) {
     places_arr = net_places.toArray();
     transits_arr = net_transits.toArray();
 
+    // Add net inputs
     for (const QJsonValue& in_val : ins_arr) {
-        QString input = in_val.toString();
-        
-        // ADD TO INPUTS
+        QString input_name = in_val.toString();
+        net.inputs.push_back({input_name, "", false});
     }
 
+    // Add net outputs
     for (const QJsonValue& out_val : outs_arr) {
-        QString output = out_val.toString();
-        
-        // ADD TO OUTPUTS
+        QString output_name = out_val.toString();
+        net.outputs.push_back({output_name});
     }
 
-    for (const QJsonValue& variable : vars_arr) {
-        QString variable_def = variable.toString();
+    // Add net variables
+    for (const QJsonValue& var : vars_arr) {
+        QJsonObject var_obj = var.toObject();
+
+        QString var_name = var_obj.value(JSON_VAR_NAME).toString();
+        QString var_type = var_obj.value(JSON_VAR_TYPE).toString();
+        QString var_val = var_obj.value(JSON_VAR_INITVAL).toString();
         
-        // PROCESS VARIABLE DEFINITION
-        // ADD IT TO VARIABLES
+        net.variables.push_back({var_name, var_type, var_val});
     }
 
     for (const QJsonValue& place_obj : places_arr) {
@@ -118,19 +123,40 @@ int write_netdef(PetriScene& net) {
     QJsonArray net_places;
     QJsonArray net_transitions;
 
-    json_root.insert(JSONFLD_NET_NAME, "");
-    json_root.insert(JSONFLD_COMMENT, "");
+    // Add inputs to inputs array
+    for (const struct PetriScene::NetInput& in : net.inputs) {
+        QJsonValue val(in.name);
+        net_inputs.push_back(val);
+    }
 
-    // APPEND INPUTS
-    // APPEND OUTPUTS
-    // APPEND VARIABLES
-    
+    // Add outputs to outputs array
+    for (const struct PetriScene::NetOutput& out : net.outputs) {
+        QJsonValue val(out.name);
+        net_outputs.push_back(val);
+    }
+
+    // Add variables to variables array
+    for (const struct PetriScene::NetVariable& var : net.variables) {
+        QJsonObject var_obj;
+        QJsonValue name(var.name);
+        QJsonValue type(var.type);
+        QJsonValue val(var.initialValue.toString());
+
+        var_obj.insert(JSON_VAR_NAME, name);
+        var_obj.insert(JSON_VAR_TYPE, type);
+        var_obj.insert(JSON_VAR_INITVAL, val);
+
+        net_variables.push_back(var_obj);
+    }
 
     // PLACES
 
 
     // TRANSITIONS
 
+    // Add all parts to JSON root
+    json_root.insert(JSONFLD_NET_NAME, net.name);
+    json_root.insert(JSONFLD_COMMENT, net.comment);
     json_root.insert(JSONFLD_INPUTS, net_inputs);
     json_root.insert(JSONFLD_OUTPUTS, net_outputs);
     json_root.insert(JSONFLD_VARS, net_variables);
