@@ -6,15 +6,16 @@
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QDialogButtonBox>
+#include <QStyleOptionGraphicsItem>
 
 #include "transition.h"
 #include "arc.h"
 #include "properties_dialog.h"
 #include "petriscene.h"
 
-Transition::Transition(int id, int delay, QGraphicsItem* parent)
+Transition::Transition(QString name, int delay, QGraphicsItem* parent)
     : QGraphicsRectItem(-15, -40, 30, 80, parent),
-      id(id),
+      name(name),
       availability(Disabled),
       delay_ms(delay),
       timer(0)
@@ -27,14 +28,32 @@ void Transition::paint(QPainter* painter,
                   const QStyleOptionGraphicsItem* option,
                   QWidget* widget)
 {
+
+    // strip the selection flag before passing to base class
+    QStyleOptionGraphicsItem myOption(*option);
+    myOption.state &= ~QStyle::State_Selected;
+
     if (availability == Waiting) setBrush(QBrush(Qt::blue));
     else setBrush(QBrush(Qt::darkGray));
-    QGraphicsRectItem::paint(painter, option, widget);
+    QGraphicsRectItem::paint(painter, &myOption, widget);
+
+    // draw selection manually around just the rectangle
+    if (option->state & QStyle::State_Selected) {
+        painter->setPen(QPen(Qt::black, 1, Qt::DashLine));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(rect().adjusted(-1, -1, 1, 1));
+    }
+
 
     // Draw delay timer in the middle
     painter->setPen(QPen(Qt::white));
-    painter->drawText(boundingRect(), Qt::AlignCenter, QString::number(delay_ms));
+    painter->drawText(rect(), Qt::AlignCenter, QString::number(delay_ms));
 
+    // Draw name above the rectangle
+    painter->setPen(QPen(Qt::black));
+    QRectF nameRect = rect().adjusted(-60, -25, 60, 0);
+    nameRect.setHeight(20);
+    painter->drawText(nameRect, Qt::AlignCenter, name);
 }
 
 QVariant Transition::itemChange(GraphicsItemChange change, const QVariant& value) {
@@ -56,12 +75,14 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
     PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
     if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
+    if (petriScene->currentTool != PetriScene::SelectTool) return;
 
     // 'widget' can usually be found via the view, or just pass NULL
-    TransitionPropertiesDialog dialog(delay_ms, eventName, guard);
+    TransitionPropertiesDialog dialog(name, delay_ms, eventName, guard);
 
     if (dialog.exec() == QDialog::Accepted) {
         // Only update if the user clicked OK
+        name = dialog.nameLineEdit->text();
         setDelay(dialog.delaySpinBox->value());
         guard = dialog.guardTextEdit->toPlainText();
         eventName = dialog.eventLineEdit->text();

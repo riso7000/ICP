@@ -1,15 +1,17 @@
 #include <QGraphicsScene>
-
+#include <QSpinBox>
+#include <QStyleOptionGraphicsItem>
 
 #include "place.h"
 #include "arc.h"
 #include "petriscene.h"
+#include "properties_dialog.h"
 
 
 
-Place::Place(int id, int initial_tokens, QGraphicsItem* parent)
+Place::Place(QString name, int initial_tokens, QGraphicsItem* parent)
     : QGraphicsEllipseItem(-25, -25, 50, 50, parent),
-      id(id),
+      name(name),
       tokens(initial_tokens)
 {
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
@@ -22,11 +24,30 @@ void Place::paint(QPainter* painter,
                   const QStyleOptionGraphicsItem* option,
                   QWidget* widget)
 {
+
+    // strip the selection flag before passing to base class
+    QStyleOptionGraphicsItem myOption(*option);
+    myOption.state &= ~QStyle::State_Selected;
+
     // First let the base class draw the circle
-    QGraphicsEllipseItem::paint(painter, option, widget);
+    QGraphicsEllipseItem::paint(painter, &myOption, widget);
+
+    // draw selection manually around just the rectangle
+    if (option->state & QStyle::State_Selected) {
+        painter->setPen(QPen(Qt::black, 1, Qt::DashLine));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(rect());
+    }
 
     // Then draw the token count in the center
-    painter->drawText(boundingRect(), Qt::AlignCenter, QString::number(tokens));
+    painter->drawText(rect(), Qt::AlignCenter, QString::number(tokens));
+
+
+    // Draw name above the rectangle
+    painter->setPen(QPen(Qt::black));
+    QRectF nameRect = rect().adjusted(-60, -25, 60, 0);
+    nameRect.setHeight(20);
+    painter->drawText(nameRect, Qt::AlignCenter, name);
 }
 
 QVariant Place::itemChange(GraphicsItemChange change, const QVariant& value) {
@@ -44,24 +65,15 @@ QVariant Place::itemChange(GraphicsItemChange change, const QVariant& value) {
 
 
 void Place::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
-
     PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
     if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
+    if (petriScene->currentTool != PetriScene::SelectTool) return;
 
-    bool ok;
-    int value = QInputDialog::getInt(
-        NULL,            // parent widget
-        "Edit Tokens",   // dialog title
-        "Tokens:",       // label
-        tokens,          // current value
-        0,               // minimum
-        999,             // maximum
-        1,               // step
-        &ok
-    );
-
-    if (ok) {
-        setTokens(value);
+    PlacePropertiesDialog dialog(name, tokens);
+    if (dialog.exec() == QDialog::Accepted) {
+        name = dialog.nameLineEdit->text();
+        setTokens(dialog.tokensSpinBox->value());
+        update();
     }
 
     QGraphicsEllipseItem::mouseDoubleClickEvent(event);

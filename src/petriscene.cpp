@@ -16,7 +16,9 @@
 PetriScene::PetriScene(QObject* parent)
     : QGraphicsScene(parent),
       currentTool(SelectTool),
-      obj_id(0),
+      placeId(0),
+      transitionId(0),
+      arcId(0),
       arcSource(0),
       active(true),
       sensorValue(42)
@@ -26,13 +28,13 @@ PetriScene::PetriScene(QObject* parent)
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (currentTool == PlaceTool) {
-        Place* place = new Place(obj_id++, 0);
+        Place* place = new Place("Place" + QString::number(placeId++), 0);
         place->setPos(event->scenePos());
         places.push_back(place);
         addItem(place);
     }
     else if (currentTool == TransitionTool) {
-        Transition* transition = new Transition(obj_id++, 0);
+        Transition* transition = new Transition("Transition" + QString::number(transitionId++), 0);
         transition->setPos(event->scenePos());
         transitions.push_back(transition);
         addItem(transition);
@@ -69,7 +71,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                         }
 
                         if (!alreadyConnected) {
-                            Arc* arc = new Arc(obj_id++, arcSource, clicked, 1);
+                            Arc* arc = new Arc(arcId, arcSource, clicked, 1);
 
                             Transition* srcTrans  = dynamic_cast<Transition*>(arcSource);
                             Transition* destTrans = dynamic_cast<Transition*>(clicked);
@@ -77,19 +79,19 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                             if (srcTrans) {
                                 srcTrans->output_arcs.push_back(arc);
 
-                                qDebug() << "Transition" << srcTrans->getId()
+                                qDebug() << "Transition" << srcTrans->getName()
                                           << "output arcs:";
                                  for (Arc* a : srcTrans->output_arcs)
-                                     qDebug() << "  Arc" << a->getId();
+                                     qDebug() << " Arc" << a->getId();
                             }
 
                             if (destTrans) {
                                 destTrans->input_arcs.push_back(arc);
 
-                                qDebug() << "Transition" << destTrans->getId()
+                                qDebug() << "Transition" << destTrans->getName()
                                           << "input arcs:";
                                  for (Arc* a : destTrans->input_arcs)
-                                     qDebug() << "  Arc" << a->getId();
+                                     qDebug() << " Arc" << a->getId();
                             }
 
 
@@ -227,7 +229,7 @@ void PetriScene::fireTransition(Transition* t) {
             emit outputEmitted(t->outputName); // if you want the GUI to react
         }
 
-    qDebug() << "Fired transition" << t->getId();
+    qDebug() << "Fired transition" << t->getName();
 }
 
 void PetriScene::stabilize() {
@@ -270,7 +272,7 @@ void PetriScene::scheduleTimers() {
         if (!isFireable(t)) continue;        // skip non-fireable transitions
         if (t->timer) continue;              // timer already running
 
-        qDebug() << "Scheduling timer for transition" << t->getId()
+        qDebug() << "Scheduling timer for transition" << t->getName()
                  << "delay:" << t->delay_ms << "ms";
 
         t->timer = new QTimer();
@@ -289,7 +291,7 @@ void PetriScene::scheduleTimers() {
 
 
 void PetriScene::onTimerExpired(Transition* t) {
-    qDebug() << "Timer expired for transition" << t->getId();
+    qDebug() << "Timer expired for transition" << t->getName();
 
     // clean up the timer
     delete t->timer;
@@ -297,7 +299,7 @@ void PetriScene::onTimerExpired(Transition* t) {
 
     // check if still fireable at the moment of expiry
     if (!isFireable(t)) {
-        qDebug() << "Timeout ignored - transition" << t->getId() << "no longer fireable";
+        qDebug() << "Timeout ignored - transition" << t->getName() << "no longer fireable";
         return;
     }
 
@@ -314,7 +316,7 @@ void PetriScene::cancelTimer(Transition* t) {
         t->timer->stop();
         delete t->timer;
         t->timer = 0;
-        qDebug() << "Cancelled timer for transition" << t->getId();
+        qDebug() << "Cancelled timer for transition" << t->getName();
     }
 }
 
@@ -346,18 +348,6 @@ bool PetriScene::evaluateGuard(const QString& guard) {
     return CflatValueAs(result, bool);
 }
 
-
-void PetriScene::setActive(bool value) {
-    Cflat::Value* v = env.getVariable("active");
-    if (v) CflatValueAs(v, bool) = value;
-    postEvent("active"); // notify any transitions waiting on this
-}
-
-void PetriScene::setSensorValue(int value) {
-    Cflat::Value* v = env.getVariable("sensorValue");
-    if (v) CflatValueAs(v, int) = value;
-    postEvent("sensorValue");
-}
 
 
 void PetriScene::postEvent(const QString& name) {

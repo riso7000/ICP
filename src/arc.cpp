@@ -92,6 +92,7 @@ void Arc::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
     PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
     if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
+    if (petriScene->currentTool != PetriScene::SelectTool) return;
 
     bool ok;
     int value = QInputDialog::getInt(

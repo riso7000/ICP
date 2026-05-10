@@ -85,7 +85,9 @@ protected:
 
 
 private:
-    int obj_id;
+    int placeId;
+    int transitionId;
+    int arcId;
 
     QGraphicsItem* arcSource; // null when no source selected yet
 };

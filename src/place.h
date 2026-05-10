@@ -8,9 +8,8 @@
 
 class Place : public QGraphicsEllipseItem {
 public:
-    Place(int id, int initial_tokens, QGraphicsItem* parent = 0);
-
-    int getId() const { return id; }
+    Place(QString name, int initial_tokens, QGraphicsItem* parent = 0);
+    QString getName() const { return name; }
     int getTokens() const { return tokens; }
     int getInitTokens() const { return init_tokens; }
     void setTokens(int t) { tokens = t; update(); } // update() triggers repaint
@@ -25,8 +24,22 @@ protected:
 
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
+    QRectF boundingRect() const override {
+        QRectF base = QGraphicsEllipseItem::boundingRect();
+        // expand upward to include the name label
+        return base.adjusted(-60, -25, 60, 0);
+    }
+
+    QPainterPath shape() const override {
+        QPainterPath path;
+        path.addEllipse(QGraphicsEllipseItem::rect());
+        return path;
+    }
+
+
+
 private:
-    int id;
+    QString name;
     int tokens;
     int init_tokens;
 

@@ -97,7 +97,7 @@ int read_netdef(QString path, PetriScene& net) {
         double pos_y = place.value(JSON_POS_Y).toDouble();
 
         // Add object to scene
-        Place* pl = new Place(1, init_tok);
+        Place* pl = new Place("Place", init_tok);
         pl->setPos(pos_x, pos_y);
         net.places.push_back(pl);
         net.addItem(pl);
@@ -160,7 +160,7 @@ int write_netdef(PetriScene& net) {
     // Add places to place array
     for (const Place* pl : net.places) {
         QJsonObject place;
-        QJsonValue name(pl->getId());
+        QJsonValue name(pl->getName());
         QJsonValue init_tok(pl->getInitTokens());
         QJsonValue posx(pl->x());
         QJsonValue posy(pl->y());
@@ -176,7 +176,7 @@ int write_netdef(PetriScene& net) {
     // TRANSITIONS
     for (const Transition* tr : net.transitions) {
         QJsonObject transit;
-        QJsonValue name(tr->getId());
+        QJsonValue name(tr->getName());
         QJsonValue posx(tr->x());
         QJsonValue posy(tr->y());
 

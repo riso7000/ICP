@@ -16,9 +16,9 @@ public:
     enum Availability_enum { Waiting, Disabled };
     Availability_enum availability;
 
-    Transition(int id, int timer, QGraphicsItem* parent = 0);
+    Transition(QString name, int timer, QGraphicsItem* parent = 0);
 
-    int getId() const { return id; }
+    QString getName() const { return name; }
     void setAvailability(Availability_enum a) { availability = a; update(); }
 
     std::vector<Arc*> input_arcs;
@@ -44,11 +44,20 @@ protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
+    QRectF boundingRect() const override {
+        QRectF base = QGraphicsRectItem::boundingRect();
+        // expand upward to include the name label
+        return base.adjusted(-60, -25, 60, 0);
+    }
+
+    QPainterPath shape() const override {
+        QPainterPath path;
+        path.addRect(rect());
+        return path;
+    }
+
 private:
-    int id;
-
-
-
+    QString name;
 
 };
 
