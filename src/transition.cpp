@@ -78,14 +78,16 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     if (petriScene->currentTool != PetriScene::SelectTool) return;
 
     // 'widget' can usually be found via the view, or just pass NULL
-    TransitionPropertiesDialog dialog(name, delay_ms, eventName, guard);
+    TransitionPropertiesDialog dialog(name, delay_ms, eventName, guard, action);
 
     if (dialog.exec() == QDialog::Accepted) {
         // Only update if the user clicked OK
         name = dialog.nameLineEdit->text();
         setDelay(dialog.delaySpinBox->value());
-        guard = dialog.guardTextEdit->toPlainText();
         eventName = dialog.eventLineEdit->text();
+        guard = dialog.guardTextEdit->toPlainText();
+        action = dialog.actionTextEdit->toPlainText();
+
     }
 
     QGraphicsRectItem::mouseDoubleClickEvent(event);

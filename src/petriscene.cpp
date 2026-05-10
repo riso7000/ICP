@@ -224,12 +224,8 @@ void PetriScene::fireTransition(Transition* t) {
             place->setTokens(place->getTokens() + arc->getWeight());
     }
 
-    if (!t->outputName.isEmpty()) {
-            qDebug() << "Output event emitted:" << t->outputName;
-            emit outputEmitted(t->outputName); // if you want the GUI to react
-        }
-
-    qDebug() << "Fired transition" << t->getName();
+    executeAction(t->action);
+    qDebug() << "Fired transition" << t->name;
 }
 
 void PetriScene::stabilize() {
@@ -427,6 +423,7 @@ void PetriScene::setInput(const QString& name, const QString& value) {
 }
 
 
+
 QString PetriScene::preprocessGuard(const QString& guard) {
     QString result = guard;
 
@@ -468,4 +465,45 @@ QString PetriScene::preprocessGuard(const QString& guard) {
     }
 
     return result;
+}
+
+
+
+void PetriScene::executeAction(const QString& action) {
+    if (action.isEmpty()) return;
+
+    // find all output("name", expr) calls
+    QRegularExpression r("output\\(\"([^\"]+)\"\\s*,\\s*([^)]+)\\)");
+    QRegularExpressionMatchIterator it = r.globalMatch(action);
+
+    while (it.hasNext()) {
+        auto m = it.next();
+        QString outName = m.captured(1);
+
+        // check it's a known output
+        bool known = false;
+        for (auto& o : outputs)
+            if (o.name == outName) { known = true; break; }
+        if (!known) {
+            qDebug() << "Unknown output:" << outName;
+            continue;
+        }
+
+        // evaluate the value expression via Cflat
+        QString exprStr = m.captured(2).trimmed();
+        std::string scriptName = "action_" + std::to_string(actionCounter++);
+        std::string code = "int __out = (int)(" + exprStr.toStdString() + ");";
+
+        if (!env.load(scriptName.c_str(), code.c_str())) {
+            qDebug() << "Failed to evaluate output expr:" << exprStr;
+            continue;
+        }
+
+        Cflat::Value* result = env.getVariable("__out");
+        if (!result) continue;
+
+        QString value = QString::number(CflatValueAs(result, int));
+        qDebug() << "Output:" << outName << "=" << value;
+        emit outputEmitted(outName, value);
+    }
 }

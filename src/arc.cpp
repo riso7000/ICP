@@ -97,7 +97,7 @@ void Arc::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     bool ok;
     int value = QInputDialog::getInt(
         NULL,            // parent widget
-        "Edit Weight",   // dialog title
+        "Edit Arc",   // dialog title
         "Weight:",       // label
         weight,          // current value
         1,               // minimum

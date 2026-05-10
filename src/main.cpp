@@ -18,7 +18,7 @@
 
 // Global pointer to your log widget
 static QPlainTextEdit* globalLogWidget = nullptr;
-std::function<void()> rebuildInputPanel;
+std::function<void()> rebuildPanel;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     if (!globalLogWidget) return;
@@ -56,24 +56,27 @@ int main(int argc, char* argv[]) {
     globalLogWidget->setReadOnly(true);
     QDockWidget* logDock = new QDockWidget("Execution Log", &window);
     logDock->setWidget(globalLogWidget);
+    logDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     window.addDockWidget(Qt::BottomDockWidgetArea, logDock);
     qInstallMessageHandler(myMessageOutput);
 
-    // --- Input panel dock ---
-    QWidget* inputPanel = new QWidget();
-    QDockWidget* inputDock = new QDockWidget("Inputs", &window);
-    inputDock->setWidget(inputPanel);
-    window.addDockWidget(Qt::RightDockWidgetArea, inputDock);
+    // --- Panel dock ---
+    QWidget* panel = new QWidget();
+    QDockWidget* panelDock = new QDockWidget("Communication", &window);
+    panelDock->setWidget(panel);
+    panelDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    panel->setMinimumWidth(150);
+    window.addDockWidget(Qt::RightDockWidgetArea, panelDock);
 
-    // Rebuilds the input panel buttons from current scene->inputs
-    rebuildInputPanel = [=]() {
+    // Rebuilds the panel buttons
+    rebuildPanel = [=]() {
         // delete old layout and children
-        delete inputPanel->layout();
-        QList<QWidget*> children = inputPanel->findChildren<QWidget*>(
+        delete panel->layout();
+        QList<QWidget*> children = panel->findChildren<QWidget*>(
             QString(), Qt::FindDirectChildrenOnly);
         for (QWidget* w : children) delete w;
 
-        QFormLayout* form = new QFormLayout(inputPanel);
+        QFormLayout* form = new QFormLayout(panel);
 
         if (scene->currentMode == PetriScene::RunMode) {
             for (auto& inp : scene->inputs) {
@@ -98,7 +101,7 @@ int main(int argc, char* argv[]) {
                 row->addWidget(new QLabel(scene->inputs[i].name));
                 QPushButton* del = new QPushButton("x");
                 del->setFixedWidth(24);
-                auto rebuild = rebuildInputPanel;
+                auto rebuild = rebuildPanel;
                 QObject::connect(del, &QPushButton::clicked, [scene, i, rebuild](){
                     scene->inputs.erase(scene->inputs.begin() + i);
                     scene->rebuildCflatEnvironment();
@@ -115,7 +118,7 @@ int main(int argc, char* argv[]) {
                 QString name = QInputDialog::getText(nullptr, "Add Input", "Name:", QLineEdit::Normal, "", &ok);
                 if (ok && !name.isEmpty()) {
                     scene->inputs.push_back({name});
-                    auto rebuild = rebuildInputPanel;
+                    auto rebuild = rebuildPanel;
                     rebuild();
                 }
             });
@@ -129,7 +132,7 @@ int main(int argc, char* argv[]) {
                 row->addWidget(new QLabel(v.type + " " + v.name + " = " + v.initialValue.toString()));
                 QPushButton* del = new QPushButton("x");
                 del->setFixedWidth(24);
-                auto rebuild = rebuildInputPanel;
+                auto rebuild = rebuildPanel;
                 QObject::connect(del, &QPushButton::clicked, [scene, i, rebuild](){
                     scene->variables.erase(scene->variables.begin() + i);
                     scene->rebuildCflatEnvironment();
@@ -167,11 +170,41 @@ int main(int argc, char* argv[]) {
                     var.name         = nameEdit->text();
                     var.initialValue = valueEdit->text();
                     scene->variables.push_back(var);
-                    auto rebuild = rebuildInputPanel;
+                    auto rebuild = rebuildPanel;
                     rebuild();
                 }
             });
             form->addRow(addVar);
+
+            // --- Outputs section ---
+            form->addRow(new QLabel("<b>Outputs</b>"));
+            for (int i = 0; i < (int)scene->outputs.size(); i++) {
+                QHBoxLayout* row = new QHBoxLayout();
+                row->addWidget(new QLabel(scene->outputs[i].name));
+                QPushButton* del = new QPushButton("x");
+                del->setFixedWidth(24);
+                auto rebuild = rebuildPanel;
+                QObject::connect(del, &QPushButton::clicked, [scene, i, rebuild](){
+                    scene->outputs.erase(scene->outputs.begin() + i);
+                    scene->rebuildCflatEnvironment();
+                    rebuild();
+                });
+                row->addWidget(del);
+                QWidget* rowWidget = new QWidget();
+                rowWidget->setLayout(row);
+                form->addRow(rowWidget);
+            }
+            QPushButton* addOutput = new QPushButton("+ Add Output");
+            QObject::connect(addOutput, &QPushButton::clicked, [=](){
+                bool ok;
+                QString name = QInputDialog::getText(nullptr, "Add Output", "Name:", QLineEdit::Normal, "", &ok);
+                if (ok && !name.isEmpty()) {
+                    scene->outputs.push_back({name});
+                    auto rebuild = rebuildPanel;
+                    rebuild();
+                }
+            });
+            form->addRow(addOutput);
         }
     };
 
@@ -207,7 +240,7 @@ int main(int argc, char* argv[]) {
         // disable edit tools
         for (QAction* a : {placeAction, transAction, arcAction, deleteAction})
             a->setEnabled(false);
-        auto rebuild = rebuildInputPanel;
+        auto rebuild = rebuildPanel;
         rebuild();
     });
 
@@ -217,11 +250,11 @@ int main(int argc, char* argv[]) {
         runAction->setEnabled(true);
         for (QAction* a : {placeAction, transAction, arcAction, deleteAction})
             a->setEnabled(true);
-        auto rebuild = rebuildInputPanel;
+        auto rebuild = rebuildPanel;
         rebuild();
     });
 
-    rebuildInputPanel(); // initial build (edit mode placeholder)
+    rebuildPanel(); // initial build (edit mode placeholder)
 
     qDebug() << "Petri Net Editor Started.";
     window.resize(1280, 720);

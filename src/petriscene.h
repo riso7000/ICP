@@ -22,6 +22,7 @@ public:
     };
     struct NetOutput {
         QString name;
+        QString value;
     };
 
     struct NetVariable {
@@ -52,8 +53,8 @@ public:
 
 
 
-    std::vector<NetInput>    inputs;
-    std::vector<NetOutput>   outputs;
+    std::vector<NetInput> inputs;
+    std::vector<NetOutput> outputs;
     std::vector<NetVariable> variables;
     bool running = false;
 
@@ -66,10 +67,11 @@ public:
 
     void rebuildCflatEnvironment();
     QString preprocessGuard(const QString& guard);
+    void executeAction(const QString& action);
 
 
 signals:
-    void outputEmitted(const QString& name);
+    void outputEmitted(const QString& name, const QString& value);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -88,6 +90,7 @@ private:
     int placeId;
     int transitionId;
     int arcId;
+    int actionCounter = 0;
 
     QGraphicsItem* arcSource; // null when no source selected yet
 };

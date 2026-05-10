@@ -14,7 +14,8 @@ class TransitionPropertiesDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName, const QString &currentGuard, QWidget *parent = nullptr);
+    explicit TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName,
+                                        const QString &currentGuard, const QString &currentAction, QWidget *parent = nullptr);
 
     // Getters to retrieve the data after the dialog closes
     int getDelay() const;
@@ -24,6 +25,7 @@ public:
     QSpinBox *delaySpinBox;
     QLineEdit *eventLineEdit;
     QTextEdit *guardTextEdit;
+    QTextEdit *actionTextEdit;
 };
 
 class PlacePropertiesDialog : public QDialog {

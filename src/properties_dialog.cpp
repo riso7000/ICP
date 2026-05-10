@@ -5,7 +5,8 @@
 #include <QLineEdit>
 #include <QDialogButtonBox>
 
-TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName, const QString &currentGuard, QWidget *parent)
+TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName,
+                                                       const QString &currentGuard, const QString &currentAction, QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Edit Transition");
@@ -32,8 +33,15 @@ TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentNam
     guardTextEdit = new QTextEdit(this);
     guardTextEdit->setPlainText(currentGuard);
     guardTextEdit->setAcceptRichText(false);
-    guardTextEdit->setMaximumHeight(70);
+    guardTextEdit->setMaximumHeight(45);
     layout->addRow("Guard expression:", guardTextEdit);
+
+    // Setup Action Input
+    actionTextEdit = new QTextEdit(this);
+    actionTextEdit->setPlainText(currentAction);
+    actionTextEdit->setAcceptRichText(false);
+    actionTextEdit->setMaximumHeight(75);
+    layout->addRow("Action expression:", actionTextEdit);
 
     // Standard OK/Cancel buttons
     QDialogButtonBox *buttonBox = new QDialogButtonBox(
@@ -57,7 +65,7 @@ PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, QW
     : QDialog(parent)
 {
 
-    setWindowTitle("Place Properties");
+    setWindowTitle("Edit Place");
     QFormLayout* f = new QFormLayout(this);
 
     nameLineEdit  = new QLineEdit(name);

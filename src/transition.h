@@ -35,6 +35,9 @@ public:
     QString eventName; // empty = fires freely; non-empty = only on this event
     QString outputName;
 
+    QString action;
+    QString name;
+
 
 protected:
     void paint(QPainter* painter,
@@ -57,7 +60,7 @@ protected:
     }
 
 private:
-    QString name;
+
 
 };
 
