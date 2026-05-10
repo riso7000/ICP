@@ -5,6 +5,7 @@
 #include <QToolBar>
 #include <QAction>
 #include "petriscene.h"
+#include "net_def_io.hpp"
 
 #include <QPlainTextEdit>
 #include <QTime>
@@ -15,6 +16,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QFileDialog>
 
 // Global pointer to your log widget
 static QPlainTextEdit* globalLogWidget = nullptr;
@@ -185,6 +187,32 @@ int main(int argc, char* argv[]) {
     QAction* selectAction = toolbar->addAction("Select");
     QAction* deleteAction = toolbar->addAction("Delete");
 
+    QObject::connect(openAction, &QAction::triggered, [=]() {
+        QString filePath = QFileDialog::getOpenFileName(
+            toolbar,
+            "Open Petri Net",
+            "",
+            FILE_IO_FILETYPES
+        );
+
+        if (!filePath.isEmpty()) {
+            read_netdef(filePath, *scene);
+            rebuildInputPanel();
+        }
+    });
+
+    QObject::connect(saveAction, &QAction::triggered, [=]() {
+        QString filePath = QFileDialog::getSaveFileName(
+            toolbar,
+            "Save Petri Net",
+            "",
+            FILE_IO_FILETYPES
+        );
+
+        if (!filePath.isEmpty()) {
+            write_netdef(filePath, *scene);
+        }
+    });
 
     QObject::connect(placeAction,  &QAction::triggered, [scene]{ scene->setTool(PetriScene::PlaceTool); });
     QObject::connect(transAction,  &QAction::triggered, [scene]{ scene->setTool(PetriScene::TransitionTool); });
