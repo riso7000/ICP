@@ -475,23 +475,39 @@ QString PetriScene::preprocessCode(const QString& code) {
     // elapsed("transition_name") -> ms since transition became fireable
     QRegularExpression relap("elapsed\\(\"([^\"]+)\"\\)");
     while ((m = relap.match(result)).hasMatch()) {
-        QString itemName = m.captured(1);
+        QString arg = m.captured(1);
         int val = 0;
-        bool found = false;
 
-        for (auto* p : places) {
-            if (p->name == itemName) {
-                val = p->lastTokenChange.msecsTo(QDateTime::currentDateTime());
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            for (auto* t : transitions) {
-                if (t->name == itemName && !t->becameFireable.isNull()) {
+        if (arg.startsWith("P:")) {
+            QString placeName = arg.mid(2);
+            for (auto* p : places)
+                if (p->name == placeName) {
+                    val = p->lastTokenChange.msecsTo(QDateTime::currentDateTime());
+                    break;
+                }
+        } else if (arg.startsWith("T:")) {
+            QString transName = arg.mid(2);
+            for (auto* t : transitions)
+                if (t->name == transName && !t->becameFireable.isNull()) {
                     val = t->becameFireable.msecsTo(QDateTime::currentDateTime());
                     break;
                 }
+        } else {
+            // no prefix - search places first, then transitions (backward compat)
+            bool found = false;
+            for (auto* p : places) {
+                if (p->name == arg) {
+                    val = p->lastTokenChange.msecsTo(QDateTime::currentDateTime());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                for (auto* t : transitions)
+                    if (t->name == arg && !t->becameFireable.isNull()) {
+                        val = t->becameFireable.msecsTo(QDateTime::currentDateTime());
+                        break;
+                    }
             }
         }
         result.replace(m.captured(0), QString::number(val));
@@ -548,4 +564,17 @@ void PetriScene::executeAction(const QString& action) {
         qDebug() << "Output:" << outName << "=" << value;
         emit outputEmitted(outName, value);
     }
+}
+
+
+bool PetriScene::isPlaceNameTaken(const QString& name, Place* exclude) {
+    for (auto* p : places)
+        if (p != exclude && p->name == name) return true;
+    return false;
+}
+
+bool PetriScene::isTransitionNameTaken(const QString& name, Transition* exclude) {
+    for (auto* t : transitions)
+        if (t != exclude && t->name == name) return true;
+    return false;
 }

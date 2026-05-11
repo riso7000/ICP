@@ -67,6 +67,9 @@ public:
 
     QDateTime startTime;
 
+    bool isPlaceNameTaken(const QString& name, Place* exclude);
+    bool isTransitionNameTaken(const QString& name, Transition* exclude);
+
 
 signals:
     void outputEmitted(const QString& name, const QString& value);

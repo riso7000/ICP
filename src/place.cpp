@@ -1,6 +1,7 @@
 #include <QGraphicsScene>
 #include <QSpinBox>
 #include <QStyleOptionGraphicsItem>
+#include <QMessageBox>
 
 #include "place.h"
 #include "arc.h"
@@ -72,10 +73,16 @@ void Place::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
     PlacePropertiesDialog dialog(name, tokens);
     if (dialog.exec() == QDialog::Accepted) {
-        name = dialog.nameLineEdit->text();
-        setTokens(dialog.tokensSpinBox->value());
-        update();
-    }
+            QString newName = dialog.nameLineEdit->text();
+            if (newName != name && petriScene->isPlaceNameTaken(newName, this)) {
+                QMessageBox::warning(nullptr, "Name taken",
+                    "A place named '" + newName + "' already exists.");
+                return; // don't save
+            }
+            name = newName;
+            setTokens(dialog.tokensSpinBox->value());
+            update();
+        }
 
     QGraphicsEllipseItem::mouseDoubleClickEvent(event);
 }

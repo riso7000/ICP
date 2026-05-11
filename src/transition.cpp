@@ -7,6 +7,7 @@
 #include <QTextEdit>
 #include <QDialogButtonBox>
 #include <QStyleOptionGraphicsItem>
+#include <QMessageBox>
 
 #include "transition.h"
 #include "arc.h"
@@ -81,8 +82,13 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     TransitionPropertiesDialog dialog(name, delay_ms, eventName, guard, action);
 
     if (dialog.exec() == QDialog::Accepted) {
-        // Only update if the user clicked OK
-        name = dialog.nameLineEdit->text();
+        QString newName = dialog.nameLineEdit->text();
+            if (newName != name && petriScene->isTransitionNameTaken(newName, this)) {
+                QMessageBox::warning(nullptr, "Name taken",
+                    "A transition named '" + newName + "' already exists.");
+                return;
+            }
+        name = newName;
         setDelay(dialog.delaySpinBox->value());
         eventName = dialog.eventLineEdit->text();
         guard = dialog.guardTextEdit->toPlainText();

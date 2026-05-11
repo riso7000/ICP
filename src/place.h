@@ -15,6 +15,9 @@ public:
     int getInitTokens() const { return init_tokens; }
     void setTokens(int t);
 
+    QString name;
+    QDateTime lastTokenChange;
+
 
 protected:
     void paint(QPainter* painter,
@@ -40,10 +43,10 @@ protected:
 
 
 private:
-    QString name;
+
     int tokens;
     int init_tokens;
-    QDateTime lastTokenChange;
+
 
 };
 
