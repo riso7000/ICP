@@ -25,6 +25,13 @@ PetriScene::PetriScene(QObject* parent)
 }
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
+    if (event->button() == Qt::RightButton) {
+            deleteItemAt(event->scenePos());
+            return;
+        }
+    if (event->button() != Qt::LeftButton) return;
+
+
     if (currentTool == PlaceTool) {
         // 1. Keep looping until we find a name that isn't taken
         bool collision = true;
