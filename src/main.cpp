@@ -270,6 +270,9 @@ int main(int argc, char* argv[]) {
     QAction* arcAction    = toolbar->addAction("Arc");
     QAction* selectAction = toolbar->addAction("Select");
     QAction* deleteAction = toolbar->addAction("Delete");
+    QAction* runAction  = toolbar->addAction("Run");
+    QAction* stopAction = toolbar->addAction("Stop");
+    stopAction->setEnabled(false);
 
     QObject::connect(openAction, &QAction::triggered, [=]() {
         QString filePath = QFileDialog::getOpenFileName(
@@ -282,6 +285,10 @@ int main(int argc, char* argv[]) {
         if (!filePath.isEmpty()) {
             read_netdef(filePath, *scene);
             rebuildPanel();
+        }
+
+        if (stopAction->isEnabled()) {
+            stopAction->trigger();
         }
     });
 
@@ -298,15 +305,26 @@ int main(int argc, char* argv[]) {
         }
     });
 
+
+    QActionGroup* toolGroup = new QActionGroup(&window);
+
+    QAction* toolActions[] = {placeAction, transAction, arcAction, selectAction, deleteAction};
+
+    for (QAction* action : toolActions) {
+        action->setCheckable(true); // Make it stay "pressed" when clicked
+        toolGroup->addAction(action); // Add to the group for exclusivity
+    }
+
+    selectAction->setChecked(true);
+
+
     QObject::connect(placeAction,  &QAction::triggered, [scene]{ scene->setTool(PetriScene::PlaceTool); });
     QObject::connect(transAction,  &QAction::triggered, [scene]{ scene->setTool(PetriScene::TransitionTool); });
     QObject::connect(arcAction,    &QAction::triggered, [scene]{ scene->setTool(PetriScene::ArcTool); });
     QObject::connect(selectAction, &QAction::triggered, [scene]{ scene->setTool(PetriScene::SelectTool); });
     QObject::connect(deleteAction, &QAction::triggered, [scene]{ scene->setTool(PetriScene::DeleteTool); });
 
-    QAction* runAction  = toolbar->addAction("Run");
-    QAction* stopAction = toolbar->addAction("Stop");
-    stopAction->setEnabled(false);
+
 
     toolbar->setMovable(false);
 
