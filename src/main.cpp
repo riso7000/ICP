@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 
     QMainWindow window;
     PetriScene* scene = new PetriScene();
-    scene->setSceneRect(0, 0, 1200, 800);
+    scene->setSceneRect(0, 0, 1600, 1200);
 
     QGraphicsView* view = new QGraphicsView(scene);
     view->setRenderHint(QPainter::Antialiasing);
@@ -64,8 +64,15 @@ int main(int argc, char* argv[]) {
 
     // --- Panel dock ---
     QWidget* panel = new QWidget();
+    QScrollArea* scrollArea = new QScrollArea();
+    scrollArea->setWidget(panel);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setMinimumWidth(200);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
     QDockWidget* panelDock = new QDockWidget("Communication", &window);
-    panelDock->setWidget(panel);
+    panelDock->setWidget(scrollArea);
     panelDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     panel->setMinimumWidth(150);
     window.addDockWidget(Qt::RightDockWidgetArea, panelDock);
