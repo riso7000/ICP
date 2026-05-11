@@ -10,13 +10,15 @@
 #include <string>
 #include "petriscene.h"
 
-#define JSONFLD_NET_NAME "petri_net_name"
-#define JSONFLD_COMMENT "comment"
-#define JSONFLD_INPUTS "inputs"
-#define JSONFLD_OUTPUTS "outputs"
-#define JSONFLD_VARS "variables"
-#define JSONFLD_PLACES "places"
-#define JSONFLD_TRANSITIONS "transitions"
+#define FILE_IO_FILETYPES "Petri Net files (*.pnet);;JSON files (*.json);;All Files (*)"
+
+#define JSONFLD_NET_NAME "1_petri_net_name"
+#define JSONFLD_COMMENT "2_comment"
+#define JSONFLD_INPUTS "3_inputs"
+#define JSONFLD_OUTPUTS "4_outputs"
+#define JSONFLD_VARS "5_variables"
+#define JSONFLD_PLACES "6_places"
+#define JSONFLD_TRANSITIONS "7_transitions"
 #define JSON_VAR_NAME "var_name"
 #define JSON_VAR_TYPE "var_type"
 #define JSON_VAR_INITVAL "initial_val"
@@ -31,7 +33,7 @@
 #define JSON_TR_WHEN "when"
 #define JSON_TR_DO "do"
 
-int read_netdef(std::string path, PetriScene& net);
-int write_netdef(PetriScene& netdef);
+int read_netdef(QString path, PetriScene& net);
+int write_netdef(QString path, PetriScene& net);
 
 #endif

@@ -30,7 +30,11 @@ int read_netdef(QString path, PetriScene& net) {
     QJsonArray transits_arr;
 
     input_file.setFileName(path);
-    input_file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    if (!input_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return -1;
+    }
+
     contents = input_file.readAll();
     input_file.close();
 
@@ -97,7 +101,7 @@ int read_netdef(QString path, PetriScene& net) {
         double pos_y = place.value(JSON_POS_Y).toDouble();
 
         // Add object to scene
-        Place* pl = new Place("Place", init_tok);
+        Place* pl = new Place(name, init_tok);
         pl->setPos(pos_x, pos_y);
         net.places.push_back(pl);
         net.addItem(pl);
@@ -112,14 +116,15 @@ int read_netdef(QString path, PetriScene& net) {
     return 0;
 }
 
-int write_netdef(PetriScene& net) {
+int write_netdef(QString path, PetriScene& net) {
     using namespace std;
 
     // Open file for writing
-    ofstream OutputFile("petrinet-spec.pnet.json");
+    QFile output_file;
+    output_file.setFileName(path);
 
-    if (!OutputFile) {
-        cerr << "Error: Failed to open output file." << endl;
+    if (!output_file.open(QIODevice::WriteOnly)) {
+        // qWarning() << "Could not open file for writing.";
         return -1;
     }
 
@@ -161,7 +166,7 @@ int write_netdef(PetriScene& net) {
     for (const Place* pl : net.places) {
         QJsonObject place;
         QJsonValue name(pl->getName());
-        QJsonValue init_tok(pl->getInitTokens());
+        QJsonValue init_tok(pl->getTokens());
         QJsonValue posx(pl->x());
         QJsonValue posy(pl->y());
 
@@ -180,9 +185,9 @@ int write_netdef(PetriScene& net) {
         QJsonValue posx(tr->x());
         QJsonValue posy(tr->y());
 
-        transit.insert(JSON_TR_NAME, name);
-        transit.insert(JSON_POS_X, posx);
-        transit.insert(JSON_POS_Y, posy);
+        // transit.insert(JSON_TR_NAME, name);
+        // transit.insert(JSON_POS_X, posx);
+        // transit.insert(JSON_POS_Y, posy);
     }
 
     // Add all parts to JSON root
@@ -198,8 +203,8 @@ int write_netdef(PetriScene& net) {
     QJsonDocument doc(json_root);
     QByteArray byte_form = doc.toJson(QJsonDocument::Indented);
 
-    OutputFile.write(byte_form.constData(), byte_form.size());
-    OutputFile.close();
+    output_file.write(byte_form.constData(), byte_form.size());
+    output_file.close();
 
     return 0;
 }
