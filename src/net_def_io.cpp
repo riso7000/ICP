@@ -5,6 +5,7 @@
  */
 
 #include "net_def_io.hpp"
+#include "arc.h"
 #include "place.h"
 #include "transition.h"
 #include "petriscene.h"
@@ -100,7 +101,7 @@ int read_netdef(QString path, PetriScene& net) {
         double pos_x = place.value(JSON_POS_X).toDouble();
         double pos_y = place.value(JSON_POS_Y).toDouble();
 
-        // Add object to scene
+        // Add place to scene
         Place* pl = new Place(name, init_tok);
         pl->setPos(pos_x, pos_y);
         net.places.push_back(pl);
@@ -110,7 +111,61 @@ int read_netdef(QString path, PetriScene& net) {
     for (const QJsonValue& transit_obj : transits_arr) {
         QJsonObject transit = transit_obj.toObject();
 
-        
+        QString name = transit.value(JSON_TR_NAME).toString();
+        double pos_x = transit.value(JSON_POS_X).toDouble();
+        double pos_y = transit.value(JSON_POS_Y).toDouble();
+        QJsonArray arcin_arr = transit.value(JSON_TR_IN).toArray();
+        QJsonArray arcout_arr = transit.value(JSON_TR_OUT).toArray();
+
+        // Add transition to scene
+        Transition* tr = new Transition(name, 0);
+        tr->setPos(pos_x, pos_y);
+        net.transitions.push_back(tr);
+        net.addItem(tr);
+
+        // Arcs in
+        for (const QJsonValue& arc_obj : arcin_arr) {
+            QJsonObject arc = arc_obj.toObject();
+            QString src_name = arc.value(JSON_PL_NAME).toString();
+            int weight = arc.value(JSON_TR_PL_TOK).toInt();
+            Place* src_pl = NULL;
+
+            for (Place* pl : net.places) {
+                QString pl_name = pl->getName();
+
+                if (pl_name == src_name) {
+                    src_pl = pl;
+                }
+            }
+
+            if (src_pl) {
+                Arc* inarc = new Arc(src_pl, tr, weight);
+                tr->input_arcs.push_back(inarc);
+                net.addItem(inarc);
+            }
+        }
+
+        // Arcs out
+        for (const QJsonValue& arc_obj : arcout_arr) {
+            QJsonObject arc = arc_obj.toObject();
+            QString dest_name = arc.value(JSON_PL_NAME).toString();
+            int weight = arc.value(JSON_TR_PL_TOK).toInt();
+            Place* dest_pl = NULL;
+            
+            for (Place* pl : net.places) {
+                QString pl_name = pl->getName();
+
+                if (pl_name == dest_name) {
+                    dest_pl = pl;
+                }
+            }
+
+            if (dest_pl) {
+                Arc* outarc = new Arc(tr, dest_pl, weight);
+                tr->output_arcs.push_back(outarc);
+                net.addItem(outarc);
+            }
+        }
     }
 
     return 0;
@@ -124,7 +179,6 @@ int write_netdef(QString path, PetriScene& net) {
     output_file.setFileName(path);
 
     if (!output_file.open(QIODevice::WriteOnly)) {
-        // qWarning() << "Could not open file for writing.";
         return -1;
     }
 
@@ -181,13 +235,56 @@ int write_netdef(QString path, PetriScene& net) {
     // TRANSITIONS
     for (const Transition* tr : net.transitions) {
         QJsonObject transit;
+        QJsonArray arcin;
+        QJsonArray arcout;
+
         QJsonValue name(tr->getName());
         QJsonValue posx(tr->x());
         QJsonValue posy(tr->y());
 
-        // transit.insert(JSON_TR_NAME, name);
-        // transit.insert(JSON_POS_X, posx);
-        // transit.insert(JSON_POS_Y, posy);
+        // Arcs in
+        for (const Arc* arc : tr->input_arcs) {
+            QJsonObject arc_obj;
+            QJsonValue weight(arc->getWeight());
+            Place *src = dynamic_cast<Place*>(arc->getSource());
+
+            if (!src) {
+                continue;
+            }
+            
+            QJsonValue src_name(src->getName());
+
+            arc_obj.insert(JSON_PL_NAME, src_name);
+            arc_obj.insert(JSON_TR_PL_TOK, weight);
+
+            arcin.push_back(arc_obj);
+        }
+
+        // Arcs out
+        for (const Arc* arc : tr->output_arcs) {
+            QJsonObject arc_obj;
+            QJsonValue weight(arc->getWeight());
+            Place *dest = dynamic_cast<Place*>(arc->getDest());
+
+            if (!dest) {
+                continue;
+            }
+            
+            QJsonValue dest_name(dest->getName());
+
+            arc_obj.insert(JSON_PL_NAME, dest_name);
+            arc_obj.insert(JSON_TR_PL_TOK, weight);
+
+            arcout.push_back(arc_obj);
+        }
+
+        transit.insert(JSON_TR_NAME, name);
+        transit.insert(JSON_POS_X, posx);
+        transit.insert(JSON_POS_Y, posy);
+        transit.insert(JSON_TR_IN, arcin);
+        transit.insert(JSON_TR_OUT, arcout);
+
+        net_transitions.push_back(transit);
     }
 
     // Add all parts to JSON root
