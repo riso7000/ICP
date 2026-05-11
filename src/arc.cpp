@@ -119,7 +119,7 @@ QPainterPath Arc::shape() const {
 
     // create a stroked version of the line with a wider width
     QPainterPathStroker stroker;
-    stroker.setWidth(20); // hitbox width in pixels, adjust to taste
+    stroker.setWidth(30); // hitbox width in pixels, adjust to taste
 
     path.moveTo(line().p1());
     path.lineTo(line().p2());
