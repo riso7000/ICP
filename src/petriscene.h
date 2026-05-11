@@ -88,6 +88,9 @@ protected:
 
     void executeAction(const QString& action);
     QString preprocessCode(const QString& code);
+    void deleteItemAt(const QPointF& scenePos);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+
 
 
 
