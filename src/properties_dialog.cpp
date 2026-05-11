@@ -20,8 +20,9 @@ TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentNam
 
     // Setup Delay Input
     delaySpinBox = new QSpinBox(this);
-    delaySpinBox->setRange(0, 999999);
+    delaySpinBox->setRange(0, 9999);
     delaySpinBox->setValue(currentDelay);
+    delaySpinBox->setFocus();
     layout->addRow("Delay (ms):", delaySpinBox);
 
     // Setup Event Input
@@ -69,9 +70,10 @@ PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, QW
     QFormLayout* f = new QFormLayout(this);
 
     nameLineEdit  = new QLineEdit(name);
+
     tokensSpinBox = new QSpinBox();
-    tokensSpinBox->setRange(0, 999999);
-    tokensSpinBox->setValue(tokens);
+    tokensSpinBox->setRange(0, 9999);
+
 
     QDialogButtonBox* btns = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -82,4 +84,7 @@ PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, QW
     f->addRow("Tokens:", tokensSpinBox);
     f->addRow(btns);
 
-};
+    tokensSpinBox->setValue(tokens);
+    tokensSpinBox->setFocus();
+
+}

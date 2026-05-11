@@ -35,7 +35,7 @@ void Transition::paint(QPainter* painter,
     myOption.state &= ~QStyle::State_Selected;
 
     if (availability == Waiting) setBrush(QBrush(Qt::blue));
-    else if (availability == Fireable) setBrush(QBrush(Qt::green));
+    else if (availability == Fireable) setBrush(QBrush(QColor(0, 220, 0)));
     else setBrush(QBrush(Qt::darkGray));
     QGraphicsRectItem::paint(painter, &myOption, widget);
 

@@ -107,7 +107,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                         }
 
                         if (!alreadyConnected) {
-                            Arc* arc = new Arc(arcId, arcSource, clicked, 1);
+                            Arc* arc = new Arc(arcSource, clicked, 1);
 
                             Transition* srcTrans  = dynamic_cast<Transition*>(arcSource);
                             Transition* destTrans = dynamic_cast<Transition*>(clicked);
@@ -117,8 +117,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 
                                 qDebug() << "Transition" << srcTrans->getName()
                                           << "output arcs:";
-                                 for (Arc* a : srcTrans->output_arcs)
-                                     qDebug() << " Arc" << a->getId();
+
                             }
 
                             if (destTrans) {
@@ -126,8 +125,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 
                                 qDebug() << "Transition" << destTrans->getName()
                                           << "input arcs:";
-                                 for (Arc* a : destTrans->input_arcs)
-                                     qDebug() << " Arc" << a->getId();
+
                             }
 
 
