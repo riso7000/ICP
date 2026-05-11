@@ -8,6 +8,10 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
+if(WIN32)
+    set(APP_ICON_RESOURCE icon.rc)
+endif()
+
 qt5_add_resources(RESOURCES resources.qrc)
 
 add_executable(qt_petri
@@ -26,6 +30,7 @@ add_executable(qt_petri
     src/properties_dialog.cpp
     src/properties_dialog.h
     resources.qrc
+    ${APP_ICON_RESOURCE}
 )
 
 target_link_libraries(qt_petri

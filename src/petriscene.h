@@ -35,6 +35,7 @@ public:
 
     PetriScene(QObject* parent = 0);
     void setTool(Tool tool);
+    void clearNet();
 
     void stabilize();
     void scheduleTimers();

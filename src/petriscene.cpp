@@ -156,6 +156,32 @@ void PetriScene::setTool(Tool tool) {
     }
 }
 
+void PetriScene::clearNet() {
+    variables.clear();
+    inputs.clear();
+    outputs.clear();
+
+    for (Transition* tr : transitions) {
+        for (Arc* arc : tr->input_arcs) {
+            delete arc;
+        }
+
+        for (Arc* arc : tr->output_arcs) {
+            delete arc;
+        }
+
+        delete tr;
+    }
+
+    transitions.clear();
+
+    for (Place* pl : places) {
+        delete pl;
+    }
+
+    places.clear();
+}
+
 // petriscene.cpp
 void PetriScene::deleteItemAt(const QPointF& scenePos) {
     QGraphicsItem* clicked = itemAt(scenePos, QTransform());
