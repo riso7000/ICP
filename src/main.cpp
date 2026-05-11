@@ -262,15 +262,15 @@ int main(int argc, char* argv[]) {
 
     // --- Toolbar ---
     QToolBar* toolbar = window.addToolBar("Tools");
-    QAction* openAction  = toolbar->addAction("Open");
-    QAction* saveAction  = toolbar->addAction("Save");
-    QAction* placeAction  = toolbar->addAction("Place");
-    QAction* transAction  = toolbar->addAction("Transition");
-    QAction* arcAction    = toolbar->addAction("Arc");
-    QAction* selectAction = toolbar->addAction("Select");
-    QAction* deleteAction = toolbar->addAction("Delete");
-    QAction* runAction  = toolbar->addAction("Run");
-    QAction* stopAction = toolbar->addAction("Stop");
+    QAction* openAction  = toolbar->addAction(QIcon(":/res/open.png"), "Open");
+    QAction* saveAction  = toolbar->addAction(QIcon(":/res/save.png"), "Save");
+    QAction* placeAction  = toolbar->addAction(QIcon(":/res/place.png"), "Place");
+    QAction* transAction  = toolbar->addAction(QIcon(":/res/transition.png"), "Transition");
+    QAction* arcAction    = toolbar->addAction(QIcon(":/res/arc.png"), "Arc");
+    QAction* selectAction = toolbar->addAction(QIcon(":/res/select.png"), "Select");
+    QAction* deleteAction = toolbar->addAction(QIcon(":/res/delete.png"), "Delete");
+    QAction* runAction  = toolbar->addAction(QIcon(":/res/run.png"), "Run");
+    QAction* stopAction = toolbar->addAction(QIcon(":/res/stop.png"), "Stop");
     stopAction->setEnabled(false);
 
     QObject::connect(openAction, &QAction::triggered, [=]() {

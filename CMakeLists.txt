@@ -8,6 +8,8 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
+qt5_add_resources(RESOURCES resources.qrc)
+
 add_executable(qt_petri
     src/main.cpp
     src/petriscene.cpp
@@ -23,6 +25,7 @@ add_executable(qt_petri
     third_party/Cflat/Cflat.cpp
     src/properties_dialog.cpp
     src/properties_dialog.h
+    resources.qrc
 )
 
 target_link_libraries(qt_petri
@@ -33,5 +36,4 @@ target_link_libraries(qt_petri
 
 target_include_directories(qt_petri PRIVATE
     third_party/Cflat
-
 )
