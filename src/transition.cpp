@@ -35,6 +35,7 @@ void Transition::paint(QPainter* painter,
     myOption.state &= ~QStyle::State_Selected;
 
     if (availability == Waiting) setBrush(QBrush(Qt::blue));
+    else if (availability == Fireable) setBrush(QBrush(Qt::green));
     else setBrush(QBrush(Qt::darkGray));
     QGraphicsRectItem::paint(painter, &myOption, widget);
 
@@ -94,6 +95,7 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
             eventName = dialog.eventLineEdit->text();
             guard = dialog.guardTextEdit->toPlainText();
             action = dialog.actionTextEdit->toPlainText();
+            if (petriScene) petriScene->updateFireability();
             break;
         }
         else break;

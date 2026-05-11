@@ -13,7 +13,7 @@ class Arc;
 class Transition : public QGraphicsRectItem
 {
 public:
-    enum Availability_enum { Waiting, Disabled };
+    enum Availability_enum { Waiting, Disabled, Fireable };
     Availability_enum availability;
 
     Transition(QString name, int timer, QGraphicsItem* parent = 0);

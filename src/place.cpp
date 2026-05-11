@@ -96,4 +96,8 @@ void Place::setTokens(int t) {
     tokens = t;
     lastTokenChange = QDateTime::currentDateTime();
     update(); // update() triggers repaint
+
+    // notify scene to recheck fireability
+    PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
+    if (petriScene) petriScene->updateFireability();
 }

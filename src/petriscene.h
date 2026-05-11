@@ -70,6 +70,8 @@ public:
     bool isPlaceNameTaken(const QString& name, Place* exclude);
     bool isTransitionNameTaken(const QString& name, Transition* exclude);
 
+    void updateFireability();
+
 
 signals:
     void outputEmitted(const QString& name, const QString& value);

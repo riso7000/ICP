@@ -26,9 +26,10 @@ PetriScene::PetriScene(QObject* parent)
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (event->button() == Qt::RightButton) {
-            deleteItemAt(event->scenePos());
-            return;
-        }
+        deleteItemAt(event->scenePos());
+        updateFireability();
+        return;
+    }
     if (event->button() != Qt::LeftButton) return;
 
 
@@ -131,6 +132,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 
 
                             addItem(arc);
+                            updateFireability();
                         }
                 }
             }
@@ -139,6 +141,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     }
     else if (currentTool == DeleteTool) {
         deleteItemAt(event->scenePos());
+        updateFireability();
     }
     else {
         QGraphicsScene::mousePressEvent(event);
@@ -228,6 +231,7 @@ void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
     if (currentTool == DeleteTool &&
         event->buttons() & (Qt::LeftButton | Qt::RightButton)) {
         deleteItemAt(event->scenePos());
+        updateFireability();
         return;
     }
     QGraphicsScene::mouseMoveEvent(event);
@@ -604,7 +608,21 @@ bool PetriScene::isPlaceNameTaken(const QString& name, Place* exclude) {
 }
 
 bool PetriScene::isTransitionNameTaken(const QString& name, Transition* exclude) {
-    for (auto* t : transitions)
-        if (t != exclude && t->name == name) return true;
     return false;
+}
+
+
+void PetriScene::updateFireability() {
+    rebuildCflatEnvironment();
+    for (Transition* t : transitions) {
+        if (currentMode == RunMode) return;
+
+        if (!(t->eventName.isEmpty())) {
+            t->setAvailability(Transition::Disabled);
+            return;
+        }
+
+        bool fireable = isFireable(t);
+        t->setAvailability(fireable ? Transition::Fireable : Transition::Disabled);
+    }
 }
