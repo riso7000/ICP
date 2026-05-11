@@ -131,68 +131,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
         }
     }
     else if (currentTool == DeleteTool) {
-        QGraphicsItem* clicked = itemAt(event->scenePos(), QTransform());
-        if (!clicked) return;
-
-        Arc* clickedArc         = dynamic_cast<Arc*>(clicked);
-        Place* clickedPlace     = dynamic_cast<Place*>(clicked);
-        Transition* clickedTrans = dynamic_cast<Transition*>(clicked);
-
-        if (clickedArc) {
-            // deleting an arc directly - just update lists and remove it
-            Transition* srcTrans = dynamic_cast<Transition*>(clickedArc->getSource());
-            Transition* destTrans = dynamic_cast<Transition*>(clickedArc->getDest());
-            Place* srcPlace      = dynamic_cast<Place*>(clickedArc->getSource());
-            Place* destPlace     = dynamic_cast<Place*>(clickedArc->getDest());
-
-            if (srcTrans)
-                srcTrans->output_arcs.erase(
-                    std::remove(srcTrans->output_arcs.begin(),
-                                srcTrans->output_arcs.end(), clickedArc),
-                    srcTrans->output_arcs.end());
-
-            if (destTrans)
-                destTrans->input_arcs.erase(
-                    std::remove(destTrans->input_arcs.begin(),
-                                destTrans->input_arcs.end(), clickedArc),
-                    destTrans->input_arcs.end());
-
-            removeItem(clickedArc);
-            delete clickedArc;
-
-        } else if (clickedPlace || clickedTrans) {
-            // deleting a place or transition - collect arcs first, then delete
-            QList<Arc*> arcsToDelete;
-            foreach (QGraphicsItem* item, items()) {
-                Arc* arc = dynamic_cast<Arc*>(item);
-                if (arc && (arc->getSource() == clicked || arc->getDest() == clicked))
-                    arcsToDelete.append(arc);
-            }
-
-            foreach (Arc* arc, arcsToDelete) {
-                Transition* srcTrans  = dynamic_cast<Transition*>(arc->getSource());
-                Transition* destTrans = dynamic_cast<Transition*>(arc->getDest());
-
-                if (srcTrans)
-                    srcTrans->output_arcs.erase(
-                        std::remove(srcTrans->output_arcs.begin(),
-                                    srcTrans->output_arcs.end(), arc),
-                        srcTrans->output_arcs.end());
-
-                if (destTrans)
-                    destTrans->input_arcs.erase(
-                        std::remove(destTrans->input_arcs.begin(),
-                                    destTrans->input_arcs.end(), arc),
-                        destTrans->input_arcs.end());
-
-                removeItem(arc);
-                delete arc;
-            }
-            if (clickedPlace) places.erase(std::remove(places.begin(), places.end(), clickedPlace), places.end());
-            if (clickedTrans) transitions.erase(std::remove(transitions.begin(), transitions.end(), clickedTrans), transitions.end());
-            removeItem(clicked);
-            delete clicked;
-        }
+        deleteItemAt(event->scenePos());
     }
     else {
         QGraphicsScene::mousePressEvent(event);
@@ -214,6 +153,77 @@ void PetriScene::setTool(Tool tool) {
         }
         item->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
     }
+}
+
+// petriscene.cpp
+void PetriScene::deleteItemAt(const QPointF& scenePos) {
+    QGraphicsItem* clicked = itemAt(scenePos, QTransform());
+    if (!clicked) return;
+
+    Arc* clickedArc         = dynamic_cast<Arc*>(clicked);
+    Place* clickedPlace     = dynamic_cast<Place*>(clicked);
+    Transition* clickedTrans = dynamic_cast<Transition*>(clicked);
+
+    if (clickedArc) {
+        Transition* srcTrans  = dynamic_cast<Transition*>(clickedArc->getSource());
+        Transition* destTrans = dynamic_cast<Transition*>(clickedArc->getDest());
+
+        if (srcTrans)
+            srcTrans->output_arcs.erase(
+                std::remove(srcTrans->output_arcs.begin(),
+                            srcTrans->output_arcs.end(), clickedArc),
+                srcTrans->output_arcs.end());
+        if (destTrans)
+            destTrans->input_arcs.erase(
+                std::remove(destTrans->input_arcs.begin(),
+                            destTrans->input_arcs.end(), clickedArc),
+                destTrans->input_arcs.end());
+
+        removeItem(clickedArc);
+        delete clickedArc;
+
+    } else if (clickedPlace || clickedTrans) {
+        QList<Arc*> arcsToDelete;
+        foreach (QGraphicsItem* item, items()) {
+            Arc* arc = dynamic_cast<Arc*>(item);
+            if (arc && (arc->getSource() == clicked || arc->getDest() == clicked))
+                arcsToDelete.append(arc);
+        }
+
+        foreach (Arc* arc, arcsToDelete) {
+            Transition* srcTrans  = dynamic_cast<Transition*>(arc->getSource());
+            Transition* destTrans = dynamic_cast<Transition*>(arc->getDest());
+
+            if (srcTrans)
+                srcTrans->output_arcs.erase(
+                    std::remove(srcTrans->output_arcs.begin(),
+                                srcTrans->output_arcs.end(), arc),
+                    srcTrans->output_arcs.end());
+            if (destTrans)
+                destTrans->input_arcs.erase(
+                    std::remove(destTrans->input_arcs.begin(),
+                                destTrans->input_arcs.end(), arc),
+                    destTrans->input_arcs.end());
+
+            removeItem(arc);
+            delete arc;
+        }
+
+        if (clickedPlace) places.erase(std::remove(places.begin(), places.end(), clickedPlace), places.end());
+        if (clickedTrans) transitions.erase(std::remove(transitions.begin(), transitions.end(), clickedTrans), transitions.end());
+        removeItem(clicked);
+        delete clicked;
+    }
+}
+
+
+void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
+    if (currentTool == DeleteTool &&
+        event->buttons() & Qt::LeftButton) {
+        deleteItemAt(event->scenePos());
+        return;
+    }
+    QGraphicsScene::mouseMoveEvent(event);
 }
 
 
