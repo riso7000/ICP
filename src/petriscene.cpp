@@ -115,17 +115,10 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                             if (srcTrans) {
                                 srcTrans->output_arcs.push_back(arc);
 
-                                qDebug() << "Transition" << srcTrans->getName()
-                                          << "output arcs:";
-
                             }
 
                             if (destTrans) {
                                 destTrans->input_arcs.push_back(arc);
-
-                                qDebug() << "Transition" << destTrans->getName()
-                                          << "input arcs:";
-
                             }
 
 
@@ -430,18 +423,11 @@ void PetriScene::postEvent(const QString& name) {
 
 void PetriScene::startRun() {
     currentMode = RunMode;
-    setTool(SelectTool); // lock editing tools
-
-    // disable movability of all items
     for (QGraphicsItem* item : items())
         item->setFlag(QGraphicsItem::ItemIsMovable, false);
-
-    // build and load the Cflat vars string from all three lists
     rebuildCflatEnvironment();
-
-    // initial stabilization (fire any immediately enabled free transitions)
-    stabilize();
 }
+
 
 void PetriScene::stopRun() {
     currentMode = EditMode;

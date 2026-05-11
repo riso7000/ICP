@@ -33,7 +33,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         case QtFatalMsg:    typeStr = "FATAL"; break;
     }
 
-    QString timestamp = QTime::currentTime().toString("hh:mm:ss");
+    QString timestamp = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss");
 
     // Use invokeMethod to ensure this is thread-safe (in case Cflat runs on a thread)
     QMetaObject::invokeMethod(globalLogWidget, "appendPlainText",
@@ -79,6 +79,14 @@ int main(int argc, char* argv[]) {
 
     // Rebuilds the panel buttons
     rebuildPanel = [=]() {
+
+        if (scene->currentMode == PetriScene::RunMode) {
+            panelDock->setMinimumWidth(300);
+            panelDock->setMaximumWidth(QWIDGETSIZE_MAX);
+        } else {
+            panelDock->setMinimumWidth(200);
+            panelDock->setMaximumWidth(QWIDGETSIZE_MAX);
+        }
         // delete old layout and children
         delete panel->layout();
         QList<QWidget*> children = panel->findChildren<QWidget*>(
@@ -87,19 +95,54 @@ int main(int argc, char* argv[]) {
 
         QFormLayout* form = new QFormLayout(panel);
 
+
         if (scene->currentMode == PetriScene::RunMode) {
+            form->setVerticalSpacing(5);
+
+            // --- Inputs ---
+            form->addRow(new QLabel("<b>Inputs</b>"));
             for (auto& inp : scene->inputs) {
                 QHBoxLayout* row = new QHBoxLayout();
+                row->setContentsMargins(0, 0, 0, 0);
+                row->setSpacing(8);
+
+                QLabel* nameLabel = new QLabel(inp.name);
+                nameLabel->setMinimumWidth(60);
+                row->addWidget(nameLabel);
+
                 QLineEdit* edit = new QLineEdit(inp.value);
+                edit->setMaximumWidth(150);
                 QPushButton* btn = new QPushButton("Send");
-                QObject::connect(btn, &QPushButton::clicked, [scene, edit, name=inp.name]{
-                    scene->setInput(name, edit->text());
+                btn->setMaximumWidth(50);
+
+                QObject::connect(btn, &QPushButton::clicked, [scene, edit, name = inp.name]{
+                    QString currentValue = edit->text();
+                    scene->setInput(name, currentValue);
+                    qDebug() << "Received input of" << name << ":" << currentValue;
                 });
+
                 row->addWidget(edit);
                 row->addWidget(btn);
-                QWidget* rowWidget = new QWidget();
-                rowWidget->setLayout(row);
-                form->addRow(inp.name, rowWidget);
+
+                form->addRow(row);
+            }
+            form->setVerticalSpacing(10);
+            // --- Variables ---
+            form->addRow(new QLabel("<b>Variables</b>"));
+            for (auto& v : scene->variables) {
+                form->addRow(new QLabel(v.type + " " + v.name + " = " + v.initialValue.toString()));
+            }
+
+            // --- Outputs ---
+            form->addRow(new QLabel("<b>Outputs</b>"));
+            for (auto& out : scene->outputs) {
+            QLabel* fullLineLabel = new QLabel(out.name + " = undefined");
+            form->addRow(fullLineLabel);
+
+            QObject::connect(scene, &PetriScene::outputEmitted, fullLineLabel,
+                [fullLineLabel, name = out.name](const QString& n, const QString& val) {
+                    if (n == name) fullLineLabel->setText(name + " = " + val);
+                });
             }
         }
         else {
@@ -107,6 +150,8 @@ int main(int argc, char* argv[]) {
             form->addRow(new QLabel("<b>Inputs</b>"));
             for (int i = 0; i < (int)scene->inputs.size(); i++) {
                 QHBoxLayout* row = new QHBoxLayout();
+                row->setContentsMargins(0, 2, 0, 0);
+                row->setSpacing(5);
                 row->addWidget(new QLabel(scene->inputs[i].name));
                 QPushButton* del = new QPushButton("x");
                 del->setFixedWidth(24);
@@ -117,9 +162,7 @@ int main(int argc, char* argv[]) {
                     rebuild();
                 });
                 row->addWidget(del);
-                QWidget* rowWidget = new QWidget();
-                rowWidget->setLayout(row);
-                form->addRow(rowWidget);
+                form->addRow(row);
             }
             QPushButton* addInput = new QPushButton("+ Add Input");
             QObject::connect(addInput, &QPushButton::clicked, [=](){
@@ -138,6 +181,8 @@ int main(int argc, char* argv[]) {
             for (int i = 0; i < (int)scene->variables.size(); i++) {
                 auto& v = scene->variables[i];
                 QHBoxLayout* row = new QHBoxLayout();
+                row->setContentsMargins(0, 2, 0, 0);
+                row->setSpacing(5);
                 row->addWidget(new QLabel(v.type + " " + v.name + " = " + v.initialValue.toString()));
                 QPushButton* del = new QPushButton("x");
                 del->setFixedWidth(24);
@@ -148,13 +193,10 @@ int main(int argc, char* argv[]) {
                     rebuild();
                 });
                 row->addWidget(del);
-                QWidget* rowWidget = new QWidget();
-                rowWidget->setLayout(row);
-                form->addRow(rowWidget);
+                form->addRow(row);
             }
             QPushButton* addVar = new QPushButton("+ Add Variable");
             QObject::connect(addVar, &QPushButton::clicked, [=](){
-                // small dialog to pick type, name, initial value
                 QDialog dlg;
                 dlg.setWindowTitle("Add Variable");
                 QFormLayout* f = new QFormLayout(&dlg);
@@ -172,6 +214,7 @@ int main(int argc, char* argv[]) {
                 f->addRow("Name:",          nameEdit);
                 f->addRow("Initial value:", valueEdit);
                 f->addRow(btns);
+                nameEdit->setFocus();
 
                 if (dlg.exec() == QDialog::Accepted && !nameEdit->text().isEmpty()) {
                     PetriScene::NetVariable var;
@@ -190,6 +233,8 @@ int main(int argc, char* argv[]) {
             form->addRow(new QLabel("<b>Outputs</b>"));
             for (int i = 0; i < (int)scene->outputs.size(); i++) {
                 QHBoxLayout* row = new QHBoxLayout();
+                row->setContentsMargins(0, 2, 0, 0);
+                row->setSpacing(5);
                 row->addWidget(new QLabel(scene->outputs[i].name));
                 QPushButton* del = new QPushButton("x");
                 del->setFixedWidth(24);
@@ -200,9 +245,7 @@ int main(int argc, char* argv[]) {
                     rebuild();
                 });
                 row->addWidget(del);
-                QWidget* rowWidget = new QWidget();
-                rowWidget->setLayout(row);
-                form->addRow(rowWidget);
+                form->addRow(row);
             }
             QPushButton* addOutput = new QPushButton("+ Add Output");
             QObject::connect(addOutput, &QPushButton::clicked, [=](){
@@ -270,14 +313,14 @@ int main(int argc, char* argv[]) {
 
 
     QObject::connect(runAction, &QAction::triggered, [=]{
-        scene->startRun();
         runAction->setEnabled(false);
         stopAction->setEnabled(true);
-        // disable edit tools
         for (QAction* a : {placeAction, transAction, arcAction, deleteAction})
             a->setEnabled(false);
+        scene->startRun();
         auto rebuild = rebuildPanel;
         rebuild();
+        scene->stabilize();
     });
 
     QObject::connect(stopAction, &QAction::triggered, [=]{
@@ -292,7 +335,7 @@ int main(int argc, char* argv[]) {
 
     rebuildPanel(); // initial build (edit mode placeholder)
 
-    qDebug() << "Petri Net Editor Started.";
+    qDebug() << "Petri Net Start";
     window.resize(1280, 720);
     window.show();
     return app.exec();
