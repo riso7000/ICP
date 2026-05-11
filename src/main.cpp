@@ -230,7 +230,7 @@ int main(int argc, char* argv[]) {
 
         if (!filePath.isEmpty()) {
             read_netdef(filePath, *scene);
-            rebuildInputPanel();
+            rebuildPanel();
         }
     });
 

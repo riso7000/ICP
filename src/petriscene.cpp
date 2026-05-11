@@ -21,7 +21,7 @@ PetriScene::PetriScene(QObject* parent)
       arcId(0),
       arcSource(0)
 {
-
+    startTime = QDateTime::currentDateTime();
 }
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
@@ -251,8 +251,13 @@ void PetriScene::stabilize() {
 
 void PetriScene::updateAvailability() {
     for (Transition* t : transitions) {
-        if (!isFireable(t))
-            cancelTimer(t);
+        bool fireable = isFireable(t);
+        if (fireable && t->becameFireable.isNull())
+            t->becameFireable = QDateTime::currentDateTime();
+        else if (!fireable)
+            t->becameFireable = QDateTime(); // reset
+
+        if (!isFireable(t)) cancelTimer(t);
         t->setAvailability(t->timer ? Transition::Waiting : Transition::Disabled);
     }
 }
@@ -317,7 +322,7 @@ void PetriScene::cancelTimer(Transition* t) {
 
 bool PetriScene::evaluateGuard(const QString& guard) {
     if (guard.isEmpty()) return true;
-    QString processed = preprocessGuard(guard);
+    QString processed = preprocessCode(guard);
     qDebug() << "Guard after preprocessing:" << processed;
 
     static int guardCounter = 0;
@@ -422,14 +427,13 @@ void PetriScene::setInput(const QString& name, const QString& value) {
 
 
 
-QString PetriScene::preprocessGuard(const QString& guard) {
-    QString result = guard;
+QString PetriScene::preprocessCode(const QString& code) {
+    QString result = code;
 
-    // replace atoi(valueof("name")) with the integer value directly
+    // atoi(valueof("name")) -> integer value directly
     QRegularExpression ratoiv("atoi\\(valueof\\(\"([^\"]+)\"\\)\\)");
-    QRegularExpressionMatchIterator it = ratoiv.globalMatch(guard);
-    while (it.hasNext()) {
-        auto m = it.next();
+    QRegularExpressionMatch m;
+    while ((m = ratoiv.match(result)).hasMatch()) {
         QString inputName = m.captured(1);
         int val = 0;
         for (auto& i : inputs)
@@ -437,29 +441,67 @@ QString PetriScene::preprocessGuard(const QString& guard) {
         result.replace(m.captured(0), QString::number(val));
     }
 
-    // replace valueof("name") with the integer value (for guards that use it directly)
+    // valueof("name") -> string value (as integer for Cflat)
     QRegularExpression rvo("valueof\\(\"([^\"]+)\"\\)");
-    it = rvo.globalMatch(result);  // note: iterate over result, not guard
-    QRegularExpressionMatch m;
-    // rebuild since iterating over a string we're modifying is unsafe
     while ((m = rvo.match(result)).hasMatch()) {
         QString inputName = m.captured(1);
-        QString val = "";
+        QString val = "0";
         for (auto& i : inputs)
             if (i.name == inputName) { val = i.value; break; }
         result.replace(m.captured(0), val);
     }
 
-    // replace defined("name") with true/false
+    // defined("name") -> true/false
     QRegularExpression rdef("defined\\(\"([^\"]+)\"\\)");
-    it = rdef.globalMatch(guard);
-    while (it.hasNext()) {
-        auto m = it.next();
+    while ((m = rdef.match(result)).hasMatch()) {
         QString inputName = m.captured(1);
         bool def = false;
         for (auto& i : inputs)
             if (i.name == inputName) { def = i.defined; break; }
         result.replace(m.captured(0), def ? "true" : "false");
+    }
+
+    // tokens("place_name") -> int
+    QRegularExpression rtok("tokens\\(\"([^\"]+)\"\\)");
+    while ((m = rtok.match(result)).hasMatch()) {
+        QString placeName = m.captured(1);
+        int val = 0;
+        for (auto* p : places)
+            if (p->name == placeName) { val = p->getTokens(); break; }
+        result.replace(m.captured(0), QString::number(val));
+    }
+
+    // elapsed("place_name") -> ms since last token change
+    // elapsed("transition_name") -> ms since transition became fireable
+    QRegularExpression relap("elapsed\\(\"([^\"]+)\"\\)");
+    while ((m = relap.match(result)).hasMatch()) {
+        QString itemName = m.captured(1);
+        int val = 0;
+        bool found = false;
+
+        for (auto* p : places) {
+            if (p->name == itemName) {
+                val = p->lastTokenChange.msecsTo(QDateTime::currentDateTime());
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            for (auto* t : transitions) {
+                if (t->name == itemName && !t->becameFireable.isNull()) {
+                    val = t->becameFireable.msecsTo(QDateTime::currentDateTime());
+                    break;
+                }
+            }
+        }
+        result.replace(m.captured(0), QString::number(val));
+    }
+
+    // now() -> ms since start
+    QRegularExpression rnow("now\\(\\)");
+    while ((m = rnow.match(result)).hasMatch()) {
+        qint64 ms = startTime.msecsTo(QDateTime::currentDateTime());
+        result.replace(m.captured(0), QString::number(ms));
     }
 
     return result;
@@ -469,10 +511,11 @@ QString PetriScene::preprocessGuard(const QString& guard) {
 
 void PetriScene::executeAction(const QString& action) {
     if (action.isEmpty()) return;
+    QString processed = preprocessCode(action);
 
     // find all output("name", expr) calls
-    QRegularExpression r("output\\(\"([^\"]+)\"\\s*,\\s*([^)]+)\\)");
-    QRegularExpressionMatchIterator it = r.globalMatch(action);
+    QRegularExpression r("output\\(\"([^\"]+)\"\\s*,\\s*(.+?)\\)\\s*;?");
+    QRegularExpressionMatchIterator it = r.globalMatch(processed);
 
     while (it.hasNext()) {
         auto m = it.next();
@@ -494,6 +537,7 @@ void PetriScene::executeAction(const QString& action) {
 
         if (!env.load(scriptName.c_str(), code.c_str())) {
             qDebug() << "Failed to evaluate output expr:" << exprStr;
+            qDebug() << "Cflat error:" << env.getErrorMessage();
             continue;
         }
 

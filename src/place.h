@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QString>
 #include <QInputDialog>
+#include <QDateTime>
 
 class Place : public QGraphicsEllipseItem {
 public:
@@ -12,7 +13,7 @@ public:
     QString getName() const { return name; }
     int getTokens() const { return tokens; }
     int getInitTokens() const { return init_tokens; }
-    void setTokens(int t) { tokens = t; update(); } // update() triggers repaint
+    void setTokens(int t);
 
 
 protected:
@@ -42,6 +43,7 @@ private:
     QString name;
     int tokens;
     int init_tokens;
+    QDateTime lastTokenChange;
 
 };
 

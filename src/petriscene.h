@@ -62,8 +62,10 @@ public:
     void stopRun();
 
     void rebuildCflatEnvironment();
-    QString preprocessGuard(const QString& guard);
+    QString preprocessCode(const QString& code);
     void executeAction(const QString& action);
+
+    QDateTime startTime;
 
 
 signals:

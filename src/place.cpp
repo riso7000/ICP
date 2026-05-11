@@ -18,6 +18,7 @@ Place::Place(QString name, int initial_tokens, QGraphicsItem* parent)
     setPen(QPen(Qt::black));
     setBrush(QBrush(Qt::white));
     init_tokens = initial_tokens;
+    lastTokenChange = QDateTime::currentDateTime();
 }
 
 void Place::paint(QPainter* painter,
@@ -77,4 +78,10 @@ void Place::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     }
 
     QGraphicsEllipseItem::mouseDoubleClickEvent(event);
+}
+
+void Place::setTokens(int t) {
+    tokens = t;
+    lastTokenChange = QDateTime::currentDateTime();
+    update(); // update() triggers repaint
 }

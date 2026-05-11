@@ -37,6 +37,7 @@ public:
 
     QString action;
     QString name;
+    QDateTime becameFireable;
 
 
 protected:

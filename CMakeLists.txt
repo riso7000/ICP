@@ -20,7 +20,7 @@ add_executable(qt_petri
     src/arc.h
     src/net_def_io.cpp
     src/net_def_io.hpp
-    third_party/nlohmann/json.hpp
+
     third_party/Cflat/Cflat.cpp
     src/properties_dialog.cpp
     src/properties_dialog.h
