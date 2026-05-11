@@ -19,11 +19,9 @@ PetriScene::PetriScene(QObject* parent)
       placeId(0),
       transitionId(0),
       arcId(0),
-      arcSource(0),
-      active(true),
-      sensorValue(42)
+      arcSource(0)
 {
-    env.load("vars", "bool active = true; int sensorValue = 42;");
+
 }
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {

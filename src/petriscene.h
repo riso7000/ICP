@@ -35,16 +35,12 @@ public:
 
     PetriScene(QObject* parent = 0);
     void setTool(Tool tool);
-    void setActive(bool value);
-    void setSensorValue(int value);
 
     void stabilize();
     void scheduleTimers();
     void onTimerExpired(Transition* t);
 
     Cflat::Environment env;
-    bool active;
-    int sensorValue;
     QString name;
     QString comment;
     // Public for opening from and saving to file

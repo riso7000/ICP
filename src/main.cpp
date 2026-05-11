@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
                 QFormLayout* f = new QFormLayout(&dlg);
 
                 QComboBox* typeBox = new QComboBox();
-                typeBox->addItems({"bool", "int"});
+                typeBox->addItems({"bool", "int", "float", "double", "char"});
                 QLineEdit* nameEdit = new QLineEdit();
                 QLineEdit* valueEdit = new QLineEdit("0");
                 QDialogButtonBox* btns = new QDialogButtonBox(
