@@ -18,17 +18,21 @@ public:
 
     void updatePosition(); // recalculates the line endpoints
 
-    void setWeight(int w) { weight = w; update(); } // update() triggers repaint
 
-    QPainterPath shape() const override;
+
+
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget = nullptr) override;
 
     QRectF boundingRect() const override;
+    QPainterPath shape() const override;
 
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
+    void setWeight(int w) { weight = w; update(); } // update() triggers repaint
+
+
 
 private:
     QGraphicsItem *source;

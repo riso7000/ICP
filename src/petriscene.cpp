@@ -26,12 +26,42 @@ PetriScene::PetriScene(QObject* parent)
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
     if (currentTool == PlaceTool) {
+        // 1. Keep looping until we find a name that isn't taken
+        bool collision = true;
+        while (collision) {
+            collision = false;
+            QString potentialName = QString("Place%1").arg(placeId);
+
+            for (Place* p : places) {
+                if (p->getName() == potentialName) {
+                    placeId++; // ID is taken, increment and try again
+                    collision = true;
+                    break; // Exit the for-loop to re-check the whole list with the new ID
+                }
+            }
+        }
+
         Place* place = new Place("Place" + QString::number(placeId++), 0);
         place->setPos(event->scenePos());
         places.push_back(place);
         addItem(place);
     }
     else if (currentTool == TransitionTool) {
+        // 1. Keep looping until we find a name that isn't taken
+        bool collision = true;
+        while (collision) {
+            collision = false;
+            QString potentialName = QString("Transition%1").arg(transitionId);
+
+            for (Transition* t : transitions) {
+                if (t->getName() == potentialName) {
+                    transitionId++; // ID is taken, increment and try again
+                    collision = true;
+                    break; // Exit the for-loop to re-check the whole list with the new ID
+                }
+            }
+        }
+
         Transition* transition = new Transition("Transition" + QString::number(transitionId++), 0);
         transition->setPos(event->scenePos());
         transitions.push_back(transition);
@@ -478,38 +508,21 @@ QString PetriScene::preprocessCode(const QString& code) {
         QString arg = m.captured(1);
         int val = 0;
 
-        if (arg.startsWith("P:")) {
-            QString placeName = arg.mid(2);
-            for (auto* p : places)
-                if (p->name == placeName) {
-                    val = p->lastTokenChange.msecsTo(QDateTime::currentDateTime());
-                    break;
-                }
-        } else if (arg.startsWith("T:")) {
-            QString transName = arg.mid(2);
+        bool found = false;
+        for (auto* p : places) {
+            if (p->name == arg) {
+                val = p->lastTokenChange.msecsTo(QDateTime::currentDateTime());
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
             for (auto* t : transitions)
-                if (t->name == transName && !t->becameFireable.isNull()) {
+                if (t->name == arg && !t->becameFireable.isNull()) {
                     val = t->becameFireable.msecsTo(QDateTime::currentDateTime());
                     break;
                 }
-        } else {
-            // no prefix - search places first, then transitions (backward compat)
-            bool found = false;
-            for (auto* p : places) {
-                if (p->name == arg) {
-                    val = p->lastTokenChange.msecsTo(QDateTime::currentDateTime());
-                    found = true;
-                    break;
-                }
             }
-            if (!found) {
-                for (auto* t : transitions)
-                    if (t->name == arg && !t->becameFireable.isNull()) {
-                        val = t->becameFireable.msecsTo(QDateTime::currentDateTime());
-                        break;
-                    }
-            }
-        }
         result.replace(m.captured(0), QString::number(val));
     }
 

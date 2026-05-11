@@ -62,10 +62,10 @@ public:
     void stopRun();
 
     void rebuildCflatEnvironment();
-    QString preprocessCode(const QString& code);
-    void executeAction(const QString& action);
 
-    QDateTime startTime;
+
+
+
 
     bool isPlaceNameTaken(const QString& name, Place* exclude);
     bool isTransitionNameTaken(const QString& name, Transition* exclude);
@@ -86,6 +86,11 @@ protected:
 
 
 
+    void executeAction(const QString& action);
+    QString preprocessCode(const QString& code);
+
+
+
 
 private:
     int placeId;
@@ -94,6 +99,7 @@ private:
     int actionCounter = 0;
 
     QGraphicsItem* arcSource; // null when no source selected yet
+    QDateTime startTime;
 };
 
 #endif // PETRISCENE_H

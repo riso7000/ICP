@@ -70,7 +70,7 @@ PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, QW
 
     nameLineEdit  = new QLineEdit(name);
     tokensSpinBox = new QSpinBox();
-    tokensSpinBox->setRange(0, 999);
+    tokensSpinBox->setRange(0, 999999);
     tokensSpinBox->setValue(tokens);
 
     QDialogButtonBox* btns = new QDialogButtonBox(

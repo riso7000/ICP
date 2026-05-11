@@ -81,20 +81,26 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     // 'widget' can usually be found via the view, or just pass NULL
     TransitionPropertiesDialog dialog(name, delay_ms, eventName, guard, action);
 
-    if (dialog.exec() == QDialog::Accepted) {
-        QString newName = dialog.nameLineEdit->text();
+    while(true) {
+        if (dialog.exec() == QDialog::Accepted) {
+            QString newName = dialog.nameLineEdit->text();
             if (newName != name && petriScene->isTransitionNameTaken(newName, this)) {
                 QMessageBox::warning(nullptr, "Name taken",
                     "A transition named '" + newName + "' already exists.");
-                return;
+                continue;
             }
-        name = newName;
-        setDelay(dialog.delaySpinBox->value());
-        eventName = dialog.eventLineEdit->text();
-        guard = dialog.guardTextEdit->toPlainText();
-        action = dialog.actionTextEdit->toPlainText();
-
+            name = newName;
+            setDelay(dialog.delaySpinBox->value());
+            eventName = dialog.eventLineEdit->text();
+            guard = dialog.guardTextEdit->toPlainText();
+            action = dialog.actionTextEdit->toPlainText();
+            break;
+        }
+        else break;
     }
+
+
+
 
     QGraphicsRectItem::mouseDoubleClickEvent(event);
 }

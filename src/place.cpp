@@ -72,17 +72,22 @@ void Place::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     if (petriScene->currentTool != PetriScene::SelectTool) return;
 
     PlacePropertiesDialog dialog(name, tokens);
-    if (dialog.exec() == QDialog::Accepted) {
+    while(true) {
+        if (dialog.exec() == QDialog::Accepted) {
             QString newName = dialog.nameLineEdit->text();
             if (newName != name && petriScene->isPlaceNameTaken(newName, this)) {
                 QMessageBox::warning(nullptr, "Name taken",
                     "A place named '" + newName + "' already exists.");
-                return; // don't save
+                continue; // don't save
             }
             name = newName;
             setTokens(dialog.tokensSpinBox->value());
             update();
+            break;
         }
+        else break;
+    }
+
 
     QGraphicsEllipseItem::mouseDoubleClickEvent(event);
 }
