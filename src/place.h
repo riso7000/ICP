@@ -18,6 +18,8 @@ public:
     QString name;
     QDateTime lastTokenChange;
 
+    int tokens;
+
 
 protected:
     void paint(QPainter* painter,
@@ -44,7 +46,7 @@ protected:
 
 private:
 
-    int tokens;
+
     int init_tokens;
 
 

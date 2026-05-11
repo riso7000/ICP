@@ -105,6 +105,8 @@ private:
 
     QGraphicsItem* arcSource; // null when no source selected yet
     QDateTime startTime;
+
+    void log(const QString& msg, int indent = 0);
 };
 
 #endif // PETRISCENE_H

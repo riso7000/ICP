@@ -250,22 +250,32 @@ bool PetriScene::isFireable(Transition* t) {
 
 
 void PetriScene::fireTransition(Transition* t) {
+    log("FIRED: " + t->name, 1);
+
     // consume tokens from input places
     for (Arc* arc : t->input_arcs) {
         Place* place = dynamic_cast<Place*>(arc->getSource());
-        if (place)
+        if (place) {
+            int oldTokens = place->tokens;
             place->setTokens(place->getTokens() - arc->getWeight());
+            log("TOKENS: " + place->name + " " +
+                QString::number(oldTokens) + "->" + QString::number(place->tokens), 2);
+        }
     }
 
     // produce tokens in output places
     for (Arc* arc : t->output_arcs) {
         Place* place = dynamic_cast<Place*>(arc->getDest());
-        if (place)
+        if (place) {
+            int oldTokens = place->tokens;
             place->setTokens(place->getTokens() + arc->getWeight());
+            log("TOKENS: " + place->name + " " +
+                QString::number(oldTokens) + "->" + QString::number(place->tokens), 2);
+        }
     }
 
     executeAction(t->action);
-    qDebug() << "Fired transition" << t->name;
+
 }
 
 void PetriScene::stabilize() {
@@ -313,8 +323,7 @@ void PetriScene::scheduleTimers() {
         if (!isFireable(t)) continue;        // skip non-fireable transitions
         if (t->timer) continue;              // timer already running
 
-        qDebug() << "Scheduling timer for transition" << t->getName()
-                 << "delay:" << t->delay_ms << "ms";
+        log("TIMER SCHEDULED: " + t->name + " : " + QString::number(t->delay_ms) + "ms");
 
         t->timer = new QTimer();
         t->timer->setSingleShot(true);
@@ -332,7 +341,7 @@ void PetriScene::scheduleTimers() {
 
 
 void PetriScene::onTimerExpired(Transition* t) {
-    qDebug() << "Timer expired for transition" << t->getName();
+    log("TIMEOUT EXPIRED: " + t->name);
 
     // clean up the timer
     delete t->timer;
@@ -340,7 +349,7 @@ void PetriScene::onTimerExpired(Transition* t) {
 
     // check if still fireable at the moment of expiry
     if (!isFireable(t)) {
-        qDebug() << "Timeout ignored - transition" << t->getName() << "no longer fireable";
+        log("TIMEOUT IGNORED: " + t->name);
         return;
     }
 
@@ -357,7 +366,7 @@ void PetriScene::cancelTimer(Transition* t) {
         t->timer->stop();
         delete t->timer;
         t->timer = 0;
-        qDebug() << "Cancelled timer for transition" << t->getName();
+        log("TIMEOUT CANCELLED: " + t->name);
     }
 }
 
@@ -454,6 +463,7 @@ void PetriScene::setInput(const QString& name, const QString& value) {
         if (i.name == name) {
             i.value   = value;
             i.defined = true;
+            log("INPUT: " + name + " = \"" + value + "\"");
             break;
         }
     }
@@ -579,7 +589,7 @@ void PetriScene::executeAction(const QString& action) {
         if (!result) continue;
 
         QString value = QString::number(CflatValueAs(result, int));
-        qDebug() << "Output:" << outName << "=" << value;
+        log("OUTPUT: " + outName + " = " + value, 2);
         emit outputEmitted(outName, value);
     }
 }
@@ -609,4 +619,10 @@ void PetriScene::updateFireability() {
         bool fireable = isFireable(t);
         t->setAvailability(fireable ? Transition::Fireable : Transition::Disabled);
     }
+}
+
+
+void PetriScene::log(const QString& msg, int indent) {
+    QString prefix = QString("  ").repeated(indent);
+    qDebug().noquote() << prefix + msg;
 }

@@ -27,7 +27,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
     QString typeStr;
     switch (type) {
-        case QtDebugMsg:    typeStr = "DEBUG"; break;
+        case QtDebugMsg:    typeStr = ""; break;
         case QtWarningMsg:  typeStr = "WARN "; break;
         case QtCriticalMsg: typeStr = "CRIT "; break;
         case QtFatalMsg:    typeStr = "FATAL"; break;
@@ -118,7 +118,6 @@ int main(int argc, char* argv[]) {
                 QObject::connect(btn, &QPushButton::clicked, [scene, edit, name = inp.name]{
                     QString currentValue = edit->text();
                     scene->setInput(name, currentValue);
-                    qDebug() << "Received input of" << name << ":" << currentValue;
                 });
 
                 row->addWidget(edit);
