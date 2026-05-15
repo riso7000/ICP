@@ -89,7 +89,7 @@ void Place::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     }
 
 
-    QGraphicsEllipseItem::mouseDoubleClickEvent(event);
+    event->accept();
 }
 
 void Place::setTokens(int t) {
