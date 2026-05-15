@@ -459,6 +459,7 @@ void PetriScene::postEvent(const QString& name) {
 
 void PetriScene::startRun() {
     currentMode = RunMode;
+    setTool(SelectTool);
     for (QGraphicsItem* item : items())
         item->setFlag(QGraphicsItem::ItemIsMovable, false);
     rebuildCflatEnvironment();

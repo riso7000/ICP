@@ -342,6 +342,7 @@ int main(int argc, char* argv[]) {
         stopAction->setEnabled(true);
         for (QAction* a : {placeAction, transAction, arcAction, deleteAction})
             a->setEnabled(false);
+        selectAction->setChecked(true);
         scene->startRun();
         auto rebuild = rebuildPanel;
         rebuild();
