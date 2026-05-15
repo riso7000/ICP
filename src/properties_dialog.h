@@ -15,7 +15,7 @@ class TransitionPropertiesDialog : public QDialog {
 
 public:
     explicit TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName,
-                                        const QString &currentGuard, const QString &currentAction, QWidget *parent = nullptr);
+                                        const QString &currentGuard, const QString &currentAction, bool readOnly, QWidget *parent = nullptr);
 
     int getDelay() const;
     QString getGuard() const;
@@ -31,7 +31,7 @@ class PlacePropertiesDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit PlacePropertiesDialog(const QString& name, int tokens, QWidget* parent = nullptr);
+    explicit PlacePropertiesDialog(const QString& name, int tokens, bool readOnly, QWidget* parent = nullptr);
 
     QSpinBox* tokensSpinBox;
     QLineEdit* nameLineEdit;

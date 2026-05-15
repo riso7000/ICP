@@ -76,14 +76,14 @@ QVariant Transition::itemChange(GraphicsItemChange change, const QVariant& value
 void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
     PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
-    if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
     if (petriScene->currentTool != PetriScene::SelectTool) return;
 
-    // 'widget' can usually be found via the view, or just pass NULL
-    TransitionPropertiesDialog dialog(name, delay_ms, eventName, guard, action);
+    bool readOnly = (petriScene->currentMode == PetriScene::RunMode);
+    TransitionPropertiesDialog dialog(name, delay_ms, eventName, guard, action, readOnly);
 
     while(true) {
         if (dialog.exec() == QDialog::Accepted) {
+            if (readOnly) break;
             QString newName = dialog.nameLineEdit->text();
             if (newName != name && petriScene->isTransitionNameTaken(newName, this)) {
                 QMessageBox::warning(nullptr, "Name taken",

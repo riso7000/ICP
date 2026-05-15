@@ -2,6 +2,7 @@
 #include <QSpinBox>
 #include <QStyleOptionGraphicsItem>
 #include <QMessageBox>
+#include <QDebug>
 
 #include "place.h"
 #include "arc.h"
@@ -68,12 +69,13 @@ QVariant Place::itemChange(GraphicsItemChange change, const QVariant& value) {
 
 void Place::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
-    if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
     if (petriScene->currentTool != PetriScene::SelectTool) return;
 
-    PlacePropertiesDialog dialog(name, tokens);
+    bool readOnly = (petriScene->currentMode == PetriScene::RunMode);
+    PlacePropertiesDialog dialog(name, tokens, readOnly);
     while(true) {
         if (dialog.exec() == QDialog::Accepted) {
+            if (readOnly) break;
             QString newName = dialog.nameLineEdit->text();
             if (newName != name && petriScene->isPlaceNameTaken(newName, this)) {
                 QMessageBox::warning(nullptr, "Name taken",

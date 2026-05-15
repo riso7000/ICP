@@ -6,28 +6,32 @@
 #include <QDialogButtonBox>
 
 TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName,
-                                                       const QString &currentGuard, const QString &currentAction, QWidget *parent)
+                                                       const QString &currentGuard, const QString &currentAction, bool readOnly, QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle("Edit Transition");
+    setWindowTitle(readOnly ? "Edit Transition (Read Only)" : "Edit Transition");
 
     QFormLayout *layout = new QFormLayout(this);
 
     // Setup Name Change
     nameLineEdit = new QLineEdit(this);
     nameLineEdit->setText(currentName);
+    nameLineEdit->setReadOnly(readOnly);
     layout->addRow("Name of Transition:", nameLineEdit);
 
     // Setup Delay Input
     delaySpinBox = new QSpinBox(this);
     delaySpinBox->setRange(0, 9999);
     delaySpinBox->setValue(currentDelay);
-    delaySpinBox->setFocus();
+    delaySpinBox->setButtonSymbols( QAbstractSpinBox::NoButtons);
+    delaySpinBox->setReadOnly(readOnly);
+    if (!readOnly) delaySpinBox->setFocus();
     layout->addRow("Delay (ms):", delaySpinBox);
 
     // Setup Event Input
     eventLineEdit = new QLineEdit(this);
     eventLineEdit->setText(currentEventName);
+    eventLineEdit->setReadOnly(readOnly);
     layout->addRow("Event input variable:", eventLineEdit);
 
     // Setup Guard Input
@@ -35,6 +39,7 @@ TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentNam
     guardTextEdit->setPlainText(currentGuard);
     guardTextEdit->setAcceptRichText(false);
     guardTextEdit->setMaximumHeight(45);
+    guardTextEdit->setReadOnly(readOnly);
     layout->addRow("Guard expression:", guardTextEdit);
 
     // Setup Action Input
@@ -42,15 +47,20 @@ TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentNam
     actionTextEdit->setPlainText(currentAction);
     actionTextEdit->setAcceptRichText(false);
     actionTextEdit->setMaximumHeight(75);
+    actionTextEdit->setReadOnly(readOnly);
     layout->addRow("Action expression:", actionTextEdit);
 
-    // Standard OK/Cancel buttons
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    layout->addRow(buttonBox);
-
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    if (!readOnly) {
+            QDialogButtonBox* btns = new QDialogButtonBox(
+                QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+            connect(btns, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
+            layout->addRow(btns);
+        } else {
+            QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Close);
+            connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
+            layout->addRow(btns);
+        }
 }
 
 int TransitionPropertiesDialog::getDelay() const {
@@ -62,29 +72,36 @@ QString TransitionPropertiesDialog::getGuard() const {
 }
 
 
-PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, QWidget* parent)
+PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, bool readOnly, QWidget* parent)
     : QDialog(parent)
 {
-
-    setWindowTitle("Edit Place");
+    setWindowTitle(readOnly ? "Edit Place (Read Only)" : "Edit Place");
     QFormLayout* f = new QFormLayout(this);
 
-    nameLineEdit  = new QLineEdit(name);
+    nameLineEdit = new QLineEdit(name);
+    nameLineEdit->setReadOnly(readOnly);
 
     tokensSpinBox = new QSpinBox();
-    tokensSpinBox->setRange(0, 9999);
-
-
-    QDialogButtonBox* btns = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    connect(btns, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-    f->addRow("Name:",   nameLineEdit);
-    f->addRow("Tokens:", tokensSpinBox);
-    f->addRow(btns);
-
+    tokensSpinBox->setRange(0, 999);
     tokensSpinBox->setValue(tokens);
-    tokensSpinBox->setFocus();
+    tokensSpinBox->setReadOnly(readOnly);
+    tokensSpinBox->setButtonSymbols( QAbstractSpinBox::NoButtons);
 
+
+    f->addRow("Name:", nameLineEdit);
+    f->addRow("Tokens:", tokensSpinBox);
+
+    if (!readOnly) {
+        QDialogButtonBox* btns = new QDialogButtonBox(
+            QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        connect(btns, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        f->addRow(btns);
+    } else {
+        QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Close);
+        connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        f->addRow(btns);
+    }
+
+    if (!readOnly) tokensSpinBox->setFocus();
 }
