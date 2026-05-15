@@ -104,5 +104,5 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
 
 
-    QGraphicsRectItem::mouseDoubleClickEvent(event);
+    event->accept();
 }

@@ -110,7 +110,7 @@ void Arc::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
         setWeight(value);
     }
 
-    QGraphicsLineItem::mouseDoubleClickEvent(event);
+    event->accept();
 }
 
 

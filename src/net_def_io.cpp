@@ -130,7 +130,7 @@ int read_netdef(QString path, PetriScene& net) {
         tr->delay_ms = when_delay;
         tr->action = do_action;
         tr->setPos(pos_x, pos_y);
-        
+
         net.transitions.push_back(tr);
         net.addItem(tr);
 
