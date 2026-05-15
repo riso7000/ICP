@@ -30,7 +30,9 @@
 #define JSON_TR_IN "in_transition"
 #define JSON_TR_OUT "out_transition"
 #define JSON_TR_PL_TOK "tokens"
-#define JSON_TR_WHEN "when"
+#define JSON_TR_WHEN_IN "when_input"
+#define JSON_TR_WHEN_BOOL "when_bool"
+#define JSON_TR_WHEN_DELAY "when_delay"
 #define JSON_TR_DO "do"
 
 int read_netdef(QString path, PetriScene& net);

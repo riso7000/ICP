@@ -108,18 +108,29 @@ int read_netdef(QString path, PetriScene& net) {
         net.addItem(pl);
     }
 
+    // Add transitions and draw them
     for (const QJsonValue& transit_obj : transits_arr) {
         QJsonObject transit = transit_obj.toObject();
 
         QString name = transit.value(JSON_TR_NAME).toString();
         double pos_x = transit.value(JSON_POS_X).toDouble();
         double pos_y = transit.value(JSON_POS_Y).toDouble();
+        QString when_in = transit.value(JSON_TR_WHEN_IN).toString();
+        QString when_bool = transit.value(JSON_TR_WHEN_BOOL).toString();
+        int when_delay = transit.value(JSON_TR_WHEN_DELAY).toInt();
+        QString do_action = transit.value(JSON_TR_DO).toString();
+
         QJsonArray arcin_arr = transit.value(JSON_TR_IN).toArray();
         QJsonArray arcout_arr = transit.value(JSON_TR_OUT).toArray();
 
         // Add transition to scene
         Transition* tr = new Transition(name, 0);
+        tr->eventName = when_in;
+        tr->guard = when_bool;
+        tr->delay_ms = when_delay;
+        tr->action = do_action;
         tr->setPos(pos_x, pos_y);
+        
         net.transitions.push_back(tr);
         net.addItem(tr);
 
@@ -232,7 +243,7 @@ int write_netdef(QString path, PetriScene& net) {
         net_places.push_back(place);
     }
 
-    // TRANSITIONS
+    // Add transitions to transition array
     for (const Transition* tr : net.transitions) {
         QJsonObject transit;
         QJsonArray arcin;
@@ -241,6 +252,10 @@ int write_netdef(QString path, PetriScene& net) {
         QJsonValue name(tr->getName());
         QJsonValue posx(tr->x());
         QJsonValue posy(tr->y());
+        QJsonValue when_in(tr->eventName);
+        QJsonValue when_bool(tr->guard);
+        QJsonValue when_delay(tr->delay_ms);
+        QJsonValue do_action(tr->action);
 
         // Arcs in
         for (const Arc* arc : tr->input_arcs) {
@@ -283,6 +298,10 @@ int write_netdef(QString path, PetriScene& net) {
         transit.insert(JSON_POS_Y, posy);
         transit.insert(JSON_TR_IN, arcin);
         transit.insert(JSON_TR_OUT, arcout);
+        transit.insert(JSON_TR_WHEN_IN, when_in);
+        transit.insert(JSON_TR_WHEN_BOOL, when_bool);
+        transit.insert(JSON_TR_WHEN_DELAY, when_delay);
+        transit.insert(JSON_TR_DO, do_action);
 
         net_transitions.push_back(transit);
     }
