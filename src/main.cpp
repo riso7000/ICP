@@ -266,9 +266,9 @@ int main(int argc, char* argv[]) {
     QToolBar* toolbar = window.addToolBar("Tools");
     QAction* openAction  = toolbar->addAction(QIcon(":/res/open.png"), "Open");
     QAction* saveAction  = toolbar->addAction(QIcon(":/res/save.png"), "Save");
+    QAction* clearAction = toolbar->addAction(QIcon(":/res/clear-alt.png"), "Clear");
     QAction* selectAction = toolbar->addAction(QIcon(":/res/select.png"), "Select");
-    QAction* deleteAction = toolbar->addAction(QIcon(":/res/delete.png"), "Delete");
-    QAction* clearAction = toolbar->addAction(QIcon(":/res/clear.png"), "Clear");
+    QAction* deleteAction = toolbar->addAction(QIcon(":/res/delete-alt.png"), "Delete");
     QAction* placeAction  = toolbar->addAction(QIcon(":/res/place.png"), "Place");
     QAction* transAction  = toolbar->addAction(QIcon(":/res/transition.png"), "Transition");
     QAction* arcAction    = toolbar->addAction(QIcon(":/res/arc.png"), "Arc");

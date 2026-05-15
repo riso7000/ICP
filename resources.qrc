@@ -11,5 +11,7 @@
         <file>res/run.png</file>
         <file>res/program.png</file>
         <file>res/clear.png</file>
+        <file>res/delete-alt.png</file>
+        <file>res/clear-alt.png</file>
     </qresource>
 </RCC>
