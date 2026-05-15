@@ -72,7 +72,7 @@ int read_netdef(QString path, PetriScene& net) {
     // Add net inputs
     for (const QJsonValue& in_val : ins_arr) {
         QString input_name = in_val.toString();
-        net.inputs.push_back({input_name, "", false});
+        net.inputs.push_back(PetriScene::NetInput(input_name));
     }
 
     // Add net outputs

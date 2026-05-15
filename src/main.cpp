@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
                 bool ok;
                 QString name = QInputDialog::getText(nullptr, "Add Input", "Name:", QLineEdit::Normal, "", &ok);
                 if (ok && !name.isEmpty()) {
-                    scene->inputs.push_back({name});
+                    scene->inputs.push_back(PetriScene::NetInput(name));
                     auto rebuild = rebuildPanel;
                     rebuild();
                 }

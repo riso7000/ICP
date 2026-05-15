@@ -19,6 +19,8 @@ public:
         QString name;
         QString value;   // current string value
         bool defined;    // whether a value has ever been sent
+
+        NetInput(const QString& name) : name(name), value(""), defined(false) {}
     };
     struct NetOutput {
         QString name;

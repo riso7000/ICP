@@ -182,7 +182,7 @@ void PetriScene::clearNet() {
     places.clear();
 }
 
-// petriscene.cpp
+
 void PetriScene::deleteItemAt(const QPointF& scenePos) {
     QGraphicsItem* clicked = itemAt(scenePos, QTransform());
     if (!clicked) return;
@@ -405,7 +405,8 @@ bool PetriScene::evaluateGuard(const QString& guard) {
     static int guardCounter = 0;
     std::string scriptName = "guard_" + std::to_string(guardCounter++);
 
-    std::string code = "bool __result = (" + processed.toStdString() + ");";
+    std::string code = "bool __result = false;\nvoid __guard() {\n__result = ("
+                     + processed.toStdString() + ");\n}\n__guard();";
 
     bool loaded = env.load(scriptName.c_str(), code.c_str());
     if (!loaded) {
@@ -466,11 +467,24 @@ void PetriScene::startRun() {
 
 void PetriScene::stopRun() {
     currentMode = EditMode;
-    // cancel all running timers
-    for (Transition* t : transitions)
+
+    for (auto& i : inputs) {
+        i.value   = "";
+        i.defined = false;
+    }
+
+    //cancel all runnig timers
+    for (Transition* t : transitions) {
         cancelTimer(t);
-    // re-enable editing
+        t->becameFireable = QDateTime(); // reset to null
+        t->setAvailability(Transition::Disabled);
+    }
+
+    for (Place* p : places)
+        p->lastTokenChange = QDateTime();
+
     setTool(SelectTool);
+    updateFireability();
 }
 
 
@@ -508,7 +522,7 @@ QString PetriScene::preprocessCode(const QString& code) {
         QString inputName = m.captured(1);
         int val = 0;
         for (auto& i : inputs)
-            if (i.name == inputName) { val = i.value.toInt(); break; }
+            if (i.name == inputName) { val = (int)i.value.toDouble(); break; }
         result.replace(m.captured(0), QString::number(val));
     }
 
@@ -581,43 +595,93 @@ QString PetriScene::preprocessCode(const QString& code) {
 
 void PetriScene::executeAction(const QString& action) {
     if (action.isEmpty()) return;
+
     QString processed = preprocessCode(action);
 
-    // find all output("name", expr) calls
-    QRegularExpression r("output\\(\"([^\"]+)\"\\s*,\\s*(.+?)\\)\\s*;?");
-    QRegularExpressionMatchIterator it = r.globalMatch(processed);
+    // snapshot variables before execution to detect changes
+    QMap<QString, QString> before;
+    for (auto& v : variables) {
+        Cflat::Value* val = env.getVariable(v.name.toStdString().c_str());
+        if (!val) continue;
+        if (v.type == "bool")        before[v.name] = CflatValueAs(val, bool) ? "true" : "false";
+        else if (v.type == "int")    before[v.name] = QString::number(CflatValueAs(val, int));
+        else if (v.type == "float")  before[v.name] = QString::number(CflatValueAs(val, float));
+        else if (v.type == "double") before[v.name] = QString::number(CflatValueAs(val, double));
+    }
 
+    // find all output() calls and collect output names
+    QStringList outputNames;
+    QRegularExpression rout("output\\(\"([^\"]+)\"\\s*,\\s*");
+    QRegularExpressionMatchIterator it = rout.globalMatch(processed);
     while (it.hasNext()) {
         auto m = it.next();
-        QString outName = m.captured(1);
-
-        // check it's a known output
-        bool known = false;
-        for (auto& o : outputs)
-            if (o.name == outName) { known = true; break; }
-        if (!known) {
-            qDebug() << "Unknown output:" << outName;
-            continue;
-        }
-
-        // evaluate the value expression via Cflat
-        QString exprStr = m.captured(2).trimmed();
-        std::string scriptName = "action_" + std::to_string(actionCounter++);
-        std::string code = "int __out = (int)(" + exprStr.toStdString() + ");";
-
-        if (!env.load(scriptName.c_str(), code.c_str())) {
-            qDebug() << "Failed to evaluate output expr:" << exprStr;
-            qDebug() << "Cflat error:" << env.getErrorMessage();
-            continue;
-        }
-
-        Cflat::Value* result = env.getVariable("__out");
-        if (!result) continue;
-
-        QString value = QString::number(CflatValueAs(result, int));
-        log("OUTPUT: " + outName + " = " + value, 2);
-        emit outputEmitted(outName, value);
+        QString name = m.captured(1);
+        if (!outputNames.contains(name))
+            outputNames.append(name);
     }
+
+    // replace output("name", expr) with __out_name = (expr)
+    QString replaced = processed;
+    QRegularExpression routFull("output\\(\"([^\"]+)\"\\s*,\\s*(.+?)\\)\\s*;?");
+    QRegularExpressionMatch m;
+    while ((m = routFull.match(replaced)).hasMatch()) {
+        QString name = m.captured(1);
+        QString expr = m.captured(2);
+        replaced.replace(m.captured(0),
+            "__out_" + name + " = (" + expr + "); __out_" + name + "_set = 1;");
+    }
+
+    // build code - output declarations globally, action inside function
+    QString globalDecls;
+    for (const QString& name : outputNames) {
+        globalDecls += "int __out_" + name + " = 0;\n";
+        globalDecls += "int __out_" + name + "_set = 0;\n"; // flag as int
+    }
+
+    QString innerCode = replaced; // just the action, no declarations
+
+    std::string scriptName = "action_" + std::to_string(actionCounter++);
+    std::string wrapped = globalDecls.toStdString() +
+                          "void __action() {\n" +
+                          innerCode.toStdString() +
+                          "\n}\n__action();";
+
+    //qDebug() << "Final action code:" << QString::fromStdString(wrapped);
+
+    if (!env.load(scriptName.c_str(), wrapped.c_str())) {
+        qDebug() << "Action failed:" << env.getErrorMessage();
+        return;
+    }
+
+
+    // detect variable changes
+    for (auto& v : variables) {
+        Cflat::Value* val = env.getVariable(v.name.toStdString().c_str());
+        if (!val) continue;
+
+        QString after;
+        if (v.type == "bool")        after = CflatValueAs(val, bool) ? "true" : "false";
+        else if (v.type == "int")    after = QString::number(CflatValueAs(val, int));
+        else if (v.type == "float")  after = QString::number(CflatValueAs(val, float));
+        else if (v.type == "double") after = QString::number(CflatValueAs(val, double));
+
+        if (before.contains(v.name) && before[v.name] != after)
+            log("VARIABLE: " + v.name + " " + before[v.name] + "→" + after, 2);
+    }
+
+    // read back output values
+    for (const QString& name : outputNames) {
+        Cflat::Value* flag = env.getVariable(("__out_" + name + "_set").toStdString().c_str());
+        if (!flag || CflatValueAs(flag, int) == 0) continue; // branch was not taken
+
+        Cflat::Value* val = env.getVariable(("__out_" + name).toStdString().c_str());
+        if (!val) continue;
+        QString strVal = QString::number(CflatValueAs(val, int));
+        log("OUTPUT: " + name + " = " + strVal, 2);
+        emit outputEmitted(name, strVal);
+    }
+
+
 }
 
 
@@ -634,12 +698,13 @@ bool PetriScene::isTransitionNameTaken(const QString& name, Transition* exclude)
 
 void PetriScene::updateFireability() {
     rebuildCflatEnvironment();
+    if (currentMode == RunMode) return;
+
     for (Transition* t : transitions) {
-        if (currentMode == RunMode) return;
 
         if (!(t->eventName.isEmpty())) {
             t->setAvailability(Transition::Disabled);
-            return;
+            continue;
         }
 
         bool fireable = isFireable(t);
