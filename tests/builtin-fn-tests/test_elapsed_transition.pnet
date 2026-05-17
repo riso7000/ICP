@@ -1,0 +1,53 @@
+{
+    "1:petri_net_name": "",
+    "2:comment": "",
+    "3:inputs": [
+        "in"
+    ],
+    "4:outputs": [
+    ],
+    "5:variables": [
+        {
+            "initial_val": "0",
+            "var_name": "time",
+            "var_type": "int"
+        }
+    ],
+    "6:places": [
+        {
+            "initial_tokens": 5,
+            "place_name": "start",
+            "pos_x": 603,
+            "pos_y": 597
+        },
+        {
+            "initial_tokens": 0,
+            "place_name": "end",
+            "pos_x": 940,
+            "pos_y": 603
+        }
+    ],
+    "7:transitions": [
+        {
+            "do": "time = elapsed(\"test elapsed\");",
+            "in_transition": [
+                {
+                    "place_name": "start",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "end",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 774,
+            "pos_y": 597,
+            "transition_name": "test elapsed",
+            "when_bool": "",
+            "when_delay": 50,
+            "when_input": ""
+        }
+    ]
+}

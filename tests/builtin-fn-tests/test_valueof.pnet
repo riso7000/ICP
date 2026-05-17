@@ -1,0 +1,53 @@
+{
+    "1:petri_net_name": "",
+    "2:comment": "",
+    "3:inputs": [
+        "in"
+    ],
+    "4:outputs": [
+    ],
+    "5:variables": [
+        {
+            "initial_val": "0",
+            "var_name": "var",
+            "var_type": "int"
+        }
+    ],
+    "6:places": [
+        {
+            "initial_tokens": 2,
+            "place_name": "Place0",
+            "pos_x": 603,
+            "pos_y": 597
+        },
+        {
+            "initial_tokens": 0,
+            "place_name": "Place1",
+            "pos_x": 940,
+            "pos_y": 603
+        }
+    ],
+    "7:transitions": [
+        {
+            "do": "var = atoi(valueof(\"in\"));",
+            "in_transition": [
+                {
+                    "place_name": "Place0",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place1",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 774,
+            "pos_y": 597,
+            "transition_name": "test valueof",
+            "when_bool": "",
+            "when_delay": 50,
+            "when_input": "in"
+        }
+    ]
+}

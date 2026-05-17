@@ -1,0 +1,289 @@
+{
+    "1:petri_net_name": "",
+    "2:comment": "",
+    "3:inputs": [
+    ],
+    "4:outputs": [
+        "out"
+    ],
+    "5:variables": [
+        {
+            "initial_val": "80",
+            "var_name": "var_int",
+            "var_type": "bool"
+        },
+        {
+            "initial_val": "3.1415",
+            "var_name": "var_float",
+            "var_type": "float"
+        },
+        {
+            "initial_val": "99.1234556",
+            "var_name": "var_double",
+            "var_type": "double"
+        },
+        {
+            "initial_val": "A",
+            "var_name": "var_char",
+            "var_type": "char"
+        },
+        {
+            "initial_val": "1",
+            "var_name": "var_bool",
+            "var_type": "bool"
+        }
+    ],
+    "6:places": [
+        {
+            "initial_tokens": 1,
+            "place_name": "Place0",
+            "pos_x": 185,
+            "pos_y": 95
+        },
+        {
+            "initial_tokens": 1,
+            "place_name": "Place1",
+            "pos_x": 183,
+            "pos_y": 204
+        },
+        {
+            "initial_tokens": 1,
+            "place_name": "Place2",
+            "pos_x": 176,
+            "pos_y": 304
+        },
+        {
+            "initial_tokens": 0,
+            "place_name": "Place3",
+            "pos_x": 770,
+            "pos_y": 359
+        },
+        {
+            "initial_tokens": 1,
+            "place_name": "Place4",
+            "pos_x": 1291,
+            "pos_y": 80
+        },
+        {
+            "initial_tokens": 1,
+            "place_name": "Place5",
+            "pos_x": 1294,
+            "pos_y": 193
+        },
+        {
+            "initial_tokens": 1,
+            "place_name": "Place6",
+            "pos_x": 1297,
+            "pos_y": 317
+        },
+        {
+            "initial_tokens": 1,
+            "place_name": "Place7",
+            "pos_x": 1296,
+            "pos_y": 426
+        },
+        {
+            "initial_tokens": 1,
+            "place_name": "Place8",
+            "pos_x": 1294,
+            "pos_y": 548
+        },
+        {
+            "initial_tokens": 1,
+            "place_name": "Place9",
+            "pos_x": 174,
+            "pos_y": 462
+        }
+    ],
+    "7:transitions": [
+        {
+            "do": "output(\"out\", 27);",
+            "in_transition": [
+                {
+                    "place_name": "Place0",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 447,
+            "pos_y": 103,
+            "transition_name": "int_literal",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        },
+        {
+            "do": "output(\"out\", 3.6);",
+            "in_transition": [
+                {
+                    "place_name": "Place1",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 444,
+            "pos_y": 220,
+            "transition_name": "float_literal",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        },
+        {
+            "do": "output(\"out\", \"test\");",
+            "in_transition": [
+                {
+                    "place_name": "Place2",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 441,
+            "pos_y": 352,
+            "transition_name": "str_literal",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        },
+        {
+            "do": "output(\"out\", var_int);",
+            "in_transition": [
+                {
+                    "place_name": "Place4",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 1104,
+            "pos_y": 84,
+            "transition_name": "var_int",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        },
+        {
+            "do": "output(\"out\", var_float);",
+            "in_transition": [
+                {
+                    "place_name": "Place5",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 1104,
+            "pos_y": 197,
+            "transition_name": "var_float",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        },
+        {
+            "do": "output(\"out\", var_double);",
+            "in_transition": [
+                {
+                    "place_name": "Place6",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 1101,
+            "pos_y": 317,
+            "transition_name": "var_double",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        },
+        {
+            "do": "output(\"out\", var_bool);",
+            "in_transition": [
+                {
+                    "place_name": "Place7",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 1099,
+            "pos_y": 431,
+            "transition_name": "var_bool",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        },
+        {
+            "do": "output(\"out\", var_char);",
+            "in_transition": [
+                {
+                    "place_name": "Place8",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 1102,
+            "pos_y": 543,
+            "transition_name": "var_char",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        },
+        {
+            "do": "output(\"out\", 'c');",
+            "in_transition": [
+                {
+                    "place_name": "Place9",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place3",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 443,
+            "pos_y": 475,
+            "transition_name": "char_literal",
+            "when_bool": "",
+            "when_delay": 0,
+            "when_input": ""
+        }
+    ]
+}
