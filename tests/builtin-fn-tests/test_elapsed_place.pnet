@@ -9,30 +9,63 @@
     "5:variables": [
         {
             "initial_val": "0",
-            "var_name": "time",
+            "var_name": "time_end",
             "var_type": "int"
         }
     ],
     "6:places": [
         {
-            "initial_tokens": 10,
+            "initial_tokens": 5,
             "place_name": "start",
             "pos_x": 603,
-            "pos_y": 597
+            "pos_y": 645
         },
         {
             "initial_tokens": 0,
             "place_name": "end",
-            "pos_x": 940,
-            "pos_y": 603
+            "pos_x": 971,
+            "pos_y": 497
+        },
+        {
+            "initial_tokens": 0,
+            "place_name": "Place2",
+            "pos_x": 959,
+            "pos_y": 651
+        },
+        {
+            "initial_tokens": 2,
+            "place_name": "Place1",
+            "pos_x": 623,
+            "pos_y": 474
         }
     ],
     "7:transitions": [
         {
-            "do": "time = elapsed(\"start\");",
+            "do": "time_end = elapsed(\"end\");",
             "in_transition": [
                 {
                     "place_name": "start",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "Place2",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 777,
+            "pos_y": 652,
+            "transition_name": "test elapsed",
+            "when_bool": "",
+            "when_delay": 50,
+            "when_input": "in"
+        },
+        {
+            "do": "",
+            "in_transition": [
+                {
+                    "place_name": "Place1",
                     "tokens": 1
                 }
             ],
@@ -42,12 +75,12 @@
                     "tokens": 1
                 }
             ],
-            "pos_x": 774,
-            "pos_y": 597,
-            "transition_name": "test elapsed",
+            "pos_x": 795,
+            "pos_y": 475,
+            "transition_name": "Transition0",
             "when_bool": "",
-            "when_delay": 50,
-            "when_input": "in"
+            "when_delay": 0,
+            "when_input": ""
         }
     ]
 }
