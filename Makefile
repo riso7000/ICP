@@ -20,4 +20,4 @@ clean:
 	rm -f $(LOGIN).zip
 
 pack: clean
-	zip -r $(LOGIN).zip src/ third_party/ res/ /examples CMakeLists.txt Makefile Doxyfile NOTICE LICENCE
+	zip -r $(LOGIN).zip examples/ res/ src/ third_party/ CMakeLists.txt Doxyfile LICENCE Makefile NOTICE Readme.txt
