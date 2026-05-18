@@ -20,8 +20,8 @@ Návrh siete:
 * Vytváranie prvkov siete kliknutím na miesto v scéne pomocou odpovedajúceho nástroja z panelu nástrojov
 * Upravovanie vlastnosti prvkov dvojitým kliknutím na prvok s nástrojom Select
 * Mazanie prvkov zo scény
-* Definovanie vstupov, výstupov v bočnom paneli
-* Definovanie premennýc s podporovanými dátovými typmi int, float, double, char
+* Definovanie vstupov, výstupov a premenných v bočnom paneli
+* Podporované dátové typy premenných sú int, float a char
 * Ukladanie a načítanie siete z/do formátu JSON.
 
 Simulácia siete:
