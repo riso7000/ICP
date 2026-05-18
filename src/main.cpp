@@ -12,9 +12,6 @@
 #include <QPainter>
 #include <QToolBar>
 #include <QAction>
-#include "petriscene.h"
-#include "net_def_io.hpp"
-
 #include <QPlainTextEdit>
 #include <QTime>
 #include <QDockWidget>
@@ -25,6 +22,12 @@
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFileDialog>
+
+// Module headers
+#include "petriscene.h"
+#include "net_def_io.hpp"
+
+
 
 // Global pointer to your log widget
 static QPlainTextEdit* globalLogWidget = nullptr;
@@ -61,7 +64,11 @@ int main(int argc, char* argv[]) {
     view->setRenderHint(QPainter::Antialiasing);
     window.setCentralWidget(view);
 
-    app.setWindowIcon(QIcon(":/res/program.png"));
+    // Set cosmetic properties
+    app.setApplicationName("Petri Net Editor");
+    app.setApplicationDisplayName("Petri Net Editor");
+    app.setWindowIcon(QIcon(":/program.png"));
+    window.setWindowTitle("Petri Net Editor");
 
     // --- Log dock ---
     globalLogWidget = new QPlainTextEdit();
@@ -272,16 +279,16 @@ int main(int argc, char* argv[]) {
 
     // --- Toolbar ---
     QToolBar* toolbar = window.addToolBar("Tools");
-    QAction* openAction  = toolbar->addAction(QIcon(":/res/open.png"), "Open");
-    QAction* saveAction  = toolbar->addAction(QIcon(":/res/save.png"), "Save");
-    QAction* clearAction = toolbar->addAction(QIcon(":/res/clear-alt.png"), "Clear");
-    QAction* selectAction = toolbar->addAction(QIcon(":/res/select.png"), "Select");
-    QAction* deleteAction = toolbar->addAction(QIcon(":/res/delete-alt.png"), "Delete");
-    QAction* placeAction  = toolbar->addAction(QIcon(":/res/place.png"), "Place");
-    QAction* transAction  = toolbar->addAction(QIcon(":/res/transition.png"), "Transition");
-    QAction* arcAction    = toolbar->addAction(QIcon(":/res/arc.png"), "Arc");
-    QAction* runAction  = toolbar->addAction(QIcon(":/res/run.png"), "Run");
-    QAction* stopAction = toolbar->addAction(QIcon(":/res/stop.png"), "Stop");
+    QAction* openAction  = toolbar->addAction(QIcon(":/open.png"), "Open");
+    QAction* saveAction  = toolbar->addAction(QIcon(":/save.png"), "Save");
+    QAction* clearAction = toolbar->addAction(QIcon(":/clear-alt.png"), "Clear");
+    QAction* selectAction = toolbar->addAction(QIcon(":/select.png"), "Select");
+    QAction* deleteAction = toolbar->addAction(QIcon(":/delete-alt.png"), "Delete");
+    QAction* placeAction  = toolbar->addAction(QIcon(":/place.png"), "Place");
+    QAction* transAction  = toolbar->addAction(QIcon(":/transition.png"), "Transition");
+    QAction* arcAction    = toolbar->addAction(QIcon(":/arc.png"), "Arc");
+    QAction* runAction  = toolbar->addAction(QIcon(":/run.png"), "Run");
+    QAction* stopAction = toolbar->addAction(QIcon(":/stop.png"), "Stop");
     stopAction->setEnabled(false);
 
     QObject::connect(openAction, &QAction::triggered, [=]() {

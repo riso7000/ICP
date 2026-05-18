@@ -11,12 +11,12 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
-
 #include <vector>
+#include "Cflat.h"
+
+// Module headers
 #include "transition.h"
 #include "place.h"
-
-#include "Cflat.h"
 
 
 

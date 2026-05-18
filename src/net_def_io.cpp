@@ -5,11 +5,6 @@
 // Šimon Varga (xvargas00)
 // ------------------------------
 
-#include "net_def_io.hpp"
-#include "arc.h"
-#include "place.h"
-#include "transition.h"
-#include "petriscene.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -19,6 +14,15 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QJsonParseError>
+
+// Module headers
+#include "net_def_io.hpp"
+#include "arc.h"
+#include "place.h"
+#include "transition.h"
+#include "petriscene.h"
+
+
 
 int read_netdef(QString path, PetriScene& net) {
     using namespace std;
@@ -37,6 +41,7 @@ int read_netdef(QString path, PetriScene& net) {
         return -1;
     }
 
+    // Read input file and create JSON representation
     contents = input_file.readAll();
     input_file.close();
 

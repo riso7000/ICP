@@ -14,6 +14,8 @@
 #include <QInputDialog>
 #include <QDateTime>
 
+
+
 class Place : public QGraphicsEllipseItem {
 public:
     Place(QString name, int initial_tokens, QGraphicsItem* parent = 0);

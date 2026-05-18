@@ -14,6 +14,10 @@
 #include <QInputDialog>
 #include <QPainterPath>
 
+
+
+static const double ARROW_SIZE = 12.0; // size of the arrowhead
+
 class Arc : public QGraphicsLineItem {
 public:
     Arc(QGraphicsItem* source, QGraphicsItem* dest, int weight, QGraphicsItem* parent = 0);

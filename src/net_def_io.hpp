@@ -9,10 +9,15 @@
 #define NET_DEF_IO_HPP
 
 #include <string>
+
+// Module headers
 #include "petriscene.h"
+
+
 
 #define FILE_IO_FILETYPES "Petri Net files (*.pnet);;JSON files (*.json);;All Files (*)"
 
+// Main JSON fields
 #define JSONFLD_NET_NAME "1:petri_net_name"
 #define JSONFLD_COMMENT "2:comment"
 #define JSONFLD_INPUTS "3:inputs"
@@ -20,6 +25,8 @@
 #define JSONFLD_VARS "5:variables"
 #define JSONFLD_PLACES "6:places"
 #define JSONFLD_TRANSITIONS "7:transitions"
+
+// Properties of all objects stored in main fields
 #define JSON_VAR_NAME "var_name"
 #define JSON_VAR_TYPE "var_type"
 #define JSON_VAR_INITVAL "initial_val"

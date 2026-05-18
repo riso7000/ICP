@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/">
+        <file>save.png</file>
+        <file>open.png</file>
+        <file>arc.png</file>
+        <file>place.png</file>
+        <file>transition.png</file>
+        <file>delete.png</file>
+        <file>select.png</file>
+        <file>stop.png</file>
+        <file>run.png</file>
+        <file>program.png</file>
+        <file>clear.png</file>
+        <file>delete-alt.png</file>
+        <file>clear-alt.png</file>
+    </qresource>
+</RCC>

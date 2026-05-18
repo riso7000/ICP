@@ -1,17 +1,21 @@
 // ------------------------------
 // arc.cpp
 //
-// Author:
+// Authors:
 // Richard Henček (xhencer00)
+// Šimon Varga (xvargas00)
 // ------------------------------
 
 #define _USE_MATH_DEFINES
+
 #include <cmath>
-#include "arc.h"
-#include "petriscene.h"
 #include <QPointF>
 
-static const double ARROW_SIZE = 12.0; // size of the arrowhead
+// Module headers
+#include "arc.h"
+#include "petriscene.h"
+
+
 
 Arc::Arc(QGraphicsItem* source, QGraphicsItem* dest, int weight, QGraphicsItem* parent)
     : QGraphicsLineItem(parent),

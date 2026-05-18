@@ -1,8 +1,9 @@
 // ------------------------------
 // transition.cpp
 //
-// Author:
+// Authors:
 // Richard Henček (xhencer00)
+// Šimon Varga (xvargas00)
 // ------------------------------
 
 #include <QGraphicsScene>
@@ -16,10 +17,13 @@
 #include <QStyleOptionGraphicsItem>
 #include <QMessageBox>
 
+// Module headers
 #include "transition.h"
 #include "arc.h"
 #include "properties_dialog.h"
 #include "petriscene.h"
+
+
 
 Transition::Transition(QString name, int delay, QGraphicsItem* parent)
     : QGraphicsRectItem(-15, -40, 30, 80, parent),

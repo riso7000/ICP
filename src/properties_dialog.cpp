@@ -5,12 +5,16 @@
 // Richard Henček (xhencer00)
 // ------------------------------
 
-#include "properties_dialog.h"
 #include <QFormLayout>
 #include <QSpinBox>
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QDialogButtonBox>
+
+// Module headers
+#include "properties_dialog.h"
+
+
 
 TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName,
                                                        const QString &currentGuard, const QString &currentAction, bool readOnly, QWidget *parent)

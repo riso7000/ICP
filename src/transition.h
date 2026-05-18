@@ -8,12 +8,14 @@
 #ifndef TRANSITION_H
 #define TRANSITION_H
 
-
 #include <QGraphicsRectItem>
 #include <QPainter>
 #include <QString>
 
+// Module headers
 #include "place.h"
+
+
 
 class Arc;
 

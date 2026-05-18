@@ -1,8 +1,9 @@
 // ------------------------------
 // place.cpp
 //
-// Author:
+// Authors:
 // Richard Henček (xhencer00)
+// Šimon Varga (xvargas00)
 // ------------------------------
 
 #include <QGraphicsScene>
@@ -11,6 +12,7 @@
 #include <QMessageBox>
 #include <QDebug>
 
+// Module headers
 #include "place.h"
 #include "arc.h"
 #include "petriscene.h"

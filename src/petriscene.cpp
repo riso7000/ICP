@@ -6,20 +6,21 @@
 // Šimon Varga (xvargas00)
 // ------------------------------
 
-#include "petriscene.h"
 #include <QGraphicsRectItem>
 #include <QPen>
 #include <QBrush>
 #include <QDebug>
 #include <QTimer>
 #include <QRegularExpression>
-
-
 #include <algorithm>
 
+// Module headers
+#include "petriscene.h"
 #include "place.h"
 #include "transition.h"
 #include "arc.h"
+
+
 
 PetriScene::PetriScene(QObject* parent)
     : QGraphicsScene(parent),

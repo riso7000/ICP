@@ -8,9 +8,10 @@
 #ifndef PROPERTIESDIALOG_H
 #define PROPERTIESDIALOG_H
 
-
 #include <QDialog>
 #include <QFormLayout>
+
+
 
 // Forward declarations to keep the header lean
 class QSpinBox;
