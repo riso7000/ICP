@@ -1,3 +1,10 @@
+// ------------------------------
+// place.h
+//
+// Author:
+// Richard Henček (xhencer00)
+// ------------------------------
+
 #ifndef PLACE_H
 #define PLACE_H
 

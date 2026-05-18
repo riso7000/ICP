@@ -1,3 +1,11 @@
+// ------------------------------
+// main.cpp
+//
+// Authors:
+// Richard Henček (xhencer00)
+// Šimon Varga (xvargas00)
+// ------------------------------
+
 #include <QApplication>
 #include <QMainWindow>
 #include <QGraphicsView>

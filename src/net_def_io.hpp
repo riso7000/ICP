@@ -1,8 +1,9 @@
-/**
- * @file net_def_io.hpp
- * @authors xvargas00
- * @brief Provides interface for handling network definition files.
- */
+// ------------------------------
+// net_def_io.hpp
+//
+// Author:
+// Šimon Varga (xvargas00)
+// ------------------------------
 
 #ifndef NET_DEF_IO_HPP
 #define NET_DEF_IO_HPP

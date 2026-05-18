@@ -1,3 +1,10 @@
+// ------------------------------
+// transition.cpp
+//
+// Author:
+// Richard Henček (xhencer00)
+// ------------------------------
+
 #include <QGraphicsScene>
 #include <QTimer>
 #include <QDialog>
