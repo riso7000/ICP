@@ -143,10 +143,22 @@ int main(int argc, char* argv[]) {
                 form->addRow(row);
             }
             form->setVerticalSpacing(10);
+
+
             // --- Variables ---
             form->addRow(new QLabel("<b>Variables</b>"));
             for (auto& v : scene->variables) {
-                form->addRow(new QLabel(v.type + " " + v.name + " = " + v.initialValue.toString()));
+                QLabel* valueLabel = new QLabel(v.type + " " + v.name + " = " + v.initialValue.toString());
+                form->addRow(valueLabel);
+
+                // update label when any transition fires (variable may have changed)
+                QObject::connect(scene, &PetriScene::variableChanged,
+                    valueLabel,
+                    [valueLabel, name=v.name, type=v.type](const QString& n, const QString& val){
+                        if (n == name)
+                            valueLabel->setText(type + " " + name + " = " + val);
+                    },
+                    Qt::QueuedConnection);
             }
 
             // --- Outputs ---
@@ -155,10 +167,12 @@ int main(int argc, char* argv[]) {
             QLabel* fullLineLabel = new QLabel(out.name + " = undefined");
             form->addRow(fullLineLabel);
 
-            QObject::connect(scene, &PetriScene::outputEmitted, fullLineLabel,
+            QObject::connect(scene, &PetriScene::outputEmitted,
+                fullLineLabel,
                 [fullLineLabel, name = out.name](const QString& n, const QString& val) {
                     if (n == name) fullLineLabel->setText(name + " = " + val);
-                });
+                },
+                Qt::QueuedConnection);
             }
         }
         else {
@@ -218,7 +232,7 @@ int main(int argc, char* argv[]) {
                 QFormLayout* f = new QFormLayout(&dlg);
 
                 QComboBox* typeBox = new QComboBox();
-                typeBox->addItems({"bool", "int", "float", "double", "char"});
+                typeBox->addItems({"int", "float", "char"});
                 QLineEdit* nameEdit = new QLineEdit();
                 QLineEdit* valueEdit = new QLineEdit("0");
                 QDialogButtonBox* btns = new QDialogButtonBox(
