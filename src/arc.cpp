@@ -37,10 +37,10 @@ void Arc::updatePosition() {
 }
 
 QRectF Arc::boundingRect() const {
-    // get the base bounding rect of the line
+    // Get the base bounding rect of the line
     QRectF base = QGraphicsLineItem::boundingRect();
 
-    // expand it by enough to cover the arrowhead and text label
+    // Expand it enough to cover the arrowhead and text label
     return base.adjusted(-ARROW_SIZE - 20, -ARROW_SIZE - 20,
                           ARROW_SIZE + 20,  ARROW_SIZE + 20);
 }
@@ -52,7 +52,7 @@ void Arc::paint(QPainter* painter,
     QLineF l = line();
     if (l.length() < 1.0) return;
 
-    // find the edge of the destination item
+    // Find the edge of the destination item
     QPointF tip = l.p2();
     QPainterPath destShape = dest->shape();
 
@@ -66,11 +66,11 @@ void Arc::paint(QPainter* painter,
         }
     }
 
-    // draw the line manually from source to tip (no setLine!)
+    // Draw the line manually from source to tip
     painter->setPen(QPen(Qt::black, 2));
     painter->drawLine(l.p1(), tip);
 
-    // arrowhead
+    // Arrowhead
     double angle = std::atan2(l.dy(), l.dx());
 
     QPointF base1(
@@ -89,11 +89,12 @@ void Arc::paint(QPainter* painter,
     painter->setBrush(Qt::black);
     painter->drawPolygon(arrowHead);
 
-    // weight label
+    // Weight label
     QPointF mid(
         (l.p1().x() + l.p2().x()) / 2.0,
         (l.p1().y() + l.p2().y()) / 2.0
     );
+
     painter->setPen(Qt::black);
     painter->drawText(mid + QPointF(-10, -5), QString::number(weight));
 }
@@ -103,20 +104,17 @@ void Arc::paint(QPainter* painter,
 void Arc::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 
     PetriScene* petriScene = dynamic_cast<PetriScene*>(scene());
-    if (!petriScene || petriScene->currentMode == PetriScene::RunMode) return;
-    if (petriScene->currentTool != PetriScene::SelectTool) return;
+
+    if (!petriScene || petriScene->currentMode == PetriScene::RunMode) {
+        return;
+    }
+
+    if (petriScene->currentTool != PetriScene::SelectTool) {
+        return;
+    }
 
     bool ok;
-    int value = QInputDialog::getInt(
-        NULL,            // parent widget
-        "Edit Arc",   // dialog title
-        "Weight:",       // label
-        weight,          // current value
-        1,               // minimum
-        999,             // maximum
-        1,               // step
-        &ok
-    );
+    int value = QInputDialog::getInt(NULL, "Edit Arc", "Weight:", weight, 1, 999, 1, &ok);
 
     if (ok) {
         setWeight(value);
@@ -129,12 +127,12 @@ void Arc::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
 QPainterPath Arc::shape() const {
     QPainterPath path;
 
-    // create a stroked version of the line with a wider width
-    QPainterPathStroker stroker;
-    stroker.setWidth(30); // hitbox width in pixels, adjust to taste
+    // Create a stroked version of the line with a wider width
+    QPainterPathStroker stroke;
+    stroke.setWidth(30); // Hitbox width in pixels
 
     path.moveTo(line().p1());
     path.lineTo(line().p2());
 
-    return stroker.createStroke(path);
+    return stroke.createStroke(path);
 }

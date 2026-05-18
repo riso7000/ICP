@@ -8,8 +8,6 @@
 #ifndef NET_DEF_IO_HPP
 #define NET_DEF_IO_HPP
 
-#include <string>
-
 // Module headers
 #include "petriscene.h"
 

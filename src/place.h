@@ -26,14 +26,10 @@ public:
 
     QString name;
     QDateTime lastTokenChange;
-
     int tokens;
 
-
 protected:
-    void paint(QPainter* painter,
-               const QStyleOptionGraphicsItem* option,
-               QWidget* widget) override;
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
     QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
@@ -41,7 +37,7 @@ protected:
 
     QRectF boundingRect() const override {
         QRectF base = QGraphicsEllipseItem::boundingRect();
-        // expand upward to include the name label
+        // Expand upward to include the name label
         return base.adjusted(-60, -25, 60, 0);
     }
 
@@ -51,14 +47,8 @@ protected:
         return path;
     }
 
-
-
 private:
-
-
     int init_tokens;
-
-
 };
 
 #endif // PLACE_H

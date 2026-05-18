@@ -16,7 +16,7 @@
 
 
 
-static const double ARROW_SIZE = 12.0; // size of the arrowhead
+static const double ARROW_SIZE = 12.0; // Size of the arrowhead
 
 class Arc : public QGraphicsLineItem {
 public:
@@ -25,13 +25,7 @@ public:
     QGraphicsItem* getSource() const { return source; }
     QGraphicsItem* getDest()   const { return dest; }
     int getWeight() const { return weight; }
-    //int getId() const { return id; }
-
-    void updatePosition(); // recalculates the line endpoints
-
-
-
-
+    void updatePosition(); // Recalculates the line endpoints
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -42,8 +36,6 @@ protected:
 
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
     void setWeight(int w) { weight = w; update(); } // update() triggers repaint
-
-
 
 private:
     QGraphicsItem *source;

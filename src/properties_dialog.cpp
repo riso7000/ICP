@@ -16,9 +16,10 @@
 
 
 
-TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName,
-                                                       const QString &currentGuard, const QString &currentAction, bool readOnly, QWidget *parent)
-    : QDialog(parent)
+TransitionPropertiesDialog::TransitionPropertiesDialog(
+    const QString &currentName, int currentDelay, const QString &currentEventName,
+    const QString &currentGuard, const QString &currentAction, bool readOnly, QWidget *parent
+) : QDialog(parent)
 {
     setWindowTitle(readOnly ? "Edit Transition (Read Only)" : "Edit Transition");
 
@@ -62,16 +63,16 @@ TransitionPropertiesDialog::TransitionPropertiesDialog(const QString &currentNam
     layout->addRow("Action expression:", actionTextEdit);
 
     if (!readOnly) {
-            QDialogButtonBox* btns = new QDialogButtonBox(
-                QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-            connect(btns, &QDialogButtonBox::accepted, this, &QDialog::accept);
-            connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
-            layout->addRow(btns);
-        } else {
-            QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Close);
-            connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
-            layout->addRow(btns);
-        }
+        QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        connect(btns, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        layout->addRow(btns);
+    }
+    else {
+        QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Close);
+        connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        layout->addRow(btns);
+    }
 }
 
 int TransitionPropertiesDialog::getDelay() const {
@@ -83,8 +84,8 @@ QString TransitionPropertiesDialog::getGuard() const {
 }
 
 
-PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, bool readOnly, QWidget* parent)
-    : QDialog(parent)
+PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, bool readOnly, QWidget* parent) :
+    QDialog(parent)
 {
     setWindowTitle(readOnly ? "Edit Place (Read Only)" : "Edit Place");
     QFormLayout* f = new QFormLayout(this);
@@ -98,21 +99,22 @@ PlacePropertiesDialog::PlacePropertiesDialog(const QString& name, int tokens, bo
     tokensSpinBox->setReadOnly(readOnly);
     tokensSpinBox->setButtonSymbols( QAbstractSpinBox::NoButtons);
 
-
     f->addRow("Name:", nameLineEdit);
     f->addRow("Tokens:", tokensSpinBox);
 
     if (!readOnly) {
-        QDialogButtonBox* btns = new QDialogButtonBox(
-            QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         connect(btns, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
         f->addRow(btns);
-    } else {
+    }
+    else {
         QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Close);
         connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
         f->addRow(btns);
     }
 
-    if (!readOnly) tokensSpinBox->setFocus();
+    if (!readOnly) {
+        tokensSpinBox->setFocus();
+    }
 }

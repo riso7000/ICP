@@ -23,7 +23,8 @@ class TransitionPropertiesDialog : public QDialog {
 
 public:
     explicit TransitionPropertiesDialog(const QString &currentName, int currentDelay, const QString &currentEventName,
-                                        const QString &currentGuard, const QString &currentAction, bool readOnly, QWidget *parent = nullptr);
+        const QString &currentGuard, const QString &currentAction, bool readOnly, QWidget *parent = nullptr
+    );
 
     int getDelay() const;
     QString getGuard() const;
@@ -43,7 +44,6 @@ public:
 
     QSpinBox* tokensSpinBox;
     QLineEdit* nameLineEdit;
-
 };
 
 #endif // PROPERTIESDIALOG_H

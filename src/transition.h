@@ -19,10 +19,14 @@
 
 class Arc;
 
-class Transition : public QGraphicsRectItem
-{
+class Transition : public QGraphicsRectItem {
 public:
-    enum Availability_enum { Waiting, Disabled, Fireable };
+    enum Availability_enum {
+        Waiting,
+        Disabled,
+        Fireable
+    };
+
     Availability_enum availability;
 
     Transition(QString name, int timer, QGraphicsItem* parent = 0);
@@ -33,33 +37,29 @@ public:
     std::vector<Arc*> inputArcs;
     std::vector<Arc*> outputArcs;
 
-
     int delayMs; // 0 means immediate (no timer)
-    QTimer* timer; // null if not scheduled
+    QTimer* timer; // Null if not scheduled
 
     bool isImmediate() const { return delayMs == 0; }
     void setDelay(int ms) { delayMs = ms; }
 
     QString guard;
-    QString eventName; // empty = fires freely; non-empty = only on this event
+    QString eventName; // Empty = fires freely; non-empty = only on this event
     QString outputName;
 
     QString action;
     QString name;
     QDateTime becameFireable;
 
-
 protected:
-    void paint(QPainter* painter,
-               const QStyleOptionGraphicsItem* option,
-               QWidget* widget) override;
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
     QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
     QRectF boundingRect() const override {
         QRectF base = QGraphicsRectItem::boundingRect();
-        // expand upward to include the name label
+        // Expand upward to include the name label
         return base.adjusted(-60, -25, 60, 0);
     }
 
@@ -68,13 +68,6 @@ protected:
         path.addRect(rect());
         return path;
     }
-
-private:
-
-
 };
-
-
-
 
 #endif // TRANSITION_H
