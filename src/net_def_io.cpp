@@ -59,10 +59,10 @@ int readNetDef(QString path, PetriScene& net) {
     QJsonValue netPlaces = obj.value(JSONFLD_PLACES);
     QJsonValue netTransits = obj.value(JSONFLD_TRANSITIONS);
 
+    // If a required key is missing
     if (netName.isUndefined() || netComment.isUndefined() || netIns.isUndefined() || netOuts.isUndefined() ||
         netVars.isUndefined() || netPlaces.isUndefined() || netTransits.isUndefined()) {
 
-        cerr << "Error: A required key is missing in JSON." << endl;
         return -1;
     }
 
