@@ -43,7 +43,7 @@ public:
     void scheduleTimers();
     void onTimerExpired(Transition* t);
 
-    Cflat::Environment env;
+    Cflat::Environment* env;
     QString name;
     QString comment;
     // Public for opening from and saving to file
@@ -78,6 +78,7 @@ public:
 
 signals:
     void outputEmitted(const QString& name, const QString& value);
+    void variableChanged(const QString& name, const QString& value);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -105,6 +106,7 @@ private:
     int transitionId;
     int arcId;
     int actionCounter = 0;
+    int guardCounter = 0;
 
     QGraphicsItem* arcSource; // null when no source selected yet
     QDateTime startTime;

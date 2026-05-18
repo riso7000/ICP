@@ -21,6 +21,7 @@ PetriScene::PetriScene(QObject* parent)
       arcId(0),
       arcSource(0)
 {
+    env = new Cflat::Environment();
     startTime = QDateTime::currentDateTime();
 }
 
@@ -402,20 +403,20 @@ bool PetriScene::evaluateGuard(const QString& guard) {
     QString processed = preprocessCode(guard);
     qDebug() << "Guard after preprocessing:" << processed;
 
-    static int guardCounter = 0;
+    int guardCounter = 0;
     std::string scriptName = "guard_" + std::to_string(guardCounter++);
 
     std::string code = "bool __result = false;\nvoid __guard() {\n__result = ("
                      + processed.toStdString() + ");\n}\n__guard();";
 
-    bool loaded = env.load(scriptName.c_str(), code.c_str());
+    bool loaded = env->load(scriptName.c_str(), code.c_str());
     if (!loaded) {
         qDebug() << "CFlat failed to load guard:" << guard;
-        qDebug() << "Error:" << env.getErrorMessage();
+        qDebug() << "Error:" << env->getErrorMessage();
         return false;
     }
 
-    Cflat::Value* result = env.getVariable("__result");
+    Cflat::Value* result = env->getVariable("__result");
     if (!result) {
         qDebug() << "__result variable not found after loading guard";
         return false;
@@ -462,6 +463,13 @@ void PetriScene::startRun() {
     setTool(SelectTool);
     for (QGraphicsItem* item : items())
         item->setFlag(QGraphicsItem::ItemIsMovable, false);
+
+    // reset Cflat environment
+    delete env;
+    env = new Cflat::Environment();
+    actionCounter = 0;
+    guardCounter = 0;
+
     rebuildCflatEnvironment();
 }
 
@@ -474,7 +482,7 @@ void PetriScene::stopRun() {
         i.defined = false;
     }
 
-    //cancel all runnig timers
+    //cancel all running timers
     for (Transition* t : transitions) {
         cancelTimer(t);
         t->becameFireable = QDateTime(); // reset to null
@@ -483,6 +491,12 @@ void PetriScene::stopRun() {
 
     for (Place* p : places)
         p->lastTokenChange = QDateTime();
+
+    // reset Cflat environment
+    delete env;
+    env = new Cflat::Environment();
+    actionCounter = 0;
+    guardCounter = 0;
 
     setTool(SelectTool);
     updateFireability();
@@ -494,7 +508,7 @@ void PetriScene::rebuildCflatEnvironment() {
     for (auto& v : variables)
         code += v.type.toStdString() + " " + v.name.toStdString()
               + " = " + v.initialValue.toString().toStdString() + ";\n";
-    env.load("vars", code.c_str());
+    env->load("vars", code.c_str());
 }
 
 
@@ -597,12 +611,15 @@ QString PetriScene::preprocessCode(const QString& code) {
 void PetriScene::executeAction(const QString& action) {
     if (action.isEmpty()) return;
 
+    int currentCounter = actionCounter;
+    actionCounter++;
+
     QString processed = preprocessCode(action);
 
     // snapshot variables before execution to detect changes
     QMap<QString, QString> before;
     for (auto& v : variables) {
-        Cflat::Value* val = env.getVariable(v.name.toStdString().c_str());
+        Cflat::Value* val = env->getVariable(v.name.toStdString().c_str());
         if (!val) continue;
         if (v.type == "bool")        before[v.name] = CflatValueAs(val, bool) ? "true" : "false";
         else if (v.type == "int")    before[v.name] = QString::number(CflatValueAs(val, int));
@@ -629,19 +646,25 @@ void PetriScene::executeAction(const QString& action) {
         QString name = m.captured(1);
         QString expr = m.captured(2);
         replaced.replace(m.captured(0),
-            "__out_" + name + " = (" + expr + "); __out_" + name + "_set = 1;");
+            "__out_" + name + "_" + QString::number(currentCounter) + " = (" + expr + "); " +
+            "__out_" + name + "_" + QString::number(currentCounter) + "_set = 1;");
     }
 
+
+
     // build code - output declarations globally, action inside function
+
+
+    std::string scriptName = "action_" + std::to_string(currentCounter);
+
     QString globalDecls;
     for (const QString& name : outputNames) {
-        globalDecls += "int __out_" + name + " = 0;\n";
-        globalDecls += "int __out_" + name + "_set = 0;\n"; // flag as int
+        globalDecls += "int __out_" + name + "_" + QString::number(currentCounter) + " = 0;\n";
+        globalDecls += "int __out_" + name + "_" + QString::number(currentCounter) + "_set = 0;\n";
     }
 
     QString innerCode = replaced; // just the action, no declarations
 
-    std::string scriptName = "action_" + std::to_string(actionCounter++);
     std::string wrapped = globalDecls.toStdString() +
                           "void __action() {\n" +
                           innerCode.toStdString() +
@@ -649,15 +672,16 @@ void PetriScene::executeAction(const QString& action) {
 
     //qDebug() << "Final action code:" << QString::fromStdString(wrapped);
 
-    if (!env.load(scriptName.c_str(), wrapped.c_str())) {
-        qDebug() << "Action failed:" << env.getErrorMessage();
+    if (!env->load(scriptName.c_str(), wrapped.c_str())) {
+        qDebug() << "Action failed:" << env->getErrorMessage();
         return;
     }
 
 
-    // detect variable changes
+    // detect variable changes - collect first, emit after
+    QList<QPair<QString,QString>> changedVars;
     for (auto& v : variables) {
-        Cflat::Value* val = env.getVariable(v.name.toStdString().c_str());
+        Cflat::Value* val = env->getVariable(v.name.toStdString().c_str());
         if (!val) continue;
 
         QString after;
@@ -666,22 +690,26 @@ void PetriScene::executeAction(const QString& action) {
         else if (v.type == "float")  after = QString::number(CflatValueAs(val, float));
         else if (v.type == "double") after = QString::number(CflatValueAs(val, double));
 
-        if (before.contains(v.name) && before[v.name] != after)
-            log("VARIABLE: " + v.name + " " + before[v.name] + "→" + after, 2);
+        if (before.contains(v.name) && before[v.name] != after) {
+            log("VARIABLE: " + v.name + " " + before[v.name] + "->" + after, 2);
+            changedVars.append({v.name, after});
+        }
     }
+    // emit after all processing is done
+    for (auto& c : changedVars)
+        emit variableChanged(c.first, c.second);
 
     // read back output values
     for (const QString& name : outputNames) {
-        Cflat::Value* flag = env.getVariable(("__out_" + name + "_set").toStdString().c_str());
-        if (!flag || CflatValueAs(flag, int) == 0) continue; // branch was not taken
-
-        Cflat::Value* val = env.getVariable(("__out_" + name).toStdString().c_str());
+        QString varName = "__out_" + name + "_" + QString::number(currentCounter);
+        Cflat::Value* flag = env->getVariable((varName + "_set").toStdString().c_str());
+        if (!flag || CflatValueAs(flag, int) == 0) continue;
+        Cflat::Value* val = env->getVariable(varName.toStdString().c_str());
         if (!val) continue;
         QString strVal = QString::number(CflatValueAs(val, int));
         log("OUTPUT: " + name + " = " + strVal, 2);
         emit outputEmitted(name, strVal);
     }
-
 
 }
 
@@ -698,8 +726,8 @@ bool PetriScene::isTransitionNameTaken(const QString& name, Transition* exclude)
 
 
 void PetriScene::updateFireability() {
-    rebuildCflatEnvironment();
     if (currentMode == RunMode) return;
+    rebuildCflatEnvironment();
 
     for (Transition* t : transitions) {
 
