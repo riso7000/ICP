@@ -9,7 +9,7 @@ Spustit siet a poslat na input `in` nejaky vstupny retazec.
 
 **Ocakavane stavy**
 
-- premenna `var` bude nastavena na hodnotu `1`.
+- premenna `var` bude nastavena na hodnotu `2`.
 
 
 ## test_elapsed_place
