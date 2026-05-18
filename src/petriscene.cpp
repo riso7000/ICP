@@ -477,6 +477,16 @@ void PetriScene::startRun() {
 void PetriScene::stopRun() {
     currentMode = EditMode;
 
+    // save current variable values back so they persist
+    for (auto& v : variables) {
+        Cflat::Value* val = env->getVariable(v.name.toStdString().c_str());
+        if (!val) continue;
+        if (v.type == "bool")        v.initialValue = CflatValueAs(val, bool);
+        else if (v.type == "int")    v.initialValue = CflatValueAs(val, int);
+        else if (v.type == "float")  v.initialValue = CflatValueAs(val, float);
+        else if (v.type == "double") v.initialValue = CflatValueAs(val, double);
+    }
+
     for (auto& i : inputs) {
         i.value   = "";
         i.defined = false;
