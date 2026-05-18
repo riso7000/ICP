@@ -39,12 +39,10 @@ Spustit siet.
 - pri odpaleni `int_literal` ma byt na vstupe `out` cislo `27`.
 - pri odpaleni `float_literal` ma byt na vstupe `out` cislo `3.6`.
 - pri odpaleni `str_literal` ma byt na vstupe `out` retazec `test`.
-- pri odpaleni `char_literal` ma byt na vstupe `out` znak/cislo `c`/`99`.
-- pri odpaleni `var_int` ma byt na vstupe `out` cislo `80`.
+- pri odpaleni `char_literal` ma byt na vstupe `out` cislo `99` (c).
+- pri odpaleni `var_int` ma byt na vstupe `out` cislo `858`.
 - pri odpaleni `var_float` ma byt na vstupe `out` cislo `3.1415`.
-- pri odpaleni `var_double` ma byt na vstupe `out` cislo `99.1234556`.
-- pri odpaleni `var_bool` ma byt na vstupe `out` cislo `1`.
-- pri odpaleni `var_char` ma byt na vstupe `out` znak/cislo `A`/`65`.
+- pri odpaleni `var_char` ma byt na vstupe `out` cislo `65` (A).
 
 
 ## test_tokens
