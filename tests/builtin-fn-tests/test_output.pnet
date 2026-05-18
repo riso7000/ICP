@@ -2,7 +2,6 @@
     "1:petri_net_name": "",
     "2:comment": "",
     "3:inputs": [
-        "in"
     ],
     "4:outputs": [
         "out"
@@ -26,22 +25,22 @@
     ],
     "6:places": [
         {
-            "initial_tokens": 0,
+            "initial_tokens": 1,
             "place_name": "Place0",
             "pos_x": 185,
             "pos_y": 95
         },
         {
-            "initial_tokens": 0,
+            "initial_tokens": 1,
             "place_name": "Place1",
             "pos_x": 183,
             "pos_y": 204
         },
         {
-            "initial_tokens": 0,
+            "initial_tokens": 1,
             "place_name": "Place2",
             "pos_x": 176,
-            "pos_y": 304
+            "pos_y": 302
         },
         {
             "initial_tokens": 7,
@@ -50,28 +49,28 @@
             "pos_y": 359
         },
         {
-            "initial_tokens": 0,
+            "initial_tokens": 1,
             "place_name": "Place4",
-            "pos_x": 1291,
-            "pos_y": 80
+            "pos_x": 1286,
+            "pos_y": 90
         },
         {
-            "initial_tokens": 0,
+            "initial_tokens": 1,
             "place_name": "Place5",
             "pos_x": 1294,
             "pos_y": 193
         },
         {
-            "initial_tokens": 0,
+            "initial_tokens": 1,
             "place_name": "Place8",
-            "pos_x": 1280,
-            "pos_y": 405
+            "pos_x": 1293,
+            "pos_y": 354
         },
         {
-            "initial_tokens": 0,
+            "initial_tokens": 1,
             "place_name": "Place9",
-            "pos_x": 174,
-            "pos_y": 462
+            "pos_x": 189,
+            "pos_y": 452
         }
     ],
     "7:transitions": [
@@ -194,8 +193,8 @@
                     "tokens": 1
                 }
             ],
-            "pos_x": 1096,
-            "pos_y": 419,
+            "pos_x": 1115,
+            "pos_y": 361,
             "transition_name": "var_char1",
             "when_bool": "",
             "when_delay": 0,
