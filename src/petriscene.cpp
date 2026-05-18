@@ -798,6 +798,8 @@ bool PetriScene::isPlaceNameTaken(const QString& name, Place* exclude) {
 }
 
 bool PetriScene::isTransitionNameTaken(const QString& name, Transition* exclude) {
+    for (auto* t : transitions)
+        if (t != exclude && t->name == name) return true;
     return false;
 }
 
