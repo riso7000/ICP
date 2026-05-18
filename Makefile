@@ -17,7 +17,8 @@ clean:
 	rm -rf build
 	rm -f $(TARGET)
 	rm -rf doc
+	mkdir doc
 	rm -f $(LOGIN).zip
 
 pack: clean
-	zip -r $(LOGIN).zip examples/ res/ src/ third_party/ CMakeLists.txt Doxyfile LICENCE Makefile NOTICE Readme.txt
+	zip -r $(LOGIN).zip examples/ res/ src/ third_party/ dir/ CMakeLists.txt Doxyfile LICENCE Makefile NOTICE README.txt diagram_tried.pdf
