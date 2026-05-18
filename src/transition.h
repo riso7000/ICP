@@ -45,7 +45,7 @@ public:
 
     QString guard;
     QString eventName; // Empty = fires freely; non-empty = only on this event
-    QString outputName;
+
 
     QString action;
     QString name;
