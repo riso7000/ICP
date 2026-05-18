@@ -31,6 +31,7 @@ add_executable(petri-net-ed
     src/properties_dialog.h
     res/resources.qrc
     ${APP_ICON_RESOURCE}
+    ${RESOURCES}
 )
 
 target_link_libraries(petri-net-ed
