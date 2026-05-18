@@ -3,6 +3,8 @@
 //
 // Author:
 // Šimon Varga (xvargas00)
+//
+// Implements net saving and loading to/from a JSON file.
 // ------------------------------
 
 #include <iostream>
@@ -17,10 +19,10 @@
 
 // Module headers
 #include "net_def_io.hpp"
-#include "arc.h"
-#include "place.h"
-#include "transition.h"
-#include "petriscene.h"
+#include "arc.hpp"
+#include "place.hpp"
+#include "transition.hpp"
+#include "petriscene.hpp"
 
 
 

@@ -1,8 +1,10 @@
 // ------------------------------
-// transition.h
+// transition.hpp
 //
 // Author:
 // Richard Henček (xhencer00)
+//
+// Defines interface for transition.
 // ------------------------------
 
 #ifndef TRANSITION_H
@@ -13,7 +15,7 @@
 #include <QString>
 
 // Module headers
-#include "place.h"
+#include "place.hpp"
 
 
 

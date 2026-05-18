@@ -4,6 +4,8 @@
 // Authors:
 // Richard Henček (xhencer00)
 // Šimon Varga (xvargas00)
+//
+// Implements main canvas and Petri net logic.
 // ------------------------------
 
 #include <QGraphicsRectItem>
@@ -15,20 +17,20 @@
 #include <algorithm>
 
 // Module headers
-#include "petriscene.h"
-#include "place.h"
-#include "transition.h"
-#include "arc.h"
+#include "petriscene.hpp"
+#include "place.hpp"
+#include "transition.hpp"
+#include "arc.hpp"
 
 
 
-PetriScene::PetriScene(QObject* parent)
-    : QGraphicsScene(parent),
-      currentTool(SelectTool),
-      placeId(0),
-      transitionId(0),
-      arcId(0),
-      arcSource(0)
+PetriScene::PetriScene(QObject* parent) : 
+    QGraphicsScene(parent),
+    currentTool(SelectTool),
+    placeId(0),
+    transitionId(0),
+    arcId(0),
+    arcSource(0)
 {
     env = new Cflat::Environment();
     startTime = QDateTime::currentDateTime();

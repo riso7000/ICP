@@ -3,6 +3,8 @@
 //
 // Author:
 // Richard Henček (xhencer00)
+//
+// Defines shared interface for properties windows.
 // ------------------------------
 
 #ifndef PROPERTIESDIALOG_H

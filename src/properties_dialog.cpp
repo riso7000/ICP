@@ -3,6 +3,8 @@
 //
 // Author:
 // Richard Henček (xhencer00)
+//
+// Implements properties windows for places and transitions.
 // ------------------------------
 
 #include <QFormLayout>

@@ -4,6 +4,8 @@
 // Authors:
 // Richard Henček (xhencer00)
 // Šimon Varga (xvargas00)
+//
+// Implements main program functionality.
 // ------------------------------
 
 #include <QApplication>
@@ -24,7 +26,7 @@
 #include <QFileDialog>
 
 // Module headers
-#include "petriscene.h"
+#include "petriscene.hpp"
 #include "net_def_io.hpp"
 
 
@@ -420,6 +422,6 @@ int main(int argc, char* argv[]) {
     qDebug() << "Petri Net Start";
     window.resize(1280, 720);
     window.show();
-    
+
     return app.exec();
 }

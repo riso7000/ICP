@@ -3,13 +3,15 @@
 //
 // Author:
 // Šimon Varga (xvargas00)
+//
+// Defines interface for file I/O and necessary macros for JSON generation.
 // ------------------------------
 
 #ifndef NET_DEF_IO_HPP
 #define NET_DEF_IO_HPP
 
 // Module headers
-#include "petriscene.h"
+#include "petriscene.hpp"
 
 
 

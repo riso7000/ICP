@@ -4,6 +4,8 @@
 // Authors:
 // Richard Henček (xhencer00)
 // Šimon Varga (xvargas00)
+//
+// Implements transition objects of Petri net.
 // ------------------------------
 
 #include <QGraphicsScene>
@@ -18,10 +20,10 @@
 #include <QMessageBox>
 
 // Module headers
-#include "transition.h"
-#include "arc.h"
+#include "transition.hpp"
+#include "arc.hpp"
 #include "properties_dialog.h"
-#include "petriscene.h"
+#include "petriscene.hpp"
 
 
 

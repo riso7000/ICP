@@ -1,9 +1,11 @@
 // ------------------------------
-// petriscene.h
+// petriscene.hpp
 //
 // Authors:
 // Richard Henček (xhencer00)
 // Šimon Varga (xvargas00)
+//
+// Defines interface for PetriScene.
 // ------------------------------
 
 #ifndef PETRISCENE_H
@@ -15,8 +17,8 @@
 #include "Cflat.h"
 
 // Module headers
-#include "transition.h"
-#include "place.h"
+#include "transition.hpp"
+#include "place.hpp"
 
 
 
@@ -25,8 +27,8 @@ class PetriScene : public QGraphicsScene {
 public:
     struct NetInput {
         QString name;
-        QString value;   // Current string value
-        bool defined;    // Whether a value has ever been sent
+        QString value; // Current string value
+        bool defined; // Whether a value has ever been sent
 
         NetInput(const QString& name) : name(name), value(""), defined(false) {}
     };

@@ -1,8 +1,10 @@
 // ------------------------------
-// arc.h
+// arc.hpp
 //
 // Author:
 // Richard Henček (xhencer00)
+//
+// Defines interface for arcs and necessary constants. 
 // ------------------------------
 
 #ifndef ARC_H

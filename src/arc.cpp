@@ -4,6 +4,8 @@
 // Authors:
 // Richard Henček (xhencer00)
 // Šimon Varga (xvargas00)
+//
+// Implements arcs of Petri net.
 // ------------------------------
 
 // To prevent errors with math
@@ -13,8 +15,8 @@
 #include <QPointF>
 
 // Module headers
-#include "arc.h"
-#include "petriscene.h"
+#include "arc.hpp"
+#include "petriscene.hpp"
 
 
 

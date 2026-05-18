@@ -1,8 +1,10 @@
 // ------------------------------
-// place.h
+// place.hpp
 //
 // Author:
 // Richard Henček (xhencer00)
+//
+// Defines interface for place.
 // ------------------------------
 
 #ifndef PLACE_H

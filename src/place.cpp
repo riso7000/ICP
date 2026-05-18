@@ -4,6 +4,8 @@
 // Authors:
 // Richard Henček (xhencer00)
 // Šimon Varga (xvargas00)
+//
+// Implements place objects of Petri net.
 // ------------------------------
 
 #include <QGraphicsScene>
@@ -13,9 +15,9 @@
 #include <QDebug>
 
 // Module headers
-#include "place.h"
-#include "arc.h"
-#include "petriscene.h"
+#include "place.hpp"
+#include "arc.hpp"
+#include "petriscene.hpp"
 #include "properties_dialog.h"
 
 

@@ -17,13 +17,13 @@ qt5_add_resources(RESOURCES res/resources.qrc)
 add_executable(petri-net-ed
     src/main.cpp
     src/petriscene.cpp
-    src/petriscene.h
+    src/petriscene.hpp
     src/place.cpp
-    src/place.h
+    src/place.hpp
     src/transition.cpp
-    src/transition.h
+    src/transition.hpp
     src/arc.cpp
-    src/arc.h
+    src/arc.hpp
     src/net_def_io.cpp
     src/net_def_io.hpp
     third_party/Cflat/Cflat.cpp
