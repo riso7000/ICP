@@ -123,12 +123,12 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent* event) {
                             Transition* destTrans = dynamic_cast<Transition*>(clicked);
 
                             if (srcTrans) {
-                                srcTrans->output_arcs.push_back(arc);
+                                srcTrans->outputArcs.push_back(arc);
 
                             }
 
                             if (destTrans) {
-                                destTrans->input_arcs.push_back(arc);
+                                destTrans->inputArcs.push_back(arc);
                             }
 
 
@@ -172,11 +172,11 @@ void PetriScene::clearNet() {
     outputs.clear();
 
     for (Transition* tr : transitions) {
-        for (Arc* arc : tr->input_arcs) {
+        for (Arc* arc : tr->inputArcs) {
             delete arc;
         }
 
-        for (Arc* arc : tr->output_arcs) {
+        for (Arc* arc : tr->outputArcs) {
             delete arc;
         }
 
@@ -206,15 +206,15 @@ void PetriScene::deleteItemAt(const QPointF& scenePos) {
         Transition* destTrans = dynamic_cast<Transition*>(clickedArc->getDest());
 
         if (srcTrans)
-            srcTrans->output_arcs.erase(
-                std::remove(srcTrans->output_arcs.begin(),
-                            srcTrans->output_arcs.end(), clickedArc),
-                srcTrans->output_arcs.end());
+            srcTrans->outputArcs.erase(
+                std::remove(srcTrans->outputArcs.begin(),
+                            srcTrans->outputArcs.end(), clickedArc),
+                srcTrans->outputArcs.end());
         if (destTrans)
-            destTrans->input_arcs.erase(
-                std::remove(destTrans->input_arcs.begin(),
-                            destTrans->input_arcs.end(), clickedArc),
-                destTrans->input_arcs.end());
+            destTrans->inputArcs.erase(
+                std::remove(destTrans->inputArcs.begin(),
+                            destTrans->inputArcs.end(), clickedArc),
+                destTrans->inputArcs.end());
 
         removeItem(clickedArc);
         delete clickedArc;
@@ -232,15 +232,15 @@ void PetriScene::deleteItemAt(const QPointF& scenePos) {
             Transition* destTrans = dynamic_cast<Transition*>(arc->getDest());
 
             if (srcTrans)
-                srcTrans->output_arcs.erase(
-                    std::remove(srcTrans->output_arcs.begin(),
-                                srcTrans->output_arcs.end(), arc),
-                    srcTrans->output_arcs.end());
+                srcTrans->outputArcs.erase(
+                    std::remove(srcTrans->outputArcs.begin(),
+                                srcTrans->outputArcs.end(), arc),
+                    srcTrans->outputArcs.end());
             if (destTrans)
-                destTrans->input_arcs.erase(
-                    std::remove(destTrans->input_arcs.begin(),
-                                destTrans->input_arcs.end(), arc),
-                    destTrans->input_arcs.end());
+                destTrans->inputArcs.erase(
+                    std::remove(destTrans->inputArcs.begin(),
+                                destTrans->inputArcs.end(), arc),
+                    destTrans->inputArcs.end());
 
             removeItem(arc);
             delete arc;
@@ -267,10 +267,10 @@ void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
 
 bool PetriScene::isFireable(Transition* t) {
 
-    if (t->input_arcs.empty()) return false;
+    if (t->inputArcs.empty()) return false;
 
     // check token counts
-    for (Arc* arc : t->input_arcs) {
+    for (Arc* arc : t->inputArcs) {
         Place* place = dynamic_cast<Place*>(arc->getSource());
         if (!place) continue;
         if (place->getTokens() < arc->getWeight())
@@ -289,7 +289,7 @@ void PetriScene::fireTransition(Transition* t) {
     log("FIRED: " + t->name, 1);
 
     // consume tokens from input places
-    for (Arc* arc : t->input_arcs) {
+    for (Arc* arc : t->inputArcs) {
         Place* place = dynamic_cast<Place*>(arc->getSource());
         if (place) {
             int oldTokens = place->tokens;
@@ -300,7 +300,7 @@ void PetriScene::fireTransition(Transition* t) {
     }
 
     // produce tokens in output places
-    for (Arc* arc : t->output_arcs) {
+    for (Arc* arc : t->outputArcs) {
         Place* place = dynamic_cast<Place*>(arc->getDest());
         if (place) {
             int oldTokens = place->tokens;
@@ -359,7 +359,7 @@ void PetriScene::scheduleTimers() {
         if (!isFireable(t)) continue;        // skip non-fireable transitions
         if (t->timer) continue;              // timer already running
 
-        log("TIMER SCHEDULED: " + t->name + " : " + QString::number(t->delay_ms) + "ms");
+        log("TIMER SCHEDULED: " + t->name + " : " + QString::number(t->delayMs) + "ms");
 
         t->timer = new QTimer();
         t->timer->setSingleShot(true);
@@ -370,7 +370,7 @@ void PetriScene::scheduleTimers() {
             onTimerExpired(t);
         });
 
-        t->timer->start(t->delay_ms);
+        t->timer->start(t->delayMs);
     }
 }
 
@@ -455,7 +455,7 @@ void PetriScene::postEvent(const QString& name) {
         t->timer->setSingleShot(true);
         t->setAvailability(Transition::Waiting);
         connect(t->timer, &QTimer::timeout, [this, t]() { onTimerExpired(t); });
-        t->timer->start(t->delay_ms);
+        t->timer->start(t->delayMs);
     }
 
     // Step 3: after event-gated firings, re-stabilize the free transitions

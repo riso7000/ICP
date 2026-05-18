@@ -24,163 +24,165 @@
 
 
 
-int read_netdef(QString path, PetriScene& net) {
+int readNetDef(QString path, PetriScene& net) {
     using namespace std;
 
     QString contents;
-    QFile input_file;
-    QJsonArray ins_arr;
-    QJsonArray outs_arr;
-    QJsonArray vars_arr;
-    QJsonArray places_arr;
-    QJsonArray transits_arr;
+    QFile inputFile;
+    QJsonArray insArr;
+    QJsonArray outsArr;
+    QJsonArray varsArr;
+    QJsonArray placesArr;
+    QJsonArray transitsArr;
 
-    input_file.setFileName(path);
+    inputFile.setFileName(path);
 
-    if (!input_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return -1;
     }
 
     // Read input file and create JSON representation
-    contents = input_file.readAll();
-    input_file.close();
+    contents = inputFile.readAll();
+    inputFile.close();
 
     QJsonDocument doc = QJsonDocument::fromJson(contents.toUtf8());
     QJsonObject obj = doc.object();
 
     // Retrieve root values
-    QJsonValue net_name = obj.value(JSONFLD_NET_NAME);
-    QJsonValue net_comment = obj.value(JSONFLD_COMMENT);
-    QJsonValue net_ins = obj.value(JSONFLD_INPUTS);
-    QJsonValue net_outs = obj.value(JSONFLD_OUTPUTS);
-    QJsonValue net_vars = obj.value(JSONFLD_VARS);
-    QJsonValue net_places = obj.value(JSONFLD_PLACES);
-    QJsonValue net_transits = obj.value(JSONFLD_TRANSITIONS);
+    QJsonValue netName = obj.value(JSONFLD_NET_NAME);
+    QJsonValue netComment = obj.value(JSONFLD_COMMENT);
+    QJsonValue netIns = obj.value(JSONFLD_INPUTS);
+    QJsonValue netOuts = obj.value(JSONFLD_OUTPUTS);
+    QJsonValue netVars = obj.value(JSONFLD_VARS);
+    QJsonValue netPlaces = obj.value(JSONFLD_PLACES);
+    QJsonValue netTransits = obj.value(JSONFLD_TRANSITIONS);
 
-    if (net_name.isUndefined() || net_comment.isUndefined() || net_ins.isUndefined() || net_outs.isUndefined() ||
-        net_vars.isUndefined() || net_places.isUndefined() || net_transits.isUndefined()) {
+    if (netName.isUndefined() || netComment.isUndefined() || netIns.isUndefined() || netOuts.isUndefined() ||
+        netVars.isUndefined() || netPlaces.isUndefined() || netTransits.isUndefined()) {
 
         cerr << "Error: A required key is missing in JSON." << endl;
         return -1;
     }
 
     // Set metadata
-    net.name = net_name.toString();
-    net.comment = net_comment.toString();
+    net.name = netName.toString();
+    net.comment = netComment.toString();
 
     // Set arrays for iteration
-    ins_arr = net_ins.toArray();
-    outs_arr = net_outs.toArray();
-    vars_arr = net_vars.toArray();
-    places_arr = net_places.toArray();
-    transits_arr = net_transits.toArray();
+    insArr = netIns.toArray();
+    outsArr = netOuts.toArray();
+    varsArr = netVars.toArray();
+    placesArr = netPlaces.toArray();
+    transitsArr = netTransits.toArray();
 
     // Add net inputs
-    for (const QJsonValue& in_val : ins_arr) {
-        QString input_name = in_val.toString();
+    for (const QJsonValue& inVal : insArr) {
+        QString input_name = inVal.toString();
         net.inputs.push_back(PetriScene::NetInput(input_name));
     }
 
     // Add net outputs
-    for (const QJsonValue& out_val : outs_arr) {
-        QString output_name = out_val.toString();
+    for (const QJsonValue& outVal : outsArr) {
+        QString output_name = outVal.toString();
         net.outputs.push_back({output_name});
     }
 
     // Add net variables
-    for (const QJsonValue& var : vars_arr) {
-        QJsonObject var_obj = var.toObject();
+    for (const QJsonValue& var : varsArr) {
+        QJsonObject varObj = var.toObject();
 
-        QString var_name = var_obj.value(JSON_VAR_NAME).toString();
-        QString var_type = var_obj.value(JSON_VAR_TYPE).toString();
-        QString var_val = var_obj.value(JSON_VAR_INITVAL).toString();
+        QString varName = varObj.value(JSON_VAR_NAME).toString();
+        QString varType = varObj.value(JSON_VAR_TYPE).toString();
+        QString varVal = varObj.value(JSON_VAR_INITVAL).toString();
         
-        net.variables.push_back({var_name, var_type, var_val});
+        net.variables.push_back({varName, varType, varVal});
     }
 
     // Add places and draw them
-    for (const QJsonValue& place_obj : places_arr) {
-        QJsonObject place = place_obj.toObject();
+    for (const QJsonValue& place : placesArr) {
+        QJsonObject placeObj = place.toObject();
 
-        QString name = place.value(JSON_PL_NAME).toString();
-        int init_tok = place.value(JSON_PL_INIT_TOK).toInt();
-        double pos_x = place.value(JSON_POS_X).toDouble();
-        double pos_y = place.value(JSON_POS_Y).toDouble();
+        QString name = placeObj.value(JSON_PL_NAME).toString();
+        int initTok = placeObj.value(JSON_PL_INIT_TOK).toInt();
+        double posX = placeObj.value(JSON_POS_X).toDouble();
+        double posY = placeObj.value(JSON_POS_Y).toDouble();
 
         // Add place to scene
-        Place* pl = new Place(name, init_tok);
-        pl->setPos(pos_x, pos_y);
-        net.places.push_back(pl);
-        net.addItem(pl);
+        Place* placePtr = new Place(name, initTok);
+        placePtr->setPos(posX, posY);
+        net.places.push_back(placePtr);
+        net.addItem(placePtr);
     }
 
     // Add transitions and draw them
-    for (const QJsonValue& transit_obj : transits_arr) {
-        QJsonObject transit = transit_obj.toObject();
+    for (const QJsonValue& transit : transitsArr) {
+        QJsonObject transitObj = transit.toObject();
 
-        QString name = transit.value(JSON_TR_NAME).toString();
-        double pos_x = transit.value(JSON_POS_X).toDouble();
-        double pos_y = transit.value(JSON_POS_Y).toDouble();
-        QString when_in = transit.value(JSON_TR_WHEN_IN).toString();
-        QString when_bool = transit.value(JSON_TR_WHEN_BOOL).toString();
-        int when_delay = transit.value(JSON_TR_WHEN_DELAY).toInt();
-        QString do_action = transit.value(JSON_TR_DO).toString();
+        QString name = transitObj.value(JSON_TR_NAME).toString();
+        double posX = transitObj.value(JSON_POS_X).toDouble();
+        double posY = transitObj.value(JSON_POS_Y).toDouble();
 
-        QJsonArray arcin_arr = transit.value(JSON_TR_IN).toArray();
-        QJsonArray arcout_arr = transit.value(JSON_TR_OUT).toArray();
+        QString whenIn = transitObj.value(JSON_TR_WHEN_IN).toString();
+        QString whenBool = transitObj.value(JSON_TR_WHEN_BOOL).toString();
+        int whenDelay = transitObj.value(JSON_TR_WHEN_DELAY).toInt();
+
+        QString doAction = transitObj.value(JSON_TR_DO).toString();
+
+        QJsonArray arcInArr = transitObj.value(JSON_TR_IN).toArray();
+        QJsonArray arcOutArr = transitObj.value(JSON_TR_OUT).toArray();
 
         // Add transition to scene
-        Transition* tr = new Transition(name, 0);
-        tr->eventName = when_in;
-        tr->guard = when_bool;
-        tr->delayMs = when_delay;
-        tr->action = do_action;
-        tr->setPos(pos_x, pos_y);
+        Transition* transitPtr = new Transition(name, 0);
+        transitPtr->eventName = whenIn;
+        transitPtr->guard = whenBool;
+        transitPtr->delayMs = whenDelay;
+        transitPtr->action = doAction;
+        transitPtr->setPos(posX, posY);
 
-        net.transitions.push_back(tr);
-        net.addItem(tr);
+        net.transitions.push_back(transitPtr);
+        net.addItem(transitPtr);
 
         // Arcs in
-        for (const QJsonValue& arc_obj : arcin_arr) {
-            QJsonObject arc = arc_obj.toObject();
-            QString src_name = arc.value(JSON_PL_NAME).toString();
-            int weight = arc.value(JSON_TR_PL_TOK).toInt();
-            Place* src_pl = NULL;
+        for (const QJsonValue& arc : arcInArr) {
+            QJsonObject arcObj = arc.toObject();
+            QString srcName = arcObj.value(JSON_PL_NAME).toString();
+            int weight = arcObj.value(JSON_TR_PL_TOK).toInt();
+            Place* srcPlacePtr = NULL;
 
-            for (Place* pl : net.places) {
-                QString pl_name = pl->getName();
+            for (Place* place : net.places) {
+                QString placeName = place->getName();
 
-                if (pl_name == src_name) {
-                    src_pl = pl;
+                if (placeName == srcName) {
+                    srcPlacePtr = place;
                 }
             }
 
-            if (src_pl) {
-                Arc* inarc = new Arc(src_pl, tr, weight);
-                tr->inputArcs.push_back(inarc);
-                net.addItem(inarc);
+            if (srcPlacePtr) {
+                Arc* inArc = new Arc(srcPlacePtr, transitPtr, weight);
+                transitPtr->inputArcs.push_back(inArc);
+                net.addItem(inArc);
             }
         }
 
         // Arcs out
-        for (const QJsonValue& arc_obj : arcout_arr) {
-            QJsonObject arc = arc_obj.toObject();
-            QString dest_name = arc.value(JSON_PL_NAME).toString();
-            int weight = arc.value(JSON_TR_PL_TOK).toInt();
-            Place* dest_pl = NULL;
+        for (const QJsonValue& arc : arcOutArr) {
+            QJsonObject arcObj = arc.toObject();
+            QString destName = arcObj.value(JSON_PL_NAME).toString();
+            int weight = arcObj.value(JSON_TR_PL_TOK).toInt();
+            Place* destPlacePtr = NULL;
             
-            for (Place* pl : net.places) {
-                QString pl_name = pl->getName();
+            for (Place* place : net.places) {
+                QString placeName = place->getName();
 
-                if (pl_name == dest_name) {
-                    dest_pl = pl;
+                if (placeName == destName) {
+                    destPlacePtr = place;
                 }
             }
 
-            if (dest_pl) {
-                Arc* outarc = new Arc(tr, dest_pl, weight);
-                tr->outputArcs.push_back(outarc);
-                net.addItem(outarc);
+            if (destPlacePtr) {
+                Arc* outArc = new Arc(transitPtr, destPlacePtr, weight);
+                transitPtr->outputArcs.push_back(outArc);
+                net.addItem(outArc);
             }
         }
     }
@@ -188,145 +190,145 @@ int read_netdef(QString path, PetriScene& net) {
     return 0;
 }
 
-int write_netdef(QString path, PetriScene& net) {
+int writeNetDef(QString path, PetriScene& net) {
     using namespace std;
 
     // Open file for writing
-    QFile output_file;
-    output_file.setFileName(path);
+    QFile outputFile;
+    outputFile.setFileName(path);
 
-    if (!output_file.open(QIODevice::WriteOnly)) {
+    if (!outputFile.open(QIODevice::WriteOnly)) {
         return -1;
     }
 
     // Create JSON representation
-    QJsonObject json_root;
-    QJsonArray net_inputs;
-    QJsonArray net_outputs;
-    QJsonArray net_variables;
-    QJsonArray net_places;
-    QJsonArray net_transitions;
+    QJsonObject jsonRoot;
+    QJsonArray netInputs;
+    QJsonArray netOutputs;
+    QJsonArray netVariables;
+    QJsonArray netPlaces;
+    QJsonArray netTransitions;
 
     // Add inputs to inputs array
-    for (const struct PetriScene::NetInput& in : net.inputs) {
-        QJsonValue val(in.name);
-        net_inputs.push_back(val);
+    for (const struct PetriScene::NetInput& input : net.inputs) {
+        QJsonValue val(input.name);
+        netInputs.push_back(val);
     }
 
     // Add outputs to outputs array
-    for (const struct PetriScene::NetOutput& out : net.outputs) {
-        QJsonValue val(out.name);
-        net_outputs.push_back(val);
+    for (const struct PetriScene::NetOutput& output : net.outputs) {
+        QJsonValue val(output.name);
+        netOutputs.push_back(val);
     }
 
     // Add variables to variables array
     for (const struct PetriScene::NetVariable& var : net.variables) {
-        QJsonObject var_obj;
+        QJsonObject varObj;
         QJsonValue name(var.name);
         QJsonValue type(var.type);
         QJsonValue val(var.initialValue.toString());
 
-        var_obj.insert(JSON_VAR_NAME, name);
-        var_obj.insert(JSON_VAR_TYPE, type);
-        var_obj.insert(JSON_VAR_INITVAL, val);
+        varObj.insert(JSON_VAR_NAME, name);
+        varObj.insert(JSON_VAR_TYPE, type);
+        varObj.insert(JSON_VAR_INITVAL, val);
 
-        net_variables.push_back(var_obj);
+        netVariables.push_back(varObj);
     }
 
     // Add places to place array
-    for (const Place* pl : net.places) {
-        QJsonObject place;
-        QJsonValue name(pl->getName());
-        QJsonValue init_tok(pl->getTokens());
-        QJsonValue posx(pl->x());
-        QJsonValue posy(pl->y());
+    for (const Place* placePtr : net.places) {
+        QJsonObject placeObj;
+        QJsonValue name(placePtr->getName());
+        QJsonValue initTok(placePtr->getTokens());
+        QJsonValue posX(placePtr->x());
+        QJsonValue posY(placePtr->y());
 
-        place.insert(JSON_PL_NAME, name);
-        place.insert(JSON_PL_INIT_TOK, init_tok);
-        place.insert(JSON_POS_X, posx);
-        place.insert(JSON_POS_Y, posy);
+        placeObj.insert(JSON_PL_NAME, name);
+        placeObj.insert(JSON_PL_INIT_TOK, initTok);
+        placeObj.insert(JSON_POS_X, posX);
+        placeObj.insert(JSON_POS_Y, posY);
 
-        net_places.push_back(place);
+        netPlaces.push_back(placeObj);
     }
 
     // Add transitions to transition array
-    for (const Transition* tr : net.transitions) {
-        QJsonObject transit;
-        QJsonArray arcin;
-        QJsonArray arcout;
+    for (const Transition* transitPtr : net.transitions) {
+        QJsonObject transitObj;
+        QJsonArray arcIn;
+        QJsonArray arcOut;
 
-        QJsonValue name(tr->getName());
-        QJsonValue posx(tr->x());
-        QJsonValue posy(tr->y());
-        QJsonValue when_in(tr->eventName);
-        QJsonValue when_bool(tr->guard);
-        QJsonValue when_delay(tr->delayMs);
-        QJsonValue do_action(tr->action);
+        QJsonValue name(transitPtr->getName());
+        QJsonValue posX(transitPtr->x());
+        QJsonValue posY(transitPtr->y());
+        QJsonValue whenIn(transitPtr->eventName);
+        QJsonValue whenBool(transitPtr->guard);
+        QJsonValue whenDelay(transitPtr->delayMs);
+        QJsonValue doAction(transitPtr->action);
 
         // Arcs in
-        for (const Arc* arc : tr->inputArcs) {
-            QJsonObject arc_obj;
-            QJsonValue weight(arc->getWeight());
-            Place *src = dynamic_cast<Place*>(arc->getSource());
+        for (const Arc* arcPtr : transitPtr->inputArcs) {
+            QJsonObject arcObj;
+            QJsonValue weight(arcPtr->getWeight());
+            Place *srcPlacePtr = dynamic_cast<Place*>(arcPtr->getSource());
 
-            if (!src) {
+            if (!srcPlacePtr) {
                 continue;
             }
             
-            QJsonValue src_name(src->getName());
+            QJsonValue srcName(srcPlacePtr->getName());
 
-            arc_obj.insert(JSON_PL_NAME, src_name);
-            arc_obj.insert(JSON_TR_PL_TOK, weight);
+            arcObj.insert(JSON_PL_NAME, srcName);
+            arcObj.insert(JSON_TR_PL_TOK, weight);
 
-            arcin.push_back(arc_obj);
+            arcIn.push_back(arcObj);
         }
 
         // Arcs out
-        for (const Arc* arc : tr->outputArcs) {
-            QJsonObject arc_obj;
-            QJsonValue weight(arc->getWeight());
-            Place *dest = dynamic_cast<Place*>(arc->getDest());
+        for (const Arc* arcPtr : transitPtr->outputArcs) {
+            QJsonObject arcObj;
+            QJsonValue weight(arcPtr->getWeight());
+            Place *destPlacePtr = dynamic_cast<Place*>(arcPtr->getDest());
 
-            if (!dest) {
+            if (!destPlacePtr) {
                 continue;
             }
             
-            QJsonValue dest_name(dest->getName());
+            QJsonValue destName(destPlacePtr->getName());
 
-            arc_obj.insert(JSON_PL_NAME, dest_name);
-            arc_obj.insert(JSON_TR_PL_TOK, weight);
+            arcObj.insert(JSON_PL_NAME, destName);
+            arcObj.insert(JSON_TR_PL_TOK, weight);
 
-            arcout.push_back(arc_obj);
+            arcOut.push_back(arcObj);
         }
 
-        transit.insert(JSON_TR_NAME, name);
-        transit.insert(JSON_POS_X, posx);
-        transit.insert(JSON_POS_Y, posy);
-        transit.insert(JSON_TR_IN, arcin);
-        transit.insert(JSON_TR_OUT, arcout);
-        transit.insert(JSON_TR_WHEN_IN, when_in);
-        transit.insert(JSON_TR_WHEN_BOOL, when_bool);
-        transit.insert(JSON_TR_WHEN_DELAY, when_delay);
-        transit.insert(JSON_TR_DO, do_action);
+        transitObj.insert(JSON_TR_NAME, name);
+        transitObj.insert(JSON_POS_X, posX);
+        transitObj.insert(JSON_POS_Y, posY);
+        transitObj.insert(JSON_TR_IN, arcIn);
+        transitObj.insert(JSON_TR_OUT, arcOut);
+        transitObj.insert(JSON_TR_WHEN_IN, whenIn);
+        transitObj.insert(JSON_TR_WHEN_BOOL, whenBool);
+        transitObj.insert(JSON_TR_WHEN_DELAY, whenDelay);
+        transitObj.insert(JSON_TR_DO, doAction);
 
-        net_transitions.push_back(transit);
+        netTransitions.push_back(transitObj);
     }
 
     // Add all parts to JSON root
-    json_root.insert(JSONFLD_NET_NAME, net.name);
-    json_root.insert(JSONFLD_COMMENT, net.comment);
-    json_root.insert(JSONFLD_INPUTS, net_inputs);
-    json_root.insert(JSONFLD_OUTPUTS, net_outputs);
-    json_root.insert(JSONFLD_VARS, net_variables);
-    json_root.insert(JSONFLD_PLACES, net_places);
-    json_root.insert(JSONFLD_TRANSITIONS, net_transitions);
+    jsonRoot.insert(JSONFLD_NET_NAME, net.name);
+    jsonRoot.insert(JSONFLD_COMMENT, net.comment);
+    jsonRoot.insert(JSONFLD_INPUTS, netInputs);
+    jsonRoot.insert(JSONFLD_OUTPUTS, netOutputs);
+    jsonRoot.insert(JSONFLD_VARS, netVariables);
+    jsonRoot.insert(JSONFLD_PLACES, netPlaces);
+    jsonRoot.insert(JSONFLD_TRANSITIONS, netTransitions);
 
     // Create JSON document from root and write it to the file
-    QJsonDocument doc(json_root);
-    QByteArray byte_form = doc.toJson(QJsonDocument::Indented);
+    QJsonDocument doc(jsonRoot);
+    QByteArray byteForm = doc.toJson(QJsonDocument::Indented);
 
-    output_file.write(byte_form.constData(), byte_form.size());
-    output_file.close();
+    outputFile.write(byteForm.constData(), byteForm.size());
+    outputFile.close();
 
     return 0;
 }

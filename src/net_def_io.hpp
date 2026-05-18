@@ -43,7 +43,7 @@
 #define JSON_TR_WHEN_DELAY "when_delay"
 #define JSON_TR_DO "do"
 
-int read_netdef(QString path, PetriScene& net);
-int write_netdef(QString path, PetriScene& net);
+int readNetDef(QString path, PetriScene& net);
+int writeNetDef(QString path, PetriScene& net);
 
 #endif

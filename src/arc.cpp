@@ -6,7 +6,8 @@
 // Šimon Varga (xvargas00)
 // ------------------------------
 
-#define _USE_MATH_DEFINES
+// To prevent errors with math
+#define _USE_MATH_DEFINES 
 
 #include <cmath>
 #include <QPointF>
@@ -58,6 +59,7 @@ void Arc::paint(QPainter* painter,
     for (int i = 0; i < (int)l.length(); ++i) {
         QPointF p = l.pointAt(i / l.length());
         QPointF localP = dest->mapFromScene(p);
+
         if (destShape.contains(localP)) {
             tip = p;
             break;
@@ -72,12 +74,12 @@ void Arc::paint(QPainter* painter,
     double angle = std::atan2(l.dy(), l.dx());
 
     QPointF base1(
-        tip.x() - ARROW_SIZE * std::cos(angle - M_PI / 6),
-        tip.y() - ARROW_SIZE * std::sin(angle - M_PI / 6)
+        tip.x() - ARROW_SIZE * std::cos(angle - M_PI / 6.0),
+        tip.y() - ARROW_SIZE * std::sin(angle - M_PI / 6.0)
     );
     QPointF base2(
-        tip.x() - ARROW_SIZE * std::cos(angle + M_PI / 6),
-        tip.y() - ARROW_SIZE * std::sin(angle + M_PI / 6)
+        tip.x() - ARROW_SIZE * std::cos(angle + M_PI / 6.0),
+        tip.y() - ARROW_SIZE * std::sin(angle + M_PI / 6.0)
     );
 
     QPolygonF arrowHead;

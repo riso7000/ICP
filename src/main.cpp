@@ -315,7 +315,7 @@ int main(int argc, char* argv[]) {
 
         if (!filePath.isEmpty()) {
             scene->clearNet();
-            read_netdef(filePath, *scene);
+            readNetDef(filePath, *scene);
             rebuildPanel();
         }
 
@@ -333,7 +333,7 @@ int main(int argc, char* argv[]) {
         );
 
         if (!filePath.isEmpty()) {
-            write_netdef(filePath, *scene);
+            writeNetDef(filePath, *scene);
         }
     });
 

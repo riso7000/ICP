@@ -29,7 +29,7 @@ Transition::Transition(QString name, int delay, QGraphicsItem* parent)
     : QGraphicsRectItem(-15, -40, 30, 80, parent),
       name(name),
       availability(Disabled),
-      delay_ms(delay),
+      delayMs(delay),
       timer(0)
 {
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
@@ -60,7 +60,7 @@ void Transition::paint(QPainter* painter,
 
     // Draw delay timer in the middle
     painter->setPen(QPen(Qt::white));
-    painter->drawText(rect(), Qt::AlignCenter, QString::number(delay_ms));
+    painter->drawText(rect(), Qt::AlignCenter, QString::number(delayMs));
 
     // Draw name above the rectangle
     painter->setPen(QPen(Qt::black));
@@ -90,7 +90,7 @@ void Transition::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) {
     if (petriScene->currentTool != PetriScene::SelectTool) return;
 
     bool readOnly = (petriScene->currentMode == PetriScene::RunMode);
-    TransitionPropertiesDialog dialog(name, delay_ms, eventName, guard, action, readOnly);
+    TransitionPropertiesDialog dialog(name, delayMs, eventName, guard, action, readOnly);
 
     while(true) {
         if (dialog.exec() == QDialog::Accepted) {
