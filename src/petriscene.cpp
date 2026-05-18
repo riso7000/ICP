@@ -470,22 +470,31 @@ void PetriScene::startRun() {
     actionCounter = 0;
     guardCounter = 0;
 
-    rebuildCflatEnvironment();
+    std::string code;
+    for (auto& v : variables) {
+        qDebug() << "startRun loading:" << v.type << v.name << "=" << v.initialValue;
+
+        if (v.type == "float") {
+            code += "float " + v.name.toStdString() + " = " + v.initialValue.toString().toStdString() + ";\n";
+        }
+        else if (v.type == "char") {
+            QString str = v.initialValue.toString();
+            int charCode = str.isEmpty() ? 0 : str.at(0).unicode();
+            code += "int " + v.name.toStdString() + " = " + std::to_string(charCode) + ";\n";
+        }
+        else {
+            code += v.type.toStdString() + " " + v.name.toStdString()
+                  + " = " + v.initialValue.toString().toStdString() + ";\n";
+        }
+    }
+    env->load("vars", code.c_str());
 }
 
 
 void PetriScene::stopRun() {
     currentMode = EditMode;
 
-    // save current variable values back so they persist
-    for (auto& v : variables) {
-        Cflat::Value* val = env->getVariable(v.name.toStdString().c_str());
-        if (!val) continue;
-        if (v.type == "bool")        v.initialValue = CflatValueAs(val, bool);
-        else if (v.type == "int")    v.initialValue = CflatValueAs(val, int);
-        else if (v.type == "float")  v.initialValue = CflatValueAs(val, float);
-        else if (v.type == "double") v.initialValue = CflatValueAs(val, double);
-    }
+
 
     for (auto& i : inputs) {
         i.value   = "";
@@ -514,10 +523,30 @@ void PetriScene::stopRun() {
 
 
 void PetriScene::rebuildCflatEnvironment() {
+    if (currentMode == RunMode) {
+            qDebug() << "WARNING: rebuildCflatEnvironment called in RunMode, ignoring";
+            return;
+        }
+    if (currentMode == EditMode) {
+        delete env;
+        env = new Cflat::Environment();
+        guardCounter = 0;
+        actionCounter = 0;
+    }
     std::string code;
-    for (auto& v : variables)
-        code += v.type.toStdString() + " " + v.name.toStdString()
-              + " = " + v.initialValue.toString().toStdString() + ";\n";
+    for (auto& v : variables) {
+        if (v.type == "float")
+            code += "float " + v.name.toStdString() + " = " + v.initialValue.toString().toStdString() + ";\n";
+        else if (v.type == "char")
+            code += "int " + v.name.toStdString() + " = " + QString::number(v.initialValue.toString().at(0).unicode()).toStdString() + ";\n";
+        else if (v.type == "char") {
+                QString str = v.initialValue.toString();
+                int charCode = str.isEmpty() ? 0 : str.at(0).unicode();
+                code += "int " + v.name.toStdString() + " = " + std::to_string(charCode) + ";\n";
+            }
+        else
+            code += v.type.toStdString() + " " + v.name.toStdString() + " = " + v.initialValue.toString().toStdString() + ";\n";
+    }
     env->load("vars", code.c_str());
 }
 
@@ -631,11 +660,15 @@ void PetriScene::executeAction(const QString& action) {
     for (auto& v : variables) {
         Cflat::Value* val = env->getVariable(v.name.toStdString().c_str());
         if (!val) continue;
-        if (v.type == "bool")        before[v.name] = CflatValueAs(val, bool) ? "true" : "false";
-        else if (v.type == "int")    before[v.name] = QString::number(CflatValueAs(val, int));
+        if (v.type == "int")    before[v.name] = QString::number(CflatValueAs(val, int));
         else if (v.type == "float")  before[v.name] = QString::number(CflatValueAs(val, float));
-        else if (v.type == "double") before[v.name] = QString::number(CflatValueAs(val, double));
+        else if (v.type == "char") {
+            int ascii = CflatValueAs(val, int);
+            before[v.name] = QString(QChar(ascii));
+        }
     }
+
+    QString replaced = processed;
 
     // find all output() calls and collect output names
     QStringList outputNames;
@@ -648,8 +681,22 @@ void PetriScene::executeAction(const QString& action) {
             outputNames.append(name);
     }
 
+    // handle string literal outputs separately: output("name", "string")
+    QMap<QString,QString> stringOutputs;
+    QRegularExpression routStr("output\\(\"([^\"]+)\"\\s*,\\s*\"([^\"]*)\"\\)\\s*;?");
+    QRegularExpressionMatch ms;
+    while ((ms = routStr.match(replaced)).hasMatch()) {
+        QString outName = ms.captured(1);
+        QString strVal  = ms.captured(2);
+        if (!outputNames.contains(outName))
+            outputNames.append(outName);
+        // store the string value directly, skip Cflat entirely
+        stringOutputs[outName] = strVal;
+        // remove from replaced so the numeric loop doesn't process it
+        replaced.remove(ms.captured(0));
+    }
+
     // replace output("name", expr) with __out_name = (expr)
-    QString replaced = processed;
     QRegularExpression routFull("output\\(\"([^\"]+)\"\\s*,\\s*(.+?)\\)\\s*;?");
     QRegularExpressionMatch m;
     while ((m = routFull.match(replaced)).hasMatch()) {
@@ -669,7 +716,7 @@ void PetriScene::executeAction(const QString& action) {
 
     QString globalDecls;
     for (const QString& name : outputNames) {
-        globalDecls += "int __out_" + name + "_" + QString::number(currentCounter) + " = 0;\n";
+        globalDecls += "float __out_" + name + "_" + QString::number(currentCounter) + " = 0;\n";
         globalDecls += "int __out_" + name + "_" + QString::number(currentCounter) + "_set = 0;\n";
     }
 
@@ -695,19 +742,31 @@ void PetriScene::executeAction(const QString& action) {
         if (!val) continue;
 
         QString after;
-        if (v.type == "bool")        after = CflatValueAs(val, bool) ? "true" : "false";
-        else if (v.type == "int")    after = QString::number(CflatValueAs(val, int));
+        if (v.type == "int")    after = QString::number(CflatValueAs(val, int));
         else if (v.type == "float")  after = QString::number(CflatValueAs(val, float));
-        else if (v.type == "double") after = QString::number(CflatValueAs(val, double));
+        else if (v.type == "char") {
+                int ascii = CflatValueAs(val, int);
+                after = QString(QChar(ascii));
+            }
 
         if (before.contains(v.name) && before[v.name] != after) {
             log("VARIABLE: " + v.name + " " + before[v.name] + "->" + after, 2);
             changedVars.append({v.name, after});
+
+            // update initialValue so it persists across runs
+            for (auto& sv : variables)
+                if (sv.name == v.name) { sv.initialValue = after; break; }
         }
     }
     // emit after all processing is done
     for (auto& c : changedVars)
         emit variableChanged(c.first, c.second);
+
+    // emit string outputs
+    for (auto it = stringOutputs.begin(); it != stringOutputs.end(); ++it) {
+        log("OUTPUT: " + it.key() + " = " + it.value(), 2);
+        emit outputEmitted(it.key(), it.value());
+    }
 
     // read back output values
     for (const QString& name : outputNames) {
@@ -716,11 +775,18 @@ void PetriScene::executeAction(const QString& action) {
         if (!flag || CflatValueAs(flag, int) == 0) continue;
         Cflat::Value* val = env->getVariable(varName.toStdString().c_str());
         if (!val) continue;
-        QString strVal = QString::number(CflatValueAs(val, int));
+
+        // convert to string
+        float floatVal = CflatValueAs(val, float);
+        QString strVal;
+        if (floatVal == (float)(int)floatVal)
+            strVal = QString::number((int)floatVal); // no decimal part, show as int
+        else
+            strVal = QString::number(floatVal, 'g', 6); // has decimal, show as float
+
         log("OUTPUT: " + name + " = " + strVal, 2);
         emit outputEmitted(name, strVal);
     }
-
 }
 
 
