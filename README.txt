@@ -32,6 +32,10 @@ Simulácia siete:
 * Podpora všetkých vstavaných funkcii inskripčného jazyka vyžadovaných základným zadaním
 * Interpretácia inskripčného jazyka pomocou knižnice CFlat
 
+Výber implementácie vo funckiách:
+* defined("in_name") - či bol vstup nastavený od posledného spracovania
+* elapsed("place") - od poslednej zmeny počtu tokenov
+
 
 Neimplementovaná funkcionalita a odklony od zadania
 ---------------------------------------------------
