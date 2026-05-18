@@ -1,3 +1,10 @@
+// ------------------------------
+// properties_dialog.cpp
+//
+// Author:
+// Richard Henček (xhencer00)
+// ------------------------------
+
 #include "properties_dialog.h"
 #include <QFormLayout>
 #include <QSpinBox>

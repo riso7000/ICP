@@ -1,0 +1,123 @@
+{
+    "1:petri_net_name": "",
+    "2:comment": "",
+    "3:inputs": [
+        "in"
+    ],
+    "4:outputs": [
+        "out"
+    ],
+    "5:variables": [
+        {
+            "initial_val": "5000",
+            "var_name": "timeout",
+            "var_type": "int"
+        }
+    ],
+    "6:places": [
+        {
+            "initial_tokens": 1,
+            "place_name": "IDLE",
+            "pos_x": 240,
+            "pos_y": 701
+        },
+        {
+            "initial_tokens": 0,
+            "place_name": "ACTIVE",
+            "pos_x": 790,
+            "pos_y": 532
+        },
+        {
+            "initial_tokens": 0,
+            "place_name": "TIMING",
+            "pos_x": 788,
+            "pos_y": 855
+        }
+    ],
+    "7:transitions": [
+        {
+            "do": "",
+            "in_transition": [
+                {
+                    "place_name": "TIMING",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "IDLE",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 461,
+            "pos_y": 894,
+            "transition_name": "T_timeout_off",
+            "when_bool": "",
+            "when_delay": 5000,
+            "when_input": ""
+        },
+        {
+            "do": "",
+            "in_transition": [
+                {
+                    "place_name": "IDLE",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "ACTIVE",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 495,
+            "pos_y": 512,
+            "transition_name": "T_on",
+            "when_bool": "atoi(valueof(\"in\")) == 1",
+            "when_delay": 0,
+            "when_input": "in"
+        },
+        {
+            "do": "",
+            "in_transition": [
+                {
+                    "place_name": "ACTIVE",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "TIMING",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 1077,
+            "pos_y": 705,
+            "transition_name": "T_off_start",
+            "when_bool": "atoi(valueof(\"in\")) == 0",
+            "when_delay": 0,
+            "when_input": "in"
+        },
+        {
+            "do": "",
+            "in_transition": [
+                {
+                    "place_name": "TIMING",
+                    "tokens": 1
+                }
+            ],
+            "out_transition": [
+                {
+                    "place_name": "ACTIVE",
+                    "tokens": 1
+                }
+            ],
+            "pos_x": 561,
+            "pos_y": 707,
+            "transition_name": "T_cancel_off",
+            "when_bool": "atoi(valueof(\"in\")) == 1",
+            "when_delay": 0,
+            "when_input": "in"
+        }
+    ]
+}

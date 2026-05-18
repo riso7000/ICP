@@ -1,3 +1,10 @@
+// ------------------------------
+// arc.h
+//
+// Author:
+// Richard Henček (xhencer00)
+// ------------------------------
+
 #ifndef ARC_H
 #define ARC_H
 

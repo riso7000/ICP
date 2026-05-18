@@ -1,8 +1,9 @@
-/**
- * @file net_def_io.cpp
- * @authors xvargas00
- * @brief Implements interface for handling network definition files.
- */
+// ------------------------------
+// net_def_io.cpp
+//
+// Author:
+// Šimon Varga (xvargas00)
+// ------------------------------
 
 #include "net_def_io.hpp"
 #include "arc.h"

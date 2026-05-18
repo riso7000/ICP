@@ -1,3 +1,11 @@
+// ------------------------------
+// petriscene.cpp
+//
+// Authors:
+// Richard Henček (xhencer00)
+// Šimon Varga (xvargas00)
+// ------------------------------
+
 #include "petriscene.h"
 #include <QGraphicsRectItem>
 #include <QPen>

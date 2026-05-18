@@ -1,3 +1,10 @@
+// ------------------------------
+// transition.h
+//
+// Author:
+// Richard Henček (xhencer00)
+// ------------------------------
+
 #ifndef TRANSITION_H
 #define TRANSITION_H
 

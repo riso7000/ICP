@@ -1,3 +1,10 @@
+// ------------------------------
+// place.cpp
+//
+// Author:
+// Richard Henček (xhencer00)
+// ------------------------------
+
 #include <QGraphicsScene>
 #include <QSpinBox>
 #include <QStyleOptionGraphicsItem>

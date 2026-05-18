@@ -1,3 +1,11 @@
+// ------------------------------
+// petriscene.h
+//
+// Authors:
+// Richard Henček (xhencer00)
+// Šimon Varga (xvargas00)
+// ------------------------------
+
 #ifndef PETRISCENE_H
 #define PETRISCENE_H
 
