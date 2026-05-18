@@ -133,7 +133,7 @@ int read_netdef(QString path, PetriScene& net) {
         Transition* tr = new Transition(name, 0);
         tr->eventName = when_in;
         tr->guard = when_bool;
-        tr->delay_ms = when_delay;
+        tr->delayMs = when_delay;
         tr->action = do_action;
         tr->setPos(pos_x, pos_y);
 
@@ -157,7 +157,7 @@ int read_netdef(QString path, PetriScene& net) {
 
             if (src_pl) {
                 Arc* inarc = new Arc(src_pl, tr, weight);
-                tr->input_arcs.push_back(inarc);
+                tr->inputArcs.push_back(inarc);
                 net.addItem(inarc);
             }
         }
@@ -179,7 +179,7 @@ int read_netdef(QString path, PetriScene& net) {
 
             if (dest_pl) {
                 Arc* outarc = new Arc(tr, dest_pl, weight);
-                tr->output_arcs.push_back(outarc);
+                tr->outputArcs.push_back(outarc);
                 net.addItem(outarc);
             }
         }
@@ -260,11 +260,11 @@ int write_netdef(QString path, PetriScene& net) {
         QJsonValue posy(tr->y());
         QJsonValue when_in(tr->eventName);
         QJsonValue when_bool(tr->guard);
-        QJsonValue when_delay(tr->delay_ms);
+        QJsonValue when_delay(tr->delayMs);
         QJsonValue do_action(tr->action);
 
         // Arcs in
-        for (const Arc* arc : tr->input_arcs) {
+        for (const Arc* arc : tr->inputArcs) {
             QJsonObject arc_obj;
             QJsonValue weight(arc->getWeight());
             Place *src = dynamic_cast<Place*>(arc->getSource());
@@ -282,7 +282,7 @@ int write_netdef(QString path, PetriScene& net) {
         }
 
         // Arcs out
-        for (const Arc* arc : tr->output_arcs) {
+        for (const Arc* arc : tr->outputArcs) {
             QJsonObject arc_obj;
             QJsonValue weight(arc->getWeight());
             Place *dest = dynamic_cast<Place*>(arc->getDest());

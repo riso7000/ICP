@@ -30,15 +30,15 @@ public:
     QString getName() const { return name; }
     void setAvailability(Availability_enum a) { availability = a; update(); }
 
-    std::vector<Arc*> input_arcs;
-    std::vector<Arc*> output_arcs;
+    std::vector<Arc*> inputArcs;
+    std::vector<Arc*> outputArcs;
 
 
-    int delay_ms; // 0 means immediate (no timer)
+    int delayMs; // 0 means immediate (no timer)
     QTimer* timer; // null if not scheduled
 
-    bool isImmediate() const { return delay_ms == 0; }
-    void setDelay(int ms) { delay_ms = ms; }
+    bool isImmediate() const { return delayMs == 0; }
+    void setDelay(int ms) { delayMs = ms; }
 
     QString guard;
     QString eventName; // empty = fires freely; non-empty = only on this event

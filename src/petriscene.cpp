@@ -410,7 +410,6 @@ void PetriScene::cancelTimer(Transition* t) {
 bool PetriScene::evaluateGuard(const QString& guard) {
     if (guard.isEmpty()) return true;
     QString processed = preprocessCode(guard);
-    qDebug() << "Guard after preprocessing:" << processed;
 
     int guardCounter = 0;
     std::string scriptName = "guard_" + std::to_string(guardCounter++);
@@ -431,7 +430,6 @@ bool PetriScene::evaluateGuard(const QString& guard) {
         return false;
     }
     bool val = CflatValueAs(result, bool);
-    qDebug() << "Checked guard:" << guard << "got result:" << (val ? "true" : "false");
     return CflatValueAs(result, bool);
 }
 
@@ -481,7 +479,6 @@ void PetriScene::startRun() {
 
     std::string code;
     for (auto& v : variables) {
-        qDebug() << "startRun loading:" << v.type << v.name << "=" << v.initialValue;
 
         if (v.type == "float") {
             code += "float " + v.name.toStdString() + " = " + v.initialValue.toString().toStdString() + ";\n";
@@ -532,10 +529,6 @@ void PetriScene::stopRun() {
 
 
 void PetriScene::rebuildCflatEnvironment() {
-    if (currentMode == RunMode) {
-            qDebug() << "WARNING: rebuildCflatEnvironment called in RunMode, ignoring";
-            return;
-        }
     if (currentMode == EditMode) {
         delete env;
         env = new Cflat::Environment();
@@ -736,7 +729,6 @@ void PetriScene::executeAction(const QString& action) {
                           innerCode.toStdString() +
                           "\n}\n__action();";
 
-    //qDebug() << "Final action code:" << QString::fromStdString(wrapped);
 
     if (!env->load(scriptName.c_str(), wrapped.c_str())) {
         qDebug() << "Action failed:" << env->getErrorMessage();
