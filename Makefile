@@ -1,5 +1,5 @@
 TARGET = petri-net-ed
-LOGIN = xhencer00
+LOGIN = xhencer00-xvargas00
 
 .PHONY: all run doxygen clean pack
 
@@ -17,7 +17,7 @@ clean:
 	rm -rf build
 	rm -f $(TARGET)
 	rm -rf doc
-	rm -f $(LOGIN).tgz
+	rm -f $(LOGIN).zip
 
 pack: clean
-	tar -czf $(LOGIN).tgz src/ third_party/ res/ CMakeLists.txt Makefile Doxyfile
+	zip -r $(LOGIN).zip src/ third_party/ res/ /examples CMakeLists.txt Makefile Doxyfile NOTICE LICENCE
