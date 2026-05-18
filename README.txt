@@ -33,11 +33,18 @@ Simulácia siete:
 * Interpretácia inskripčného jazyka pomocou knižnice CFlat
 
 Výber implementácie vo funckiách:
-* defined("in_name") - či bol vstup nastavený od posledného spracovania
-* elapsed("place") - od poslednej zmeny počtu tokenov
+* defined("in_name") - vracia pravdivostnú hodnotu, či bol vstup nastavený od posledného spracovania
+* elapsed("place") - bola implementovaná ako čas od poslednej zmeny počtu tokenov
 
 
 Neimplementovaná funkcionalita a odklony od zadania
 ---------------------------------------------------
 
 Interpretácia siete bola na začiatku vývoja koncipovaná úzkym prepojením s grafickou reprezentáciou, čo postupne viedlo k odklonu od zadaním vyžadovaného generovania interpretu siete a v konečnom dôsledku je interpretácia siete uskutočňovaná hlavným programom.
+
+
+Knižnice tretích strán
+----------------------
+
+V projekte bola použitá knižnica od tretích strán CFlat, ktorá je uložená v adresári ./third_party/Cflat/* a je verejne dostupná na:
+https://github.com/arturocepeda/Cflat/tree/master
