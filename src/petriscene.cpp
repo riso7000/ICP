@@ -685,9 +685,9 @@ QString PetriScene::preprocessCode(const QString& code) {
             if (i.name == inputName) {
                 val = (int)i.value.toDouble(); break;
             }
-
-            result.replace(m.captured(0), QString::number(val));
         }
+
+        result.replace(m.captured(0), QString::number(val));
     }
 
     // valueof("name") -> string value (as integer for Cflat)
@@ -701,9 +701,9 @@ QString PetriScene::preprocessCode(const QString& code) {
             if (i.name == inputName) {
                 val = i.value; break;
             }
-
-            result.replace(m.captured(0), val);
         }
+
+        result.replace(m.captured(0), val);
     }
 
     // defined("name") -> true/false
@@ -717,9 +717,9 @@ QString PetriScene::preprocessCode(const QString& code) {
             if (i.name == inputName) {
                 def = i.defined; break;
             }
-
-            result.replace(m.captured(0), def ? "true" : "false");
         }
+
+        result.replace(m.captured(0), def ? "true" : "false");
     }
 
     // tokens("place_name") -> int
@@ -733,9 +733,9 @@ QString PetriScene::preprocessCode(const QString& code) {
             if (p->name == placeName) {
                 val = p->getTokens(); break;
             }
-
-            result.replace(m.captured(0), QString::number(val));
         }
+
+        result.replace(m.captured(0), QString::number(val));
     }
 
     // elapsed("place_name") -> ms since last token change
