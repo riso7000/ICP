@@ -583,7 +583,7 @@ void PetriScene::startRun() {
         }
     }
 
-    env->load("vars", code.c_str());
+    if (!code.empty()) env->load("vars", code.c_str());
 }
 
 
@@ -646,7 +646,7 @@ void PetriScene::rebuildCflatEnvironment() {
         }
     }
 
-    env->load("vars", code.c_str());
+    if (!code.empty()) env->load("vars", code.c_str());
 }
 
 

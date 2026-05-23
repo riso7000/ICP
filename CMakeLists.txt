@@ -43,3 +43,7 @@ target_link_libraries(petri-net-ed
 target_include_directories(petri-net-ed PRIVATE
     third_party/Cflat
 )
+
+target_link_options(petri-net-ed PRIVATE 
+    -static-libstdc++
+)
